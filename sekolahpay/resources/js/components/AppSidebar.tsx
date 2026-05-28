@@ -2,13 +2,13 @@ import { Link, usePage } from '@inertiajs/react';
 import React from 'react';
 import { LayoutDashboard, Receipt, Users, FileText, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ThemeToggle } from './ThemeToggle';
 
 const menuItems = [
-    { label: 'Dashboard', icon: LayoutDashboard, route: 'dashboard' },
-    { label: 'Manajemen Tagihan', icon: Receipt, route: 'tagihan.index' },
-    { label: 'User Admin', icon: Users, route: 'user-admin.index' },
-    { label: 'Laporan', icon: FileText, route: 'report.index' },
-    { label: 'Log Out', icon: LogOut, route: 'logout' },
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', href: '/dashboard' },
+    { label: 'Manajemen Tagihan', icon: Receipt, path: '/tagihan', href: '/tagihan' },
+    { label: 'User Admin', icon: Users, path: '/user-admin', href: '/user-admin' },
+    { label: 'Laporan', icon: FileText, path: '/report', href: '/report' },
 ];
 
 export function AppSidebar() {
@@ -17,17 +17,19 @@ export function AppSidebar() {
     return (
         <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
             <div className="p-4 border-b border-sidebar-border">
-                <h1 className="text-lg font-bold text-sidebar-foreground tracking-tight">SEKOLAH<span className="text-sidebar-primary">PAY</span></h1>
+                <div className="flex items-center justify-between mb-1">
+                    <h1 className="text-lg font-bold text-sidebar-foreground tracking-tight">SEKOLAH<span className="text-sidebar-primary">PAY</span></h1>
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">Selamat datang di Sistem Pembayaran SekolahPay</p>
             </div>
 
             <nav className="flex-1 p-3 space-y-1 overflow-auto">
                 {menuItems.map((item) => {
-                    const isActive = route().current(item.route);
+                    const isActive = url.startsWith(item.path);
                     return (
                         <Link
-                        key={item.route}
-                        href={route(item.route)}
+                        key={item.label}
+                        href={item.href}
                         className={cn(
                             'flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors',
                             isActive
@@ -42,9 +44,9 @@ export function AppSidebar() {
                 })}
             </nav>
 
-            <div className="p-3 border-t border-sidebar-border">
+            <div className="flex p-3 border-t border-sidebar-border justify-between items-center">
                 <Link
-                href={route('logout')}
+                href="/logout"
                 method='POST'
                 as="button"
                 className="flex w-full items-center gap-3 px-3 py-2 rounded-md font-medium text-destructive hover:bg-destructive/10 transition-colors"
@@ -52,6 +54,7 @@ export function AppSidebar() {
                     <LogOut className="w-4 h-4" />
                     Keluar
                 </Link>
+                <ThemeToggle />
             </div>
         </aside>
     );

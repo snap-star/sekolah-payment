@@ -16,9 +16,9 @@ export default function Login() {
         password: "",
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        post(route("login"));
+        post("/login");
     };
 
     return (

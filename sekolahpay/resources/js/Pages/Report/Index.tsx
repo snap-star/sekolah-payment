@@ -59,7 +59,7 @@ export default function ReportIndex() {
                         <CardContent>
                             <div className="text-xl font-bold">
                                 {formatRupiah(
-                                    summary.total_tagihan_keseluruhan,
+                                    summary?.total_tagihan_keseluruhan || 0,
                                 )}
                             </div>
                         </CardContent>
@@ -72,7 +72,7 @@ export default function ReportIndex() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-xl font-bold text-primary">
-                                {formatRupiah(summary.total_terbayar)}
+                                {formatRupiah(summary?.total_terbayar || 0)}
                             </div>
                         </CardContent>
                     </Card>
@@ -84,7 +84,7 @@ export default function ReportIndex() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-xl font-bold text-destructive">
-                                {formatRupiah(summary.total_kekurangan)}
+                                {formatRupiah(summary?.total_kekurangan || 0)}
                             </div>
                         </CardContent>
                     </Card>
@@ -96,7 +96,7 @@ export default function ReportIndex() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-xl font-bold">
-                                {summary.persentase_pembayaran}%
+                                {summary?.persentase_pembayaran || 0}%
                             </div>
                         </CardContent>
                     </Card>
@@ -129,7 +129,7 @@ export default function ReportIndex() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {reports.map((r) => (
+                                {(reports || []).map((r) => (
                                     <TableRow key={r.id}>
                                         <TableCell>
                                             <div className="font-medium">

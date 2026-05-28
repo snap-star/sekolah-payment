@@ -1,5 +1,5 @@
 import Layout from '@/Components/Layout';
-import { StatCard } from '@/Components/StatCard';
+import { StatCard } from '@/Components/StatCards';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
@@ -7,22 +7,22 @@ import { usePage } from '@inertiajs/react';
 
 interface DashboardProps {
   stats: {
-    total_tunggakan: number;
-    total_terbayar_bulan_ini: number;
+    total_hutang: number;
+    total_terbayarkan_bulan_ini: number;
     jumlah_siswa_menunggak: number;
     total_transaksi_hari_ini: number;
   };
-  rekap_per_bulan: Array<<{
+  rekap_per_bulan: Array<{
     bulan: string;
     terbayar: number;
     tunggakan: number;
   }>;
-  jenis_tagihan_breakdown: Array<<{
+  jenis_tagihan_breakdown: Array<{
     nama: string;
     total: number;
     terbayar: number;
   }>;
-  recent_transactions: Array<<{
+  recent_transactions: Array<{
     id: string;
     siswa: string;
     kelas: string;
@@ -49,8 +49,8 @@ export default function Dashboard() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="Total Tunggakan" value={formatRupiah(stats.total_tunggakan)} subtitle="Seluruh siswa" />
-          <StatCard title="Terbayar Bulan Ini" value={formatRupiah(stats.total_terbayar_bulan_ini)} subtitle="Mei 2026" className="border-l-4 border-l-primary" />
+          <StatCard title="Total Tunggakan" value={formatRupiah(stats.total_hutang)} subtitle="Seluruh siswa" />
+          <StatCard title="Terbayar Bulan Ini" value={formatRupiah(stats.total_terbayarkan_bulan_ini)} subtitle="Mei 2026" className="border-l-4 border-l-primary" />
           <StatCard title="Siswa Menunggak" value={stats.jumlah_siswa_menunggak.toString()} subtitle="Perlu perhatian" className="border-l-4 border-l-destructive" />
           <StatCard title="Transaksi Hari Ini" value={stats.total_transaksi_hari_ini.toString()} subtitle="Via QRIS" />
         </div>
@@ -62,7 +62,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {rekap_per_bulan.map((item) => (
+                {(rekap_per_bulan || []).map((item) => (
                   <div key={item.bulan} className="flex items-center justify-between">
                     <span className="text-sm font-medium">{item.bulan}</span>
                     <div className="flex gap-4 text-xs">
@@ -81,7 +81,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {jenis_tagihan_breakdown.map((item) => {
+                {(jenis_tagihan_breakdown || []).map((item) => {
                   const percent = Math.round((item.terbayar / item.total) * 100);
                   return (
                     <div key={item.nama}>
@@ -116,7 +116,7 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recent_transactions.map((trx) => (
+                {(recent_transactions || []).map((trx) => (
                   <TableRow key={trx.id}>
                     <TableCell className="font-mono text-xs">{trx.id}</TableCell>
                     <TableCell>

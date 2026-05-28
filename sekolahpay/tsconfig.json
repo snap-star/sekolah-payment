@@ -2,6 +2,10 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "moduleResolution": "bundler",
-    "resolvePackageJsonImports": true
+    "resolvePackageJsonImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["resources/js/*"]
+    }
   }
 }

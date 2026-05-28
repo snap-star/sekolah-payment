@@ -316,7 +316,7 @@ export default function TagihanIndex() {
                                         <TableCell>
                                             {t.qris_string ? (
                                                 <div className="space-y-1">
-                                                    <p className="text-xs font-mono truncate max-w-[140px]">
+                                                    <p className="text-xs font-mono truncate max-w-35">
                                                         {t.qris_string.substring(
                                                             0,
                                                             20,

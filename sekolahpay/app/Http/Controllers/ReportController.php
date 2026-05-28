@@ -17,8 +17,8 @@ class ReportController extends Controller
                     'jenis_tagihan' => 'SPP Bulanan',
                     'periode' => 'Mei 2026',
                     'nominal_tagihan' => 1500000,
-                    'total_dibayarkan' => 1500000,
-                    'kekurangan_bayar' => 0,
+                    'total_dibayar' => 1500000,
+                    'kekurangan' => 0,
                     'status' => 'Lunas',
                     'riwayat_pembayaran' => [
                         ['tanggal' => '2026-05-29', 'nominal' => 1500000, 'metode'=> 'QRIS', 'ref'=> 'TRX-001'],
@@ -30,8 +30,8 @@ class ReportController extends Controller
                     'jenis_tagihan' => 'SPP Bulanan',
                     'periode' => 'Mei 2026',
                     'nominal_tagihan' => 1200000,
-                    'total_dibayarkan' => 0,
-                    'kekurangan_bayar' => 1200000,
+                    'total_dibayar' => 0,
+                    'kekurangan' => 1200000,
                     'status' => 'hutang',
                     'riwayat_pembayaran' => [
                         [],
@@ -43,8 +43,8 @@ class ReportController extends Controller
                     'jenis_tagihan' => 'Uang Pangkal',
                     'periode' => '2026/2027',
                     'nominal_tagihan' => 5000000,
-                    'total_dibayarkan' => 2000000,
-                    'kekurangan_bayar' => 3000000,
+                    'total_dibayar' => 2000000,
+                    'kekurangan' => 3000000,
                     'status' => 'belum_lunas',
                     'riwayat_pembayaran' => [
                         ['tanggal' => '2026-04-10', 'nominal' => 1000000, 'metode'=> 'QRIS', 'ref'=> 'TRX-002'],
@@ -57,8 +57,8 @@ class ReportController extends Controller
                     'jenis_tagihan' => 'SPP Bulanan',
                     'periode' => 'Mei 2026',
                     'nominal_tagihan' => 1500000,
-                    'total_dibayarkan' => 1500000,
-                    'kekurangan_bayar' => 0,
+                    'total_dibayar' => 1500000,
+                    'kekurangan' => 0,
                     'status' => 'belum_lunas',
                     'riwayat_pembayaran' => [
                         ['tanggal' => '2026-05-10', 'nominal' => 1000000, 'metode'=> 'QRIS', 'ref'=> 'TRX-001'],
@@ -70,23 +70,23 @@ class ReportController extends Controller
                     'jenis_tagihan' => 'Uang Buku',
                     'periode' => 'Semester 1 2026',
                     'nominal_tagihan' => 750000,
-                    'total_dibayarkan' => 200000,
-                    'kekurangan_bayar' => 550000,
+                    'total_dibayar' => 200000,
+                    'kekurangan' => 550000,
                     'status' => 'belum_lunas',
                     'riwayat_pembayaran' => [
                         ['tanggal' => '2026-03-10', 'nominal' => 200000, 'metode'=> 'QRIS', 'ref'=> 'TRX-002'],
                     ],
                 ],
-                'summary' => [
-                    'total_tagihan__keseluruhan' => 25000000,
-                    'total_terbayar' => 12000000,
-                    'total_kekurangan_bayar' => 13000000,
-                    'presentase_pembayaran' => 48,
-                ],
-                'kelas_options' => ['XI IPA 1','XI IPA 2','XII IPA 1','XII IPA 2','XI IPA 3','XI IPA 4', 'XII IPA 1', 'XII IPA 2', 'XI IPA 3', 'XI IPA 4', 'XIII IPA 1', 'XIII IPA 2', 'XIII IPA 3', 'XIII IPA 4'],
-                'periode_options' => ['Mei 2026','Juni 2026','Juli 2026','Agustus 2026','September 2026','Oktober 2026','Novemberember 2026','Desember 2026'],
-                'jenis_tagihan_options' => ['SPP Bulanan','Uang Pangkal','Uang Buku', 'Uang Kegiatan', 'Uang Seragam'],
             ],
+            'summary' => [
+                'total_tagihan_keseluruhan' => 25000000,
+                'total_terbayar' => 12000000,
+                'total_kekurangan' => 13000000,
+                'persentase_pembayaran' => 48,
+            ],
+            'kelas_options' => ['XI IPA 1','XI IPA 2','XII IPA 1','XII IPA 2','XI IPA 3','XI IPA 4', 'XII IPA 1', 'XII IPA 2', 'XI IPA 3', 'XI IPA 4', 'XIII IPA 1', 'XIII IPA 2', 'XIII IPA 3', 'XIII IPA 4'],
+            'periode_options' => ['Mei 2026','Juni 2026','Juli 2026','Agustus 2026','September 2026','Oktober 2026','Novemberember 2026','Desember 2026'],
+            'jenis_tagihan_options' => ['SPP Bulanan','Uang Pangkal','Uang Buku', 'Uang Kegiatan', 'Uang Seragam'],
         ]);
     }
 }

@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate']);
 
-// Authenticated
-Route::middleware('auth')->group(function () {
+// Authenticated with mock auth
+Route::middleware(\App\Http\Middleware\CheckMockAuth::class)->group(function () {
     Route::get('/', fn() => redirect()->route('dashboard'));
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

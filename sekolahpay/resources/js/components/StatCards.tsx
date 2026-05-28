@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { cn } from '@/lib/utils';
 
 interface StatCardProps {

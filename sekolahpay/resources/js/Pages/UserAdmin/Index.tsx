@@ -26,7 +26,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/Components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card";
 import { toast } from "sonner";
 
 interface UserAdmin {
@@ -211,6 +211,68 @@ export default function UserAdminIndex() {
                         </Table>
                     </CardContent>
                 </Card>
+                <div className="mt-4">
+                    <Card className="border-border">
+                        <CardHeader>
+                            <CardTitle className="text-sm font-medium">
+                                Daftar User Non-Admin / Siswa dan Wali Murid
+                            </CardTitle>
+                            <CardDescription className="text-xs text-muted-foreground">
+                                Daftar user non-admin yang terdaftar di sistem.
+                            </CardDescription>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Nama</TableHead>
+                                            <TableHead>Email</TableHead>
+                                            <TableHead>Role</TableHead>
+                                            <TableHead>No. HP</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead>Terakhir Login</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {users.map((u) => (
+                                            <TableRow key={u.id}>
+                                                <TableCell className="font-medium">
+                                                    {u.nama}
+                                                </TableCell>
+                                                <TableCell className="text-xs">
+                                                    {u.email}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant="outline">
+                                                        {u.role.replace("_", " ")}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-xs">
+                                                    {u.no_hp}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge
+                                                        variant={
+                                                            u.aktif
+                                                                ? "default"
+                                                                : "secondary"
+                                                        }
+                                                    >
+                                                        {u.aktif
+                                                            ? "Aktif"
+                                                            : "Nonaktif"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-xs text-muted-foreground">
+                                                    {u.terakhir_login}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </CardHeader>
+                    </Card>
+                </div>
             </div>
         </Layout>
     );

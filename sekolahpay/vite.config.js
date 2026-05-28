@@ -7,11 +7,21 @@ import path from 'path';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.tsx'],
+            input: ['./resources/css/app.css', './resources/js/app.tsx', './resources/js/app.jsx'],
             refresh: true,
         }),
         tailwindcss(),
-        react(),
+        react({
+            include: /\.(jsx|tsx|js)$/,
+            runtimeDom: true,
+            jsx: 'react-jsx',
+            jsxRuntime: 'automatic',
+            tsx: true,
+            typescript: true,
+            tsconfig: './tsconfig.json',
+            fastRefresh: false,
+            bundleDev: true,
+        }),
     ],
     resolve: {
         alias: {
