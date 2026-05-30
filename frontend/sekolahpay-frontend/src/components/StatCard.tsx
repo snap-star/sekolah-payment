@@ -10,13 +10,13 @@ interface StatCardProps {
 
 export function StatCard({ title, value, subtitle, className }: StatCardProps) {
   return (
-    <Card className={cn('border-border', className)}>
-      <CardHeader className="pb-2">
+    <Card className={cn('gemini-stat-card', className)}>
+      <CardHeader className="pb-3 px-0 pt-0">
         <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-foreground">{value}</div>
-        {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
+      <CardContent className="px-0 pb-0">
+        <div className="text-3xl font-bold text-foreground tracking-tight">{value}</div>
+        {subtitle && <p className="text-sm text-muted-foreground mt-2">{subtitle}</p>}
       </CardContent>
     </Card>
   );

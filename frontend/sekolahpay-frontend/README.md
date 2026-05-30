@@ -1,73 +1,149 @@
-# React + TypeScript + Vite
+# SekolahPay Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, premium school payment management system frontend built with React, TypeScript, and a Google Gemini-inspired UI design.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Premium Gemini-Inspired UI**: Flat/material design with smooth animations and a teal/blue color palette
+- **Dashboard Analytics**: Real-time statistics and payment tracking
+- **Payment Management**: Handle student payments, invoices, and transaction records
+- **User Administration**: Manage admin users and student data
+- **Reporting**: Generate payment reports and financial summaries
+- **Dark/Light Mode**: Full theme support with smooth transitions
+- **Responsive Design**: Works seamlessly across desktop and mobile devices
 
-## React Compiler
+## 🚀 Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19** with TypeScript
+- **Vite** for fast development and building
+- **Tailwind CSS 4** for styling
+- **shadcn/ui** for accessible UI components
+- **React Router 7** for navigation
+- **TanStack Query** for data fetching
+- **Lucide React** for icons
+- **Axios** for API communication
+- **pnpm** as package manager
 
-## Expanding the ESLint configuration
+## 📦 Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. Install dependencies:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Set up environment variables:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+## VITE_API_URL=http://localhost:8000/api
 ```
+
+3. Start the development server:
+
+```bash
+pnpm dev
+```
+
+## 🛠️ Available Scripts
+
+```bash
+# Development server
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Lint code
+pnpm lint
+
+# Preview production build
+pnpm preview
+```
+
+## 📁 Project Structure
+
+```
+src/
+├── components/          # React components
+│   ├── ui/             # shadcn/ui components
+│   ├── AppSidebar.tsx  # Sidebar navigation
+│   ├── Layout.tsx      # Main layout wrapper
+│   ├── StatCard.tsx    # Dashboard statistics card
+│   └── ThemeToggle.tsx # Theme switcher
+├── pages/              # Page components
+│   ├── Dashboard.tsx   # Main dashboard
+│   ├── Login.tsx       # Authentication page
+│   ├── Tagihan.tsx     # Payment/invoice management
+│   ├── Report.tsx      # Reports and analytics
+│   └── UserAdmin.tsx   # User administration
+├── hooks/              # Custom React hooks
+│   └── useAuth.ts      # Authentication hook
+├── lib/                # Utility libraries
+│   ├── api.ts          # API client setup
+│   └── utils.ts        # Helper functions
+├── types/              # TypeScript type definitions
+│   └── index.ts        # Shared interfaces
+└── index.css           # Global styles with Gemini design system
+```
+
+## 🎨 Design System
+
+The application features a Google Gemini-inspired design system with:
+
+- Flat, material design aesthetics (no gradients)
+- Smooth cubic-bezier animations for all transitions
+- Staggered loading animations for dashboard elements
+- Teal/blue color palette with soft blue undertones
+- Oklch color format for consistent light/dark mode
+- Centralized styling in `src/index.css` for easy maintenance
+
+### Key CSS Classes
+
+- `gemini-surface`: Main surface background
+- `gemini-stat-card`: Dashboard statistic cards
+- `gemini-card`: General card container
+- `animate-gemini-fade-in`: Fade in animation
+- `animate-gemini-slide-up`: Slide up animation
+- `animate-gemini-spin`: Loading spinner animation
+
+## 🔐 Type Safety
+
+Full TypeScript support with strict type checking. No `any` types used - all data structures are properly typed.
+
+## 📄 Core Data Types
+
+### Tagihan (Invoice)
+
+```typescript
+interface Tagihan {
+  id: number;
+  siswa: Siswa;
+  jenis: string;
+  nominal_asli: number;
+  nominal_disesuaikan: number;
+  periode: string;
+  status: 'lunas' | 'menunggak' | 'belum_lunas';
+  // ... additional properties
+}
+```
+
+### Dashboard Statistics
+
+```typescript
+interface DashboardStats {
+  total_tunggakan: number;
+  total_terbayar_bulan_ini: number;
+  jumlah_siswa_menunggak: number;
+  total_transaksi_hari_ini: number;
+}
+```
+
+## 🔗 Backend Integration
+
+This frontend is designed to work with a Laravel backend (included in the parent directory) for handling payment processing, user authentication, and data persistence.
+
+## 📝 License
+
+Private - All rights reserved.

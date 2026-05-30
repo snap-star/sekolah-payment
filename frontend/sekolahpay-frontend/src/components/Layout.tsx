@@ -15,8 +15,8 @@ export default function Layout() {
       </div>
       
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden lg:ml-64">
-        {/* Header */}
-        <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-background sticky top-0 z-40 backdrop-blur-sm supports-backdrop-blur:bg-background/90">
+        {/* Header - Gemini Style */}
+        <header className="lg:hidden gemini-header flex items-center justify-between px-4 py-3 sticky top-0 z-40">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden">

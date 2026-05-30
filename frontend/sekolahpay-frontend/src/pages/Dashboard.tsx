@@ -18,87 +18,104 @@ export default function Dashboard() {
     queryFn: () => mockApi.getDashboard(),
   });
 
-  if (isLoading) return <div className="p-4 select-none">
-    <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
-    <span className="select-none">Memuat...</span>
-    </div>;
+  if (isLoading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="flex items-center gap-3 text-muted-foreground">
+        <RefreshCcw className="animate-gemini-spin h-6 w-6 animate-gemini-pulse" />
+        <span className="text-lg">Memuat dashboard...</span>
+      </div>
+    </div>
+  );
+  
   const { stats, rekap_per_bulan, jenis_tagihan_breakdown, recent_transactions } = data!;
 
   return (
-    <div className="space-y-6">
-      <div className="animate-fade-in-up">
-        <h2 className="text-2xl font-bold tracking-tight dark:text-mist-200 select-none">Ringkasan Transaksi</h2>
-        <p className="text-muted-foreground select-none">Pantau pembayaran tuition secara real-time.</p>
+    <div className="space-y-8">
+      {/* Gemini-style page header */}
+      <div className="gemini-page-header animate-gemini-fade-in-up">
+        <h2 className="gemini-page-title">Ringkasan Transaksi</h2>
+        <p className="gemini-page-subtitle">Pantau pembayaran sekolah secara real-time.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 cursor-pointer">
+      {/* Statistics Cards Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatCard 
           title="Total Tunggakan" 
           value={formatRupiah(stats.total_tunggakan)} 
           subtitle="Seluruh siswa" 
-          className="animate-fade-in-up delay-100 hover-lift"
+          className="animate-gemini-fade-in-up gemini-delay-100"
         />
         <StatCard 
           title="Terbayar Bulan Ini" 
           value={formatRupiah(stats.total_terbayar_bulan_ini)} 
           subtitle="Mei 2026" 
-          className="border-l-4 border-l-primary animate-fade-in-up delay-200 hover-lift" 
+          className="animate-gemini-fade-in-up gemini-delay-200"
         />
         <StatCard 
           title="Siswa Menunggak" 
           value={String(stats.jumlah_siswa_menunggak)} 
           subtitle="Perlu perhatian" 
-          className="border-l-4 border-l-destructive animate-fade-in-up delay-300 hover-lift" 
+          className="animate-gemini-fade-in-up gemini-delay-300" 
         />
         <StatCard 
           title="Transaksi Hari Ini" 
           value={String(stats.total_transaksi_hari_ini)} 
           subtitle="Via QRIS" 
-          className="animate-fade-in-up delay-400 hover-lift dark:hover-lift" 
+          className="animate-gemini-fade-in-up gemini-delay-400"
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="border-border animate-scale-in delay-300 hover-lift">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium select-none">Rekap Bulanan </CardTitle>
+      {/* Main Dashboard Cards Grid */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="gemini-card animate-gemini-scale-in gemini-delay-300">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base font-medium">Rekap Bulanan</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-5">
               {rekap_per_bulan.map((item, index) => (
-                <div key={item.bulan} className="flex items-center justify-between select-none" style={{ animationDelay: `${(index + 1) * 100}ms` }}>
+                <div 
+                  key={item.bulan} 
+                  className="flex items-center justify-between animate-gemini-fade-in gemini-table-row rounded-lg px-3 py-2 -mx-3" 
+                  style={{ animationDelay: `${(index + 1) * 100}ms` }}
+                >
                   <span className="text-sm font-medium">{item.bulan}</span>
-                  <div className="flex gap-4 text-xs cursor-pointer">
-                    <Badge className="bg-primary items-center justify-center">
-                    <span className="text-primary-foreground">Terbayar: {formatRupiah(item.terbayar)}</span>
-                    </Badge>
-                    <Badge className="bg-red-800/20 items-center justify-center hover:bg-red-800">
-                    <span className="text-destructive hover:text-white">Tunggakan: {formatRupiah(item.tunggakan)}</span>
-                    </Badge>
+                  <div className="flex gap-3">
+                    <span className="gemini-badge gemini-badge-primary">
+                      Terbayar: {formatRupiah(item.terbayar)}
+                    </span>
+                    <span className="gemini-badge gemini-badge-pending">
+                      Tunggakan: {formatRupiah(item.tunggakan)}
+                    </span>
                   </div>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border animate-scale-in delay-400 hover-lift">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium select-none">Breakdown per Jenis Tagihan</CardTitle>
+
+        <Card className="gemini-card animate-gemini-scale-in gemini-delay-400">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base font-medium">Breakdown per Jenis Tagihan</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-5">
               {jenis_tagihan_breakdown.map((item, index) => {
                 const percent = Math.round((item.terbayar / item.total) * 100);
                 return (
-                  <div key={item.nama}>
-                    <div className="flex justify-between text-sm mb-1">
+                  <div 
+                    key={item.nama} 
+                    className="animate-gemini-fade-in gemini-table-row rounded-lg px-3 py-2 -mx-3"
+                    style={{ animationDelay: `${(index + 5) * 100}ms` }}
+                  >
+                    <div className="flex justify-between text-sm mb-3">
                       <span>{item.nama}</span>
-                      <span className="text-muted-foreground">{percent}%</span>
+                      <span className="text-muted-foreground font-medium">{percent}%</span>
                     </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="gemini-progress-bar">
                       <div 
-                        className="h-full bg-primary animate-progress" 
-                        style={{ width: `${percent}%`, animationDelay: `${(index + 5) * 100}ms` }} 
+                        className="gemini-progress-bar-fill animate-gemini-progress" 
+                        style={{ width: `${percent}%`, animationDelay: `${(index + 5) * 150}ms` }} 
                       />
                     </div>
                   </div>
@@ -109,34 +126,39 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <Card className="border-border animate-fade-in-up delay-600 hover-lift">
-        <CardHeader>
-          <CardTitle className="text-sm font-medium border-border select-none">Transaksi Terbaru</CardTitle>
+      {/* Recent Transactions Table */}
+      <Card className="gemini-card animate-gemini-fade-in-up gemini-delay-600">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base font-medium">Transaksi Terbaru</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader className="select-none">
-              <TableRow>
-                <TableHead>ID Transaksi</TableHead>
-                <TableHead>Siswa</TableHead>
-                <TableHead>Nominal</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Waktu</TableHead>
+            <TableHeader>
+              <TableRow className="border-b-2">
+                <TableHead className="font-semibold">ID Transaksi</TableHead>
+                <TableHead className="font-semibold">Siswa</TableHead>
+                <TableHead className="font-semibold">Nominal</TableHead>
+                <TableHead className="font-semibold">Status</TableHead>
+                <TableHead className="font-semibold">Waktu</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {recent_transactions.map((trx, index) => (
-                <TableRow key={trx.id} className="animate-fade-in" style={{ animationDelay: `${(index + 7) * 100}ms` }}>
+                <TableRow 
+                  key={trx.id} 
+                  className="gemini-table-row animate-gemini-fade-in" 
+                  style={{ animationDelay: `${(index + 7) * 100}ms` }}
+                >
                   <TableCell className="font-mono text-xs">{trx.id}</TableCell>
                   <TableCell>
                     <div className="font-medium">{trx.siswa}</div>
                     <div className="text-xs text-muted-foreground">{trx.kelas}</div>
                   </TableCell>
-                  <TableCell>{formatRupiah(trx.nominal)}</TableCell>
+                  <TableCell className="font-semibold">{formatRupiah(trx.nominal)}</TableCell>
                   <TableCell>
-                    <Badge variant={trx.status === 'success' ? 'default' : 'secondary'}>
+                    <span className={trx.status === 'success' ? 'gemini-badge gemini-badge-success' : 'gemini-badge gemini-badge-pending'}>
                       {trx.status === 'success' ? 'Sukses' : 'Pending'}
-                    </Badge>
+                    </span>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">{trx.waktu}</TableCell>
                 </TableRow>
