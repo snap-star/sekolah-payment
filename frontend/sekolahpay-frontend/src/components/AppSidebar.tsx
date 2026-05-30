@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Receipt, Users, FileText, LogOut } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/useAuth';
+import { cn } from '../lib/utils';
+import { useAuth } from '../hooks/useAuth';
 
 const menuItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },

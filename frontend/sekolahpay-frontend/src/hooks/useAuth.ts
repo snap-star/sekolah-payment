@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockApi } from '@/mock/api';
+import { mockApi } from '../mock/api';
 // import api from '@/lib/api'; // SWAP THIS WHEN BACKEND IS READY
 
 const USE_MOCK = true;

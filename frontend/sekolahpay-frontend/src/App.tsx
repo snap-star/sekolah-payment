@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useAuth } from '@/hooks/useAuth';
-import Layout from '@/components/Layout';
-import Login from '@/pages/Login';
-import Dashboard from '@/pages/Dashboard';
-import TagihanPage from '@/pages/Tagihan';
-import UserAdminPage from '@/pages/UserAdmin';
-import ReportPage from '@/pages/Report';
+import { useAuth } from './hooks/useAuth';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import TagihanPage from './pages/Tagihan';
+import UserAdminPage from './pages/UserAdmin';
+import ReportPage from './pages/Report';
 
 const queryClient = new QueryClient();
 
