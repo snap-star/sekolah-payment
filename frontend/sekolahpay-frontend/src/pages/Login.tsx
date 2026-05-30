@@ -6,6 +6,7 @@ import { Label } from '../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'sonner';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -28,7 +29,10 @@ export default function Login() {
   };
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="w-full min-h-screen flex items-center justify-center bg-linear-to-br from-blue-300 to-teal-900/50 p-4">
+      <div className="absolute top-4 right-4">
+      <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md border-border shadow-2xl">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">SEKOLAH<span className="text-primary">PAY</span></CardTitle>
