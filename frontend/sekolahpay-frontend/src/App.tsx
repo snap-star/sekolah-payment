@@ -8,12 +8,16 @@ import Dashboard from './pages/Dashboard';
 import TagihanPage from './pages/Tagihan';
 import UserAdminPage from './pages/UserAdmin';
 import ReportPage from './pages/Report';
+import { RefreshCcw } from 'lucide-react';
 
 const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
-  if (isLoading) return <div className="p-8">Memuat...</div>;
+  if (isLoading) return <div className="p-8 select-none">
+    <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
+    Memuat...
+    </div>;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }

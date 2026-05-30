@@ -9,11 +9,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
 import { mockApi } from '../mock/api';
+import { RefreshCcw } from 'lucide-react';
 
 export default function UserAdminPage() {
   const { data, isLoading } = useQuery({ queryKey: ['users'], queryFn: () => mockApi.getUserAdmin() });
 
-  if (isLoading) return <div>Memuat...</div>;
+  if (isLoading) return <div className="p-4 select-none">
+    <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
+    <span className="select-none">Memuat...</span>
+    </div>;
 
   return (
     <div className="space-y-6">

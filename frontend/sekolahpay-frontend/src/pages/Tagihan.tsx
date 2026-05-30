@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { mockApi } from '../mock/api';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Tagihan } from '../types';
+import { RefreshCcw } from 'lucide-react';
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
@@ -40,7 +41,10 @@ export default function TagihanPage() {
     },
   });
 
-  if (isLoading) return <div>Memuat...</div>;
+  if (isLoading) return <div className="p-4 select-none">
+    <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
+    <span className="select-none">Memuat...</span>
+    </div>;
 
   return (
     <div className="space-y-6">
@@ -59,8 +63,8 @@ export default function TagihanPage() {
                 <div className="space-y-2"><Label>NIS</Label><Input placeholder="202501001" /></div>
               </div>
               <div className="space-y-2"><Label>Kelas</Label><Input placeholder="X IPA 1" /></div>
-              <div className="space-y-2">
                 <Label>Jenis Tagihan</Label>
+              <div className="space-y-2 flex flex-col-3">
                 <Select>
                   <SelectTrigger><SelectValue placeholder="Pilih jenis tagihan" /></SelectTrigger>
                   <SelectContent>
@@ -69,7 +73,12 @@ export default function TagihanPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                <Label>Nominal</Label><Input type="number" placeholder="1000000" />
               </div>
+                <div className="space-y-2">
+                <Label>Periode</Label><Input placeholder="2025-2026" />
+                <Label>Nominal Disesuaikan</Label><Input type="number" placeholder="1000000" />
+                </div>
               <Button type="submit" className="w-full">Simpan Tagihan</Button>
             </form>
           </DialogContent>

@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
 import { mockApi } from '../mock/api';
 import type { ReportItem } from '../types';
+import { RefreshCcw } from 'lucide-react';
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
@@ -13,7 +14,10 @@ function formatRupiah(n: number) {
 export default function ReportPage() {
   const { data, isLoading } = useQuery({ queryKey: ['report'], queryFn: () => mockApi.getReport() });
 
-  if (isLoading) return <div>Memuat...</div>;
+  if (isLoading) return <div className="p-4 select-none">
+    <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
+    <span className="select-none">Memuat...</span>
+    </div>;
   const { reports, summary } = data!;
 
   return (
