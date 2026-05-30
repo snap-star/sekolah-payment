@@ -9,7 +9,7 @@
 :root {
   --text: #6b6375;
   --text-h: #08060d;
-  --bg: #fff;
+  --bg: oklch(98.7% 0.002 197.1);
   --border: oklch(0.925 0.005 214.3);
   --code-bg: #f4f3ec;
   --accent: oklch(0.963 0.002 197.1);
@@ -19,9 +19,9 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --sans: system-ui, 'Segoe UI', 'Noto Sans Variable', 'Inter Variable', sans-serif;
+  --heading: system-ui, 'Segoe UI', 'Noto Sans Variable', 'Inter Variable', sans-serif;
+  --mono: ui-monospace, 'Consolas Variable', monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -36,101 +36,212 @@
   @media (max-width: 1024px) {
     font-size: 16px;
   }
-
-  --background: oklch(1 0 0);
-
+/* Colors */
+  --background: oklch(98.7% 0.002 197.1);
   --foreground: oklch(0.148 0.004 228.8);
-
   --card: oklch(1 0 0);
-
   --card-foreground: oklch(0.148 0.004 228.8);
-
   --popover: oklch(1 0 0);
-
   --popover-foreground: oklch(0.148 0.004 228.8);
-
   --primary: oklch(0.52 0.105 223.128);
-
   --primary-foreground: oklch(0.984 0.019 200.873);
-
   --secondary: oklch(0.967 0.001 286.375);
-
   --secondary-foreground: oklch(0.21 0.006 285.885);
-
   --muted: oklch(0.963 0.002 197.1);
-
   --muted-foreground: oklch(0.56 0.021 213.5);
-
   --accent-foreground: oklch(0.218 0.008 223.9);
-
   --destructive: oklch(0.577 0.245 27.325);
-
   --input: oklch(0.925 0.005 214.3);
-
   --ring: oklch(0.723 0.014 214.4);
-
+  /* Chart */
   --chart-1: oklch(0.872 0.007 219.6);
-
   --chart-2: oklch(0.56 0.021 213.5);
-
   --chart-3: oklch(0.45 0.017 213.2);
-
   --chart-4: oklch(0.378 0.015 216);
-
   --chart-5: oklch(0.275 0.011 216.9);
-
+  /* radius */
   --radius: 0.625rem;
-
+  /* Sidebar */
   --sidebar: oklch(0.987 0.002 197.1);
-
   --sidebar-foreground: oklch(0.148 0.004 228.8);
-
   --sidebar-primary: oklch(0.609 0.126 221.723);
-
   --sidebar-primary-foreground: oklch(0.984 0.019 200.873);
-
   --sidebar-accent: oklch(0.963 0.002 197.1);
-
   --sidebar-accent-foreground: oklch(0.218 0.008 223.9);
-
   --sidebar-border: oklch(0.925 0.005 214.3);
-
   --sidebar-ring: oklch(0.723 0.014 214.4)}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
 
   #social .button-icon {
     filter: invert(1) brightness(2);
   }
-}
 
 #root {
-  width: 1126px;
+  width: 100%;
   max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  margin: 0;
   min-height: 100svh;
   display: flex;
-  flex-direction: column;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 1023px) {
+  /* Improve main content scrolling on mobile */
+  main {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+  }
+  
+  /* Fix header for mobile safe areas */
+  header {
+    padding-top: calc(1rem + env(safe-area-inset-top));
+    padding-left: calc(1rem + env(safe-area-inset-left));
+    padding-right: calc(1rem + env(safe-area-inset-right));
+  }
+  
+  /* Add safe area padding to main content for notched devices */
+  main {
+    padding-left: calc(1rem + env(safe-area-inset-left));
+    padding-right: calc(1rem + env(safe-area-inset-right));
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  
+  /* Improve table responsiveness on mobile */
+  .rdp-table,
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Make cards stack properly with proper spacing */
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  /* Improve touch targets for mobile */
+  button, 
+  [role="button"],
+  a {
+    touch-action: manipulation;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent text scaling issues */
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+/* Tablet-specific adjustments */
+@media (min-width: 768px) and (max-width: 1023px) {
+  main {
+    padding-left: calc(1.5rem + env(safe-area-inset-left));
+    padding-right: calc(1.5rem + env(safe-area-inset-right));
+  }
+}
+
+/* Fix sheet (mobile drawer) for safe areas */
+[data-slot="sheet-content"][data-side="left"] {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+}
+
+/* Fix sidebar in mobile sheet */
+[data-slot="sheet-content"] aside {
+  position: relative;
+  height: 100%;
+  border: none;
+}
+
+/* Improve sidebar navigation touch targets on mobile */
+[data-slot="sheet-content"] nav a,
+[data-slot="sheet-content"] button {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+/* ========== DESKTOP OPTIMIZATIONS ========== */
+@media (min-width: 1024px) {
+  /* Desktop sidebar enhancements */
+  aside {
+    box-shadow: 1px 0 3px 0 rgb(0 0 0 / 0.05);
+    transition: width 0.2s ease-in-out;
+  }
+  
+  /* Hover effects for sidebar navigation */
+  aside nav a {
+    transition: all 0.15s ease-in-out;
+    position: relative;
+  }
+  
+  aside nav a:hover {
+    transform: translateX(2px);
+  }
+  
+  /* Active state indicator */
+  aside nav a[aria-current="page"]::before {
+    content: '';
+    position: absolute;
+    left: -0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 70%;
+    background: var(--sidebar-primary);
+    border-radius: 0 4px 4px 0;
+  }
+  
+  /* Main content area max-width for large screens */
+  main {
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  /* Improved grid layout for large desktop screens */
+  .grid {
+    gap: 1.5rem;
+  }
+  
+  /* Card hover effects */
+  .card:hover {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+    transition: box-shadow 0.2s ease-in-out;
+  }
+}
+
+/* Ultra-wide screen optimization */
+@media (min-width: 1921px) {
+  main {
+    max-width: 1800px;
+  }
+  
+  .lg\\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ========== MOBILE OPTIMIZATIONS (existing) ========== */
+/* Prevent double scrollbars on mobile */
+body[data-scroll-locked] {
+  overflow: hidden !important;
+  position: fixed;
+  width: 100%;
 }
 
 h1,
@@ -179,7 +290,7 @@ code {
 
 @theme inline {
   --font-heading: 'Noto Sans Variable', sans-serif;
-  --font-sans: 'Inter Variable', sans-serif;
+  --font-sans: 'Noto Sans Variable', sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -221,7 +332,7 @@ code {
 }
 
 .dark {
-  --background: oklch(0.148 0.004 228.8);
+  --background: oklch(0.148 0.004 228.8); /*oklch(21.8% 0.008 223.9) / oklch(0.148 0.004 228.8) */
   --foreground: oklch(0.987 0.002 197.1);
   --card: oklch(0.218 0.008 223.9);
   --card-foreground: oklch(0.987 0.002 197.1);

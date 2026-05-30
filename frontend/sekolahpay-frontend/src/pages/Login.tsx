@@ -28,8 +28,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md border-border">
+    <div className="w-full min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md border-border shadow-2xl">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">SEKOLAH<span className="text-primary">PAY</span></CardTitle>
           <CardDescription>Masuk ke sistem pembayaran sekolah</CardDescription>

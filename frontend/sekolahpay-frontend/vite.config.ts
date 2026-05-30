@@ -17,7 +17,7 @@ export default defineConfig({
     tsconfigPaths: true,
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
     alias: {
-      '@': fileURLToPath(new URL('./src/*', import.meta.url))
+      '@': fileURLToPath(new URL('./src/', import.meta.url))
     }
   },
   server: {
