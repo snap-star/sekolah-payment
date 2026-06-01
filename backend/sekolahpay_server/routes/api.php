@@ -15,4 +15,25 @@ Route::prefix('auth')->group(function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
     });
+
+    // test admin role
+    Route::middleware([
+        'auth:api',
+        'role:admin'
+    ])->get('/admin-test', function () {
+
+        return response()->json([
+            'message' => 'Halo Admin'
+        ]);
+    });
+
+    Route::middleware([
+        'auth:api',
+        'role:admin,bendahara'
+    ])->get('/finance-test', function () {
+
+        return response()->json([
+            'message' => 'Finance Area'
+        ]);
+    });
 });

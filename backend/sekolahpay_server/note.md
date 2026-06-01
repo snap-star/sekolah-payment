@@ -52,12 +52,7 @@ guardian Lihat data anaknya
 
 ---
 
-Seeder
-↓
-JWT Auth
-↓
-Student CRUD
-↓
-Invoice CRUD
-↓
-Payment CRUD
+CRUD
+StudentController
+StudentRequest
+StudentResource
