@@ -5,6 +5,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { Menu } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { Footer } from './footer';
 
 export default function Layout() {
   return (
@@ -49,6 +50,7 @@ export default function Layout() {
             className="mobile:!bottom-6 mobile:!top-auto mobile:!right-4 mobile:!left-4 mobile:!w-auto"
           />
         </main>
+          <Footer />
       </div>
     </div>
   );
