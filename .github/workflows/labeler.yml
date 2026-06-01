@@ -1,0 +1,23 @@
+# .github/workflows/labeler.yml
+name: "Pull Request Labeler"
+
+on:
+  pull_request_target:
+    branches: [ "master" ]
+
+# Explicitly restrict permissions to only what the token needs
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign Labels Based on Changed Files
+        uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          # Setting sync-labels to true ensures that if a developer pushes code
+          # that removes all frontend files from a PR, the 'frontend' label vanishes.
+          sync-labels: true
