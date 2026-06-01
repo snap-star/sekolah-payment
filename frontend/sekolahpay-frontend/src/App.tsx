@@ -25,7 +25,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="light" themes={['light', 'dark']}>
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
