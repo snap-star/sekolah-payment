@@ -56,3 +56,30 @@ CRUD
 StudentController
 StudentRequest
 StudentResource
+
+---
+
+standar response
+
+GET /students
+{
+"success": true,
+"message": "Students retrieved successfully",
+"data": [...]
+}
+POST /students
+{
+"success": true,
+"message": "Student created successfully",
+"data": {...}
+}
+Validation Error
+{
+"success": false,
+"message": "Validation failed",
+"errors": {
+"nis": [
+"The nis field is required."
+]
+}
+}
