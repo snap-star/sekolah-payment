@@ -86,10 +86,12 @@ export default function TagihanPage() {
       </div>
 
       <Card className="border-border">
-        <CardHeader><CardTitle className="text-sm font-medium">Daftar Tagihan Aktif</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold">Daftar Tagihan Aktif</CardTitle>
+          </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
+            <TableHeader className="text-sm text-bold text-center">
               <TableRow>
                 <TableHead>Siswa</TableHead>
                 <TableHead>Jenis</TableHead>
@@ -98,7 +100,7 @@ export default function TagihanPage() {
                 <TableHead>Nominal Aktif</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>QRIS</TableHead>
-                <TableHead className="text-right">Aksi</TableHead>
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

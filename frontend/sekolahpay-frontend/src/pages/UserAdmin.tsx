@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
 import { mockApi } from '../mock/api';
-import { RefreshCcw } from 'lucide-react';
+import { Delete, Pencil, RefreshCcw, Trash } from 'lucide-react';
 
 export default function UserAdminPage() {
   const { data, isLoading } = useQuery({ queryKey: ['users'], queryFn: () => mockApi.getUserAdmin() });
@@ -53,17 +53,21 @@ export default function UserAdminPage() {
       </div>
 
       <Card className="border-border">
-        <CardHeader><CardTitle className="text-sm font-medium">Daftar User Admin</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base font-bold">Daftar User Admin</CardTitle></CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow
+              className="text-sm"
+              >
                 <TableHead>Nama</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>No. HP</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Terakhir Login</TableHead>
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -77,6 +81,16 @@ export default function UserAdminPage() {
                     <Badge variant={u.aktif ? 'default' : 'secondary'}>{u.aktif ? 'Aktif' : 'Nonaktif'}</Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">{u.terakhir_login}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">
+                    <Button variant="ghost" size="sm">
+                      <Pencil className="h-4 w-4" />
+                      <span className="ml-2 text-sm">Edit</span>
+                    </Button>
+                    <Button variant="destructive" size="sm">
+                      <Trash className="h-4 w-4" />
+                      <span className="ml-2 text-sm">Delete</span>
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

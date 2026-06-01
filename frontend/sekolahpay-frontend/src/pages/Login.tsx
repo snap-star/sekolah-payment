@@ -36,7 +36,7 @@ export default function Login() {
       </div>
       <Card className="w-full max-w-md border-border shadow-2xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">SEKOLAH<span className="text-primary">PAY</span></CardTitle>
+          <CardTitle className="text-2xl font-bold">SEKOLAH<span className="text-primary">PAY</span></CardTitle>
           <CardDescription>Masuk ke sistem pembayaran sekolah</CardDescription>
         </CardHeader>
         <CardContent>

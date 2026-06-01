@@ -69,7 +69,7 @@ export default function Dashboard() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="gemini-card animate-gemini-scale-in gemini-delay-300">
           <CardHeader className="pb-4">
-            <CardTitle className="text-base font-medium">Rekap Bulanan</CardTitle>
+            <CardTitle className="text-base font-bold">Rekap Bulanan</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-5">
@@ -79,7 +79,7 @@ export default function Dashboard() {
                   className="flex items-center justify-between animate-gemini-fade-in gemini-table-row rounded-lg px-3 py-2 -mx-3" 
                   style={{ animationDelay: `${(index + 1) * 100}ms` }}
                 >
-                  <span className="text-sm font-medium">{item.bulan}</span>
+                  <span className="text-sm font-semibold">{item.bulan}</span>
                   <div className="flex gap-3">
                     <span className="gemini-badge gemini-badge-primary">
                       Terbayar: {formatRupiah(item.terbayar)}
@@ -96,7 +96,7 @@ export default function Dashboard() {
 
         <Card className="gemini-card animate-gemini-scale-in gemini-delay-400">
           <CardHeader className="pb-4">
-            <CardTitle className="text-base font-medium">Breakdown per Jenis Tagihan</CardTitle>
+            <CardTitle className="text-base font-semibold">Breakdown per Jenis Tagihan</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-5">
@@ -129,7 +129,7 @@ export default function Dashboard() {
       {/* Recent Transactions Table */}
       <Card className="gemini-card animate-gemini-fade-in-up gemini-delay-600">
         <CardHeader className="pb-4">
-          <CardTitle className="text-base font-medium">Transaksi Terbaru</CardTitle>
+          <CardTitle className="text-base font-semibold">Transaksi Terbaru</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>

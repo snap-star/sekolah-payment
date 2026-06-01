@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Receipt, Users, FileText, LogOut } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../hooks/useAuth';
+import { Button } from './ui/button';
 
 const menuItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
@@ -15,7 +16,7 @@ export function AppSidebar() {
   const { logout } = useAuth();
 
   return (
-    <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col fixed top-0 left-0 h-screen z-30 lg:z-20 gemini-surface border-0 rounded-none">
+    <aside className="w-64 font-noto font-semibold bg-sidebar border-r border-sidebar-border flex flex-col fixed top-0 left-0 h-screen z-30 lg:z-20 gemini-surface border-0 rounded-none">
       <div className="p-6 flex-col border-b border-sidebar-border">
         <h2 className="gemini-page-title">
           SEKOLAH<span className="text-primary">PAY</span>
@@ -23,7 +24,7 @@ export function AppSidebar() {
         <p className="text-xs text-muted-foreground mt-2">Sistem Pembayaran Sekolah</p>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-auto">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
@@ -37,20 +38,21 @@ export function AppSidebar() {
               )}
             >
               <item.icon className="w-5 h-5" />
-              <span className="text-sm font-medium">{item.label}</span>
+              <span className="text-sm font-bold">{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
       <div className="p-4 mt-auto border-t border-sidebar-border">
-        <button
+        <Button
+          variant="destructive"
           onClick={logout}
-          className="gemini-nav-item w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+          className="w-full rounded-lg justify-start hover:bg-destructive/30 border-0"
         >
           <LogOut className="w-5 h-5" />
-          <span className="text-sm font-medium">Keluar</span>
-        </button>
+          Keluar
+        </Button>
       </div>
     </aside>
   );
