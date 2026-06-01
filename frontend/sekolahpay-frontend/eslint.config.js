@@ -15,6 +15,13 @@ export default defineConfig([
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
+    plugins: ['react-refresh'],
+    rules: {
+  'react-refresh/only-export-components': [
+    'warn',
+    { allowConstantExport: true }, // Allows exporting static constants safely
+  ],
+},
     languageOptions: {
       globals: globals.browser,
     },
