@@ -1,4 +1,5 @@
-import type { Tagihan, ReportItem, DashboardStats, RecentTransaction, User } from '@/types';
+import type { DashboardStats, RecentTransaction, User } from '@/types';
+import type { ReportResponse, GetInvoicesResponse } from '@/types/server/api';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -53,7 +54,7 @@ export const mockApi = {
     };
   },
 
-  async getTagihan() {
+  async getTagihan(): Promise<GetInvoicesResponse> {
     await sleep(400);
     return {
       jenis_tagihan: [
@@ -71,7 +72,7 @@ export const mockApi = {
           nominal_asli: 1500000,
           nominal_disesuaikan: 1500000,
           periode: 'Mei 2026',
-          status: 'lunas',
+          status: 'lunas' as const,
           qris_string: null,
           qris_expiry: null,
           dibayar_pada: '2026-05-20 14:30:00',
@@ -83,7 +84,7 @@ export const mockApi = {
           nominal_asli: 1500000,
           nominal_disesuaikan: 1200000,
           periode: 'Mei 2026',
-          status: 'menunggak',
+          status: 'menunggak' as const,
           qris_string: '00020101021126570014COM.GO-JEK.WWW011893600914SK2026052800010309SK2026052800015204123453033605802ID5910SEKOLAHXYZ6013JAKARTA SELATAN610512401621501112345678901234567893011SK2026052800016304A1B2',
           qris_expiry: '2026-05-28 23:59:59',
           dibayar_pada: null,
@@ -95,7 +96,7 @@ export const mockApi = {
           nominal_asli: 5000000,
           nominal_disesuaikan: 5000000,
           periode: '2026/2027',
-          status: 'menunggak',
+          status: 'menunggak' as const,
           qris_string: '00020101021126570014COM.GO-JEK.WWW011893600914SK2026052800020309SK2026052800025204123453033605802ID5910SEKOLAHXYZ6013JAKARTA SELATAN610512401621501112345678901234567893011SK2026052800026304C3D4',
           qris_expiry: '2026-05-29 23:59:59',
           dibayar_pada: null,
@@ -107,12 +108,12 @@ export const mockApi = {
           nominal_asli: 1500000,
           nominal_disesuaikan: 1500000,
           periode: 'Mei 2026',
-          status: 'lunas',
+          status: 'lunas' as const,
           qris_string: null,
           qris_expiry: null,
           dibayar_pada: '2026-05-25 09:15:00',
         },
-      ] as Tagihan[],
+      ],
     };
   },
 
@@ -143,16 +144,16 @@ export const mockApi = {
     };
   },
 
-  async getReport() {
+  async getReport(): Promise<ReportResponse> {
     await sleep(400);
     return {
       reports: [
-        { id: 101, siswa: { nama: 'Ahmad Fauzi', nis: '202501001', kelas: 'X IPA 1' }, jenis_tagihan: 'SPP Bulanan', periode: 'Mei 2026', nominal_tagihan: 1500000, total_dibayar: 1500000, kekurangan_bayar: 0, status: 'lunas', riwayat_pembayaran: [{ tanggal: '2026-05-20', nominal: 1500000, metode: 'QRIS', ref: 'TRX-001' }] },
-        { id: 102, siswa: { nama: 'Budi Santoso', nis: '202501002', kelas: 'XI IPS 2' }, jenis_tagihan: 'SPP Bulanan', periode: 'Mei 2026', nominal_tagihan: 1200000, total_dibayar: 0, kekurangan_bayar: 1200000, status: 'menunggak', riwayat_pembayaran: [] },
-        { id: 103, siswa: { nama: 'Citra Lestari', nis: '202501003', kelas: 'X IPA 2' }, jenis_tagihan: 'Uang Pangkal', periode: '2026/2027', nominal_tagihan: 5000000, total_dibayar: 2000000, kekurangan_bayar: 3000000, status: 'belum_lunas', riwayat_pembayaran: [{ tanggal: '2026-04-10', nominal: 1000000, metode: 'QRIS', ref: 'TRX-042' }, { tanggal: '2026-05-05', nominal: 1000000, metode: 'QRIS', ref: 'TRX-089' }] },
-        { id: 105, siswa: { nama: 'Eko Prasetyo', nis: '202501005', kelas: 'XII IPA 1' }, jenis_tagihan: 'SPP Bulanan', periode: 'Mei 2026', nominal_tagihan: 1500000, total_dibayar: 1500000, kekurangan_bayar: 0, status: 'lunas', riwayat_pembayaran: [{ tanggal: '2026-05-10', nominal: 1500000, metode: 'QRIS', ref: 'TRX-055' }] },
-        { id: 106, siswa: { nama: 'Fani Wulandari', nis: '202501006', kelas: 'XI IPS 1' }, jenis_tagihan: 'Uang Buku', periode: 'Semester 1 2026', nominal_tagihan: 750000, total_dibayar: 0, kekurangan_bayar: 750000, status: 'menunggak', riwayat_pembayaran: [] },
-      ] as ReportItem[],
+        { id: 101, siswa: { nama: 'Ahmad Fauzi', nis: '202501001', kelas: 'X IPA 1' }, jenis_tagihan: 'SPP Bulanan', periode: 'Mei 2026', nominal_tagihan: 1500000, total_dibayar: 1500000, kekurangan_bayar: 0, status: 'lunas' as const, riwayat_pembayaran: [{ tanggal: '2026-05-20', nominal: 1500000, metode: 'QRIS', ref: 'TRX-001' }] },
+        { id: 102, siswa: { nama: 'Budi Santoso', nis: '202501002', kelas: 'XI IPS 2' }, jenis_tagihan: 'SPP Bulanan', periode: 'Mei 2026', nominal_tagihan: 1200000, total_dibayar: 0, kekurangan_bayar: 1200000, status: 'menunggak' as const, riwayat_pembayaran: [] },
+        { id: 103, siswa: { nama: 'Citra Lestari', nis: '202501003', kelas: 'X IPA 2' }, jenis_tagihan: 'Uang Pangkal', periode: '2026/2027', nominal_tagihan: 5000000, total_dibayar: 2000000, kekurangan_bayar: 3000000, status: 'belum_lunas' as const, riwayat_pembayaran: [{ tanggal: '2026-04-10', nominal: 1000000, metode: 'QRIS', ref: 'TRX-042' }, { tanggal: '2026-05-05', nominal: 1000000, metode: 'QRIS', ref: 'TRX-089' }] },
+        { id: 105, siswa: { nama: 'Eko Prasetyo', nis: '202501005', kelas: 'XII IPA 1' }, jenis_tagihan: 'SPP Bulanan', periode: 'Mei 2026', nominal_tagihan: 1500000, total_dibayar: 1500000, kekurangan_bayar: 0, status: 'lunas' as const, riwayat_pembayaran: [{ tanggal: '2026-05-10', nominal: 1500000, metode: 'QRIS', ref: 'TRX-055' }] },
+        { id: 106, siswa: { nama: 'Fani Wulandari', nis: '202501006', kelas: 'XI IPS 1' }, jenis_tagihan: 'Uang Buku', periode: 'Semester 1 2026', nominal_tagihan: 750000, total_dibayar: 0, kekurangan_bayar: 750000, status: 'menunggak' as const, riwayat_pembayaran: [] },
+      ],
       summary: {
         total_tagihan_keseluruhan: 9950000,
         total_terbayar: 6000000,
