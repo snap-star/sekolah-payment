@@ -1,3 +1,19 @@
+# Workflow
+
+```
+Admin buat jenis tagihan
+↓
+Generate invoice siswa
+↓
+Siswa bayar
+↓
+Masuk payments
+↓
+Invoice update status
+↓
+Muncul di laporan
+```
+
 # Migration Order
 
 1. users
@@ -20,6 +36,19 @@ Bagian 2: guardians, student_classrooms, fee_types
 Bagian 3: invoices, payments, gateway
 
 Bagian 4: activity_logs + foreign keys
+
+---
+
+Hak Akses yang Sudah Kita Sepakati
+Role Hak Akses
+
+```
+admin Semua
+bendahara Kelola pembayaran & tagihan
+guru Lihat data siswa
+student Lihat data sendiri
+guardian Lihat data anaknya
+```
 
 ---
 
