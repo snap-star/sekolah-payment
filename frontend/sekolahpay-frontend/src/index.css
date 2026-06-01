@@ -1,10 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&family=Google+Sans+Code:ital,wght,MONO@0,300..800,1;1,300..800,1&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/noto-sans";
 
 @custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-noto: 'Noto Sans', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-fira-mono: 'Fira Mono', monospace;
+}
+.noto-sans-regular {
+  font-family: "Noto Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.noto-sans-medium {
+  font-family: "Noto Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.noto-sans-bold {
+  font-family: "Noto Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.inter-sans-regular {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.inter-sans-medium {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.inter-sans-bold {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+
+.fira-mono-regular {
+  font-family: "Fira Mono", monospace;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.fira-mono-medium {
+  font-family: "Fira Mono", monospace;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.fira-mono-bold {
+  font-family: "Fira Mono", monospace;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: auto; /* Firefox */
+}
+
+@media (max-width: 1024px) {
+  .scrollbar-hide {
+    -ms-overflow-style: auto; /* Show scrollbar on mobile */
+    scrollbar-width: auto; /* Show scrollbar on mobile */
+  }
+}
 
 :root {
   --text: #5a6b7c;
@@ -18,12 +104,13 @@
   --social-bg: rgba(240, 244, 248, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.08) 0 10px 15px -3px, rgba(0, 0, 0, 0.04) 0 4px 6px -2px;
+/* Define font family */
+  --sans: system-ui, 'Inter', 'Noto Sans', sans-serif;
+  --heading: system-ui, 'Inter', 'Noto Sans', sans-serif;
+  --mono: ui-monospace, 'Fira Mono', consolas, monospace;
 
-  --sans: system-ui, 'Segoe UI', 'Noto Sans Variable', 'Inter Variable', sans-serif;
-  --heading: system-ui, 'Segoe UI', 'Noto Sans Variable', 'Inter Variable', sans-serif;
-  --mono: ui-monospace, 'Consolas Variable', monospace;
-
-  font: 18px/145% var(--sans);
+  font: 1.1rem var(--sans);
+  font-weight: 400;
   letter-spacing: 0.18px;
   color-scheme: light dark;
   color: var(--text);
@@ -34,7 +121,7 @@
   -moz-osx-font-smoothing: grayscale;
 
   @media (max-width: 1024px) {
-    font-size: 16px;
+    font-size: 1rem;
   }
 /* Colors - Teal/Blue Palette with soft blue undertones */
   --background: oklch(98.2% 0.008 210); /* Misty blue background */
@@ -50,7 +137,7 @@
   --muted: oklch(0.95 0.01 210); /* Muted blue */
   --muted-foreground: oklch(0.52 0.04 215);
   --accent-foreground: oklch(0.22 0.05 215);
-  --destructive: oklch(0.55 0.20 30);
+  --destructive: oklch(0.577 0.245 27.325);
   --input: oklch(0.90 0.015 210);
   --ring: oklch(0.65 0.10 215);
   /* Chart */
@@ -93,11 +180,11 @@ body {
 }
 
 /* Mobile-specific optimizations */
-@media (max-width: 1023px) {
+@media (max-width: 600px) {
   /* Improve main content scrolling on mobile */
   main {
     -webkit-overflow-scrolling: touch;
-    overflow-scrolling: touch;
+    -moz-overflow-scrolling: touch;
   }
   
   /* Fix header for mobile safe areas */
@@ -345,7 +432,7 @@ body {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 20px;
-  padding: 24px;
+  padding: 20px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -703,8 +790,10 @@ code {
 }
 
 @theme inline {
-  --font-heading: 'Noto Sans Variable', sans-serif;
-  --font-sans: 'Noto Sans Variable', sans-serif;
+ /* Font family Global*/
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-fira-mono);
+  --font-heading: var(--font-inter);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -736,6 +825,7 @@ code {
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  /* global radius */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -787,4 +877,6 @@ code {
   body {
     @apply bg-background text-foreground;}
   html {
-    @apply font-sans;}}
+    @apply antialiased;
+    @apply font-sans;
+}}
