@@ -1,0 +1,48 @@
+# .github/labeler.yml
+
+# 1. Broad Component Labels
+backend:
+  - changed-files:
+    - any-glob-to-any-file: 'backend/**/*'
+
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: 'frontend/**/*'
+
+# 2. Granular Language/Stack Labels
+PHP:
+  - changed-files:
+    - any-glob-to-any-file: 'backend/**/*.php'
+
+TypeScript:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'frontend/**/*.ts'
+      - 'frontend/**/*.tsx'
+
+JavaScript:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'frontend/**/*.js'
+      - 'frontend/**/*.jsx'
+
+# 3. Infrastructure & Tools Config (CI/CD, Package Managers, Static Analysis)
+CI/CD:
+  - changed-files:
+    - any-glob-to-any-file: '.github/**/*'
+
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'backend/composer.json'
+      - 'backend/composer.lock'
+      - 'frontend/package.json'
+      - 'frontend/package-lock.json'
+      - 'frontend/yarn.lock'
+
+# 4. Global Documentation
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '*.md'
+      - '**/*.md'
