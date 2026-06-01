@@ -5,7 +5,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
 import { mockApi } from '../mock/api';
 import type { ReportItem } from '../types';
-import { RefreshCcw } from 'lucide-react';
+import { Printer, RefreshCcw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
@@ -23,7 +25,7 @@ export default function ReportPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Laporan Pembayaran</h2>
+        <h2 className="gemini-page-title">Laporan Pembayaran</h2>
         <p className="text-muted-foreground">Rekapitulasi tagihan, pembayaran, dan kekurangan.</p>
       </div>
 
@@ -47,7 +49,13 @@ export default function ReportPage() {
       </div>
 
       <Card className="border-border">
-        <CardHeader><CardTitle className="text-sm font-medium">Detail Laporan per Siswa</CardTitle></CardHeader>
+        <CardHeader className="flex justify-between items-center">
+          <CardTitle className="text-sm font-medium">Detail Laporan per Siswa
+            <Button variant="default" className="ml-2">
+            <Printer className="mr-2 inline-block h-5 w-5 text-primary-foreground dark:text-primary-foreground" />
+              Cetak</Button>
+        </CardTitle>
+        </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
@@ -60,6 +68,7 @@ export default function ReportPage() {
                 <TableHead className="text-right text-destructive">Kekurangan</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Riwayat</TableHead>
+                <TableHead>Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -99,6 +108,20 @@ export default function ReportPage() {
                     ) : (
                       <span className="text-xs text-muted-foreground">-</span>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <Select>
+                      <SelectTrigger className="w-25  ">
+                        <SelectValue placeholder="action" />
+                      </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="light">Light</SelectItem>
+                            <SelectItem value="dark">Dark</SelectItem>
+                            <SelectItem value="system">System</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                    </Select>
                   </TableCell>
                 </TableRow>
               ))}

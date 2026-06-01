@@ -389,7 +389,7 @@ body {
 
 .gemini-card:hover {
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.05);
-  border-color: rgba(170, 59, 255, 0.3);
+  border-color: oklch(0.58 0.13 213);
 }
 
 .dark .gemini-card {
@@ -399,7 +399,7 @@ body {
 
 .dark .gemini-card:hover {
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.6);
-  border-color: rgba(139, 92, 246, 0.4);
+  border-color: oklch(0.58 0.13 213);
 }
 
 /* Enhanced Animations - Premium Gemini Style */
@@ -608,7 +608,7 @@ body {
 }
 
 .dark .gemini-nav-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(92, 210, 246, 0.450);
 }
 
 /* Header/Top Bar - Gemini Style */
@@ -635,7 +635,7 @@ body {
   font-size: 32px;
   font-weight: 500;
   letter-spacing: -0.5px;
-  color: var(--text-h);
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 
@@ -658,13 +658,6 @@ body[data-scroll-locked] {
   width: 100%;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
 h1 {
   font-size: 56px;
   letter-spacing: -1.68px;
@@ -674,6 +667,13 @@ h1 {
     margin: 20px 0;
   }
 }
+
+h2 {
+    font-family: var(--heading);
+    font-weight: 500;
+    color: var(--text-h);
+  }
+
 h2 {
   font-size: 24px;
   line-height: 118%;

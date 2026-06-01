@@ -50,7 +50,7 @@ export default function TagihanPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Manajemen Tagihan</h2>
+          <h2 className="gemini-page-title">Manajemen Tagihan</h2>
           <p className="text-muted-foreground">Kelola tagihan siswa, nominal dinamis, dan QRIS.</p>
         </div>
         <Dialog>

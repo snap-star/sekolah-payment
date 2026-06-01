@@ -17,8 +17,8 @@ export function AppSidebar() {
   return (
     <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col fixed top-0 left-0 h-screen z-30 lg:z-20 gemini-surface border-0 rounded-none">
       <div className="p-6 flex-col border-b border-sidebar-border">
-        <h2 className="text-lg font-bold">
-          SEKOLAH<span className="text-sidebar-primary">PAY</span>
+        <h2 className="gemini-page-title">
+          SEKOLAH<span className="text-primary">PAY</span>
         </h2>
         <p className="text-xs text-muted-foreground mt-2">Sistem Pembayaran Sekolah</p>
       </div>
