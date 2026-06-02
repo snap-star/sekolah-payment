@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\StudentController;
 
+// auth resource
 Route::prefix('auth')->group(function () {
 
     Route::post('/login', [AuthController::class, 'login']);
@@ -15,25 +17,24 @@ Route::prefix('auth')->group(function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
     });
+});
 
-    // test admin role
-    Route::middleware([
-        'auth:api',
-        'role:admin'
-    ])->get('/admin-test', function () {
+// test admin role
+Route::middleware([
+    'auth:api',
+    'role:admin'
+])->get('/admin-test', function () {
 
-        return response()->json([
-            'message' => 'Halo Admin'
-        ]);
-    });
+    return response()->json([
+        'message' => 'Halo Admin'
+    ]);
+});
 
-    Route::middleware([
-        'auth:api',
-        'role:admin,bendahara'
-    ])->get('/finance-test', function () {
+// student 
+Route::middleware([
+    'auth:api',
+    'role:admin,bendahara'
+])->group(function () {
 
-        return response()->json([
-            'message' => 'Finance Area'
-        ]);
-    });
+    Route::apiResource('students', StudentController::class);
 });
