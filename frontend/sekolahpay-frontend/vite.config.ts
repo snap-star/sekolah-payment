@@ -24,7 +24,6 @@ export default defineConfig({
       '@components': path.resolve(__dirname, './src/components'),
       '@pages': path.resolve(__dirname, './src/pages'),
       '@utils': path.resolve(__dirname, './src/utils'),
-      '@trpc': path.resolve(__dirname, './src/trpc'),
       '@server': path.resolve(__dirname, './src/server'),
       '@client': path.resolve(__dirname, './src/client'),
       '@assets': path.resolve(__dirname, './src/assets'),
