@@ -57,13 +57,14 @@ export const mockApi = {
   async getTagihan(): Promise<GetInvoicesResponse> {
     await sleep(400);
     return {
-      jenis_tagihan: [
-        { id: 1, nama: 'SPP Bulanan', nominal_default: 1500000, periode: 'bulanan' },
-        { id: 2, nama: 'Uang Pangkal', nominal_default: 5000000, periode: 'tahunan' },
-        { id: 3, nama: 'Uang Buku', nominal_default: 750000, periode: 'semester' },
-        { id: 4, nama: 'Uang Kegiatan', nominal_default: 500000, periode: 'tahunan' },
-        { id: 5, nama: 'Uang Seragam', nominal_default: 650000, periode: 'tahunan' },
-      ],
+      //mock data
+      // tagihan: [
+      //   { id: 1, jenis: 'SPP Bulanan', nominal_asli: 1500000, periode: 'bulanan', nominal_disesuaikan: 1500000, status: 'lunas' as const, qris_string: null, qris_expiry: null, dibayar_pada: '2026-05-20 14:30:00', siswa: { nama: 'Ahmad Fauzi', nis: '202501001', kelas: 'X IPA 1' } },
+      //   { id: 2, jenis: 'Uang Pangkal', nominal_asli: 5000000, periode: 'tahunan', nominal_disesuaikan: 5000000, status: 'lunas' as const, qris_string: null, qris_expiry: null, dibayar_pada: '2026-05-20 14:30:00', siswa: { nama: 'Budi Santoso', nis: '202501002', kelas: 'XI IPS 2' } },
+      //   { id: 3, jenis: 'Uang Buku', nominal_asli: 750000, periode: 'semester', nominal_disesuaikan: 750000, status: 'lunas' as const, qris_string: null, qris_expiry: null, dibayar_pada: '2026-05-20 14:30:00', siswa: { nama: 'Citra Lestari', nis: '202501003', kelas: 'X IPA 2' } },  
+      //   { id: 4, jenis: 'Uang Kegiatan', nominal_asli: 500000, periode: 'tahunan', nominal_disesuaikan: 500000, status: 'lunas' as const, qris_string: null, qris_expiry: null, dibayar_pada: '2026-05-20 14:30:00', siswa: { nama: 'Citra Lestari', nis: '202501003', kelas: 'X IPA 2' } },
+      //   { id: 5, jenis: 'Uang Seragam', nominal_asli: 650000, periode: 'tahunan', nominal_disesuaikan: 650000, status: 'lunas' as const, qris_string: null, qris_expiry: null, dibayar_pada: '2026-05-20 14:30:00', siswa: { nama: 'Citra Lestari', nis: '202501003', kelas: 'X IPA 2' } },
+      // ],
       tagihan: [
         {
           id: 101,
