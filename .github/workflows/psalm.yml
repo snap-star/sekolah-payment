@@ -9,12 +9,12 @@ on:
   push:
     branches: [ "master" ]
     paths:
-      - 'backend/**'
+      - 'backend/sekolahpay_server/**'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "master" ]
     paths:
-      - 'backend/**'
+      - 'backend/sekolahpay_server/**'
   schedule:
     - cron: '00 6 * * 1'
 
