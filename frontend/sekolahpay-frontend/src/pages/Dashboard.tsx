@@ -152,7 +152,7 @@ export default function Dashboard() {
                   <TableCell className="font-mono text-xs">{trx.id}</TableCell>
                   <TableCell>
                     <div className="font-medium">{trx.siswa}</div>
-                    <div className="text-xs text-muted-foreground">{trx.kelas}</div>
+                    <Badge className="gemini-badge gemini-badge-primary">{trx.kelas}</Badge>
                   </TableCell>
                   <TableCell className="font-semibold">{formatRupiah(trx.nominal)}</TableCell>
                   <TableCell>

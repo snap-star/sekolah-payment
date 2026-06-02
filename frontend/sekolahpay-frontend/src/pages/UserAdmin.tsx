@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
 import { mockApi } from '../mock/api';
-import { Delete, Pencil, RefreshCcw, Trash } from 'lucide-react';
+import { Pencil, RefreshCcw, Trash } from 'lucide-react';
 
 export default function UserAdminPage() {
   const { data, isLoading } = useQuery({ queryKey: ['users'], queryFn: () => mockApi.getUserAdmin() });

@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'sonner';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { Footer } from '@/components/footer';
 
 export default function Login() {
   const [email, setEmail] = useState('');
