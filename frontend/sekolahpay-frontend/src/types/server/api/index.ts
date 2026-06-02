@@ -305,8 +305,7 @@ export const appRouter = t.router({
     login: t.procedure
       .input(LoginInputSchema)
       .output(LoginResponseSchema)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .mutation(async ({ input }) => {
+      .mutation(async () => {
         // This implementation is for type definition only
         // Actual implementation would call the Laravel API
         throw new Error('Use apiClient to call the actual backend');
