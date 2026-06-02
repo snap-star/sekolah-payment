@@ -37,8 +37,8 @@ jobs:
         uses: psalm/psalm-github-security-scan@f3e6fd9432bc3e44aec078572677ce9d2ef9c287
         # Note: Pinning to '@v1' or a specific SHA like your original is fine.
         # If your psalm.xml is inside the backend folder, you can point to it here:
-        with:
-           config_file: backend/psalm.xml
+        # with:
+        #   config_file: backend/psalm.xml
 
       - name: Upload Security Analysis results to GitHub
         uses: github/codeql-action/upload-sarif@v3
