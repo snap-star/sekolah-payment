@@ -335,12 +335,6 @@ export const appRouter = t.router({
       .query(async () => {
         throw new Error('Use apiClient to call the actual backend');
       }),
-
-    financeTest: t.procedure
-      .output(FinanceTestResponseSchema)
-      .query(async () => {
-        throw new Error('Use apiClient to call the actual backend');
-      }),
   }),
 
   // Invoice procedures

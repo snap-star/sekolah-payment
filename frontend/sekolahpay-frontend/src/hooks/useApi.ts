@@ -56,14 +56,15 @@ export const useAdminTest = (options?: Omit<UseQueryOptions<{ message: string },
   });
 };
 
-export const useFinanceTest = (options?: Omit<UseQueryOptions<{ message: string }, Error>, 'queryKey' | 'queryFn'>) => {
-  return useQuery({
-    queryKey: ['auth', 'finance-test'],
-    queryFn: () => apiClient.auth.financeTest(),
-    enabled: false, // Only run when explicitly called
-    ...options,
-  });
-};
+//mock finance test data
+// export const useFinanceTest = (options?: Omit<UseQueryOptions<{ message: string }, Error>, 'queryKey' | 'queryFn'>) => {
+//   return useQuery({
+//     queryKey: ['auth', 'finance-test'],
+//     queryFn: () => apiClient.auth.financeTest(),
+//     enabled: false, // Only run when explicitly called
+//     ...options,
+//   });
+// };
 
 // ============================================================================
 // Invoice Hooks

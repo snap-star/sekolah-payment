@@ -10,8 +10,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
 import { mockApi } from '../mock/api';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { Tagihan } from '../types';
 import { RefreshCcw } from 'lucide-react';
 
 function formatRupiah(n: number) {
@@ -68,8 +66,8 @@ export default function TagihanPage() {
                 <Select>
                   <SelectTrigger><SelectValue placeholder="Pilih jenis tagihan" /></SelectTrigger>
                   <SelectContent>
-                    {data!.jenis_tagihan.map((j) => (
-                      <SelectItem key={j.id} value={String(j.id)}>{j.nama} ({formatRupiah(j.nominal_default)})</SelectItem>
+                    {data!.tagihan.map((j) => (
+                      <SelectItem key={j.id} value={String(j.id)}>{j.jenis} ({formatRupiah(j.nominal_asli)})</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

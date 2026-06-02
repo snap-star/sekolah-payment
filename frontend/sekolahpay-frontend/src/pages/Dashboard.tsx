@@ -4,8 +4,6 @@ import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { useQuery } from '@tanstack/react-query';
 import { mockApi } from '../mock/api';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { DashboardStats, RecentTransaction } from '../types';
 import { RefreshCcw } from 'lucide-react';
 
 function formatRupiah(n: number) {
