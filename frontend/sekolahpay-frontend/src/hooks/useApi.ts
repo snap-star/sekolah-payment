@@ -1,7 +1,18 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api';
-import type { LoginInput, TokenResponse, User, ReportResponse, GetInvoicesResponse } from '@/types/server/api';
+import type { 
+  LoginInput, 
+  TokenResponse, 
+  User, 
+  ReportResponse, 
+  GetInvoicesResponse,
+  GetStudentsResponse,
+  StudentResponse,
+  CreateStudentInput,
+  UpdateStudentInput,
+  DeleteStudentResponse
+} from '@/types/server/api';
 
 // ============================================================================
 // Auth Hooks 
@@ -84,6 +95,48 @@ export const useReport = (options?: Omit<UseQueryOptions<ReportResponse, Error>,
       const { mockApi } = await import('@/mock/api');
       return mockApi.getReport();
     },
+    ...options,
+  });
+};
+
+// ============================================================================
+// Student Hooks
+// ============================================================================
+
+export const useStudents = (options?: Omit<UseQueryOptions<GetStudentsResponse, Error>, 'queryKey' | 'queryFn'>) => {
+  return useQuery({
+    queryKey: ['students'],
+    queryFn: () => apiClient.students.getAll(),
+    ...options,
+  });
+};
+
+export const useStudent = (id: number, options?: Omit<UseQueryOptions<StudentResponse, Error>, 'queryKey' | 'queryFn'>) => {
+  return useQuery({
+    queryKey: ['students', id],
+    queryFn: () => apiClient.students.getById(id),
+    enabled: !!id,
+    ...options,
+  });
+};
+
+export const useCreateStudent = (options?: Omit<UseMutationOptions<StudentResponse, Error, CreateStudentInput>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: (input: CreateStudentInput) => apiClient.students.create(input),
+    ...options,
+  });
+};
+
+export const useUpdateStudent = (options?: Omit<UseMutationOptions<StudentResponse, Error, { id: number; data: UpdateStudentInput }>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateStudentInput }) => apiClient.students.update(id, data),
+    ...options,
+  });
+};
+
+export const useDeleteStudent = (options?: Omit<UseMutationOptions<DeleteStudentResponse, Error, number>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: (id: number) => apiClient.students.delete(id),
     ...options,
   });
 };

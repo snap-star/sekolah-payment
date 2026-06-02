@@ -1,7 +1,16 @@
 import axios from 'axios';
 import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '@/types/server/api';
-import type { LoginInput, TokenResponse, User } from '@/types/server/api';
+import type { 
+  LoginInput, 
+  TokenResponse, 
+  User,
+  GetStudentsResponse,
+  StudentResponse,
+  CreateStudentInput,
+  UpdateStudentInput,
+  DeleteStudentResponse
+} from '@/types/server/api';
 
 // Base axios instance for direct API calls
 const axiosInstance = axios.create({
@@ -83,12 +92,39 @@ export const apiClient = {
     },
     
     adminTest: async (): Promise<{ message: string }> => {
-      const response = await axiosInstance.get<{ message: string }>('/auth/admin-test');
+      const response = await axiosInstance.get<{ message: string }>('/admin-test');
       return response.data;
     },
     
     financeTest: async (): Promise<{ message: string }> => {
       const response = await axiosInstance.get<{ message: string }>('/auth/finance-test');
+      return response.data;
+    },
+  },
+  
+  students: {
+    getAll: async (): Promise<GetStudentsResponse> => {
+      const response = await axiosInstance.get<GetStudentsResponse>('/students');
+      return response.data;
+    },
+    
+    getById: async (id: number): Promise<StudentResponse> => {
+      const response = await axiosInstance.get<StudentResponse>(`/students/${id}`);
+      return response.data;
+    },
+    
+    create: async (input: CreateStudentInput): Promise<StudentResponse> => {
+      const response = await axiosInstance.post<StudentResponse>('/students', input);
+      return response.data;
+    },
+    
+    update: async (id: number, input: UpdateStudentInput): Promise<StudentResponse> => {
+      const response = await axiosInstance.put<StudentResponse>(`/students/${id}`, input);
+      return response.data;
+    },
+    
+    delete: async (id: number): Promise<DeleteStudentResponse> => {
+      const response = await axiosInstance.delete<DeleteStudentResponse>(`/students/${id}`);
       return response.data;
     },
   },

@@ -108,6 +108,98 @@ export const FinanceTestResponseSchema = z.object({
 export type FinanceTestResponse = z.infer<typeof FinanceTestResponseSchema>;
 
 // ============================================================================
+// Student Module Types
+// ============================================================================
+
+/**
+ * Student gender enum
+ */
+export const StudentGenderSchema = z.enum(['L', 'P']);
+export type StudentGender = z.infer<typeof StudentGenderSchema>;
+
+/**
+ * Student status enum
+ */
+export const StudentStatusSchema = z.enum(['active', 'inactive', 'graduated']);
+export type StudentStatus = z.infer<typeof StudentStatusSchema>;
+
+/**
+ * Student schema (matches StudentResource from backend)
+ */
+export const StudentSchema = z.object({
+  id: z.number().int().positive(),
+  nis: z.string().max(50),
+  nisn: z.string().max(50).nullable(),
+  name: z.string().max(255),
+  gender: StudentGenderSchema,
+  birth_date: z.string().nullable(), // ISO date string
+  status: StudentStatusSchema,
+  created_at: z.string(), // ISO datetime string
+  updated_at: z.string(), // ISO datetime string
+});
+export type Student = z.infer<typeof StudentSchema>;
+
+/**
+ * Pagination metadata schema
+ */
+export const PaginationMetaSchema = z.object({
+  current_page: z.number().int().positive(),
+  last_page: z.number().int().positive(),
+  per_page: z.number().int().positive(),
+  total: z.number().int().positive(),
+});
+export type PaginationMeta = z.infer<typeof PaginationMetaSchema>;
+
+/**
+ * Get all students response schema
+ */
+export const GetStudentsResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.array(StudentSchema),
+  meta: PaginationMetaSchema,
+});
+export type GetStudentsResponse = z.infer<typeof GetStudentsResponseSchema>;
+
+/**
+ * Create student input schema (matches StoreStudentRequest from backend)
+ */
+export const CreateStudentInputSchema = z.object({
+  nis: z.string().max(50),
+  nisn: z.string().max(50).optional().nullable(),
+  name: z.string().max(255),
+  gender: StudentGenderSchema,
+  birth_date: z.string().optional().nullable(),
+  status: StudentStatusSchema,
+});
+export type CreateStudentInput = z.infer<typeof CreateStudentInputSchema>;
+
+/**
+ * Update student input schema (matches UpdateStudentRequest from backend)
+ */
+export const UpdateStudentInputSchema = CreateStudentInputSchema.partial();
+export type UpdateStudentInput = z.infer<typeof UpdateStudentInputSchema>;
+
+/**
+ * Single student response schema
+ */
+export const StudentResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: StudentSchema,
+});
+export type StudentResponse = z.infer<typeof StudentResponseSchema>;
+
+/**
+ * Delete student response schema
+ */
+export const DeleteStudentResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteStudentResponse = z.infer<typeof DeleteStudentResponseSchema>;
+
+// ============================================================================
 // Invoice / Tagihan Types (based on mock data and Laravel models)
 // ============================================================================
 
@@ -265,6 +357,46 @@ export const appRouter = t.router({
     getReport: t.procedure
       .output(ReportResponseSchema)
       .query(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+  }),
+
+  // Student procedures
+  students: t.router({
+    getAll: t.procedure
+      .output(GetStudentsResponseSchema)
+      .query(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+
+    getById: t.procedure
+      .input(z.number().int().positive())
+      .output(StudentResponseSchema)
+      .query(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+
+    create: t.procedure
+      .input(CreateStudentInputSchema)
+      .output(StudentResponseSchema)
+      .mutation(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+
+    update: t.procedure
+      .input(z.object({
+        id: z.number().int().positive(),
+        data: UpdateStudentInputSchema,
+      }))
+      .output(StudentResponseSchema)
+      .mutation(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+
+    delete: t.procedure
+      .input(z.number().int().positive())
+      .output(DeleteStudentResponseSchema)
+      .mutation(async () => {
         throw new Error('Use apiClient to call the actual backend');
       }),
   }),
