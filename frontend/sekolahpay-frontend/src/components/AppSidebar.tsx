@@ -15,6 +15,10 @@ export function AppSidebar() {
   const location = useLocation();
   const { logout } = useAuth();
 
+  const handleLogout = () => {
+    logout.mutate();
+  };
+
   return (
     <aside className="w-64 font-noto font-semibold bg-sidebar border-r border-sidebar-border flex flex-col fixed top-0 left-0 h-screen z-30 lg:z-20 gemini-surface border-0 rounded-none">
       <div className="p-6 flex-col border-b border-sidebar-border">
@@ -47,11 +51,12 @@ export function AppSidebar() {
       <div className="p-4 mt-auto border-t border-sidebar-border">
         <Button
           variant="destructive"
-          onClick={logout}
+          onClick={handleLogout}
+          disabled={logout.isPending}
           className="w-full rounded-lg justify-start hover:bg-destructive/30 border-0"
         >
           <LogOut className="w-5 h-5" />
-          Keluar
+          {logout.isPending ? 'Keluar...' : 'Keluar'}
         </Button>
       </div>
     </aside>

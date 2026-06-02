@@ -14,11 +14,24 @@ const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
+  const hasToken = !!localStorage.getItem('sekolahpay_token');
+  
   if (isLoading) return <div className="p-8 select-none">
     <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
     Memuat...
     </div>;
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  
+  // If no token and not authenticated, redirect to login only once
+  if (!isAuthenticated && !hasToken) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  // If we have a token but still not authenticated, let the useAuth hook handle it
+  if (!isAuthenticated && hasToken && isLoading === false) {
+    localStorage.removeItem('sekolahpay_token');
+    return <Navigate to="/login" replace />;
+  }
+  
   return <>{children}</>;
 }
 

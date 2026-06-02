@@ -1,47 +1,72 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockApi } from '../mock/api';
-// import api from '@/lib/api'; // SWAP THIS WHEN BACKEND IS READY
+import { apiClient, tokenManager } from '@/lib/api';
 
-const USE_MOCK = true;
+import type { User, LoginInput, TokenResponse } from '@/types/server/api';
 
 export function useAuth() {
   const qc = useQueryClient();
 
-  const user = useQuery({
-    queryKey: ['me'],
+  const hasToken = !!tokenManager.getToken();
+  
+  const user = useQuery<User | null>({
+    queryKey: ['auth', 'me'],
     queryFn: async () => {
-      if (USE_MOCK) return mockApi.me();
-      // Real API: const { data } = await api.get('/me'); return data;
-      return null;
+      // Only try to fetch user if we have a valid token
+      if (!hasToken || tokenManager.isTokenExpired()) {
+        tokenManager.clearToken();
+        return null;
+      }
+      try {
+        return await apiClient.auth.me();
+      } catch {
+        tokenManager.clearToken();
+        return null;
+      }
     },
     retry: false,
     staleTime: Infinity,
+    enabled: hasToken && !tokenManager.isTokenExpired(), // Only run query if we have a valid token
   });
 
-  const login = useMutation({
-    mutationFn: async (creds: { email: string; password: string; rememberMe: boolean }) => {
-      if (USE_MOCK) return mockApi.login(creds);
-      // Real API: const { data } = await api.post('/login', creds); return data;
-      return null;
+  const login = useMutation<
+    TokenResponse,
+    Error,
+    { email: string; password: string; rememberMe: boolean }
+  >({
+    mutationFn: async (creds) => {
+      const loginInput: LoginInput = {
+        email: creds.email,
+        password: creds.password,
+      };
+      return await apiClient.auth.login(loginInput);
     },
     onSuccess: (data) => {
-      if (data?.token) localStorage.setItem('sekolahpay_token', data.token);
-      qc.invalidateQueries({ queryKey: ['me'] });
+      // Store token with proper expiration tracking
+      tokenManager.setToken(data.access_token, data.expires_in);
+      qc.invalidateQueries({ queryKey: ['auth', 'me'] });
     },
   });
 
-  const logout = async () => {
-    if (USE_MOCK) await mockApi.logout();
-    // else await api.post('/logout');
-    localStorage.removeItem('sekolahpay_token');
-    qc.clear();
-    window.location.href = '/login';
-  };
+  const logout = useMutation({
+    mutationFn: async () => {
+      await apiClient.auth.logout();
+    },
+    onSuccess: () => {
+      tokenManager.clearToken();
+      qc.clear();
+      window.location.href = '/login';
+    },
+  });
 
+  // Expose token status for UI
+  const tokenExpiryTime = tokenManager.getTimeUntilExpiry();
+  
   return {
     user: user.data,
     isLoading: user.isLoading,
     isAuthenticated: !!user.data,
+    isTokenExpired: tokenManager.isTokenExpired(),
+    tokenExpiresIn: tokenExpiryTime,
     login,
     logout,
   };

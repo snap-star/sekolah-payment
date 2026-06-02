@@ -22,9 +22,23 @@ export default function Login() {
       toast.success('Selamat datang!');
       navigate('/');
     } catch (err: unknown) {
-        if (err instanceof Error){
-            toast.error(err.message || 'Login gagal');
-        };
+      // Handle different types of API errors
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response?: { data?: { message?: string }, status?: number } };
+        const errorMessage = axiosError.response?.data?.message;
+        
+        if (axiosError.response?.status === 401) {
+          toast.error(errorMessage || 'Email atau password salah');
+        } else if (axiosError.response?.status === 403) {
+          toast.error(errorMessage || 'Akun tidak aktif');
+        } else {
+          toast.error('Terjadi kesalahan server. Silakan coba lagi.');
+        }
+      } else if (err instanceof Error) {
+        toast.error(err.message || 'Login gagal');
+      } else {
+        toast.error('Login gagal. Silakan coba lagi.');
+      }
     };
   };
 

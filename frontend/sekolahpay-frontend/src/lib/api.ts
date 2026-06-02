@@ -12,6 +12,53 @@ import type {
   DeleteStudentResponse
 } from '@/types/server/api';
 
+// Token management utilities
+const TOKEN_KEY = 'sekolahpay_token';
+const TOKEN_EXPIRY_KEY = 'sekolahpay_token_expiry';
+
+// Token manager - must be defined before axios instance that uses it
+const tokenManager = {
+  setToken: (token: string, expiresIn: number) => {
+    localStorage.setItem(TOKEN_KEY, token);
+    const expiryTime = Date.now() + (expiresIn * 1000);
+    localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
+  },
+  
+  getToken: () => {
+    return localStorage.getItem(TOKEN_KEY);
+  },
+  
+  clearToken: () => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(TOKEN_EXPIRY_KEY);
+  },
+  
+  isTokenExpired: () => {
+    const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+    if (!expiry) return true;
+    return Date.now() > parseInt(expiry);
+  },
+  
+  getTimeUntilExpiry: () => {
+    const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+    if (!expiry) return 0;
+    return parseInt(expiry) - Date.now();
+  }
+};
+
+// Flag to prevent multiple refresh attempts
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+const subscribeTokenRefresh = (cb: (token: string) => void) => {
+  refreshSubscribers.push(cb);
+};
+
+const onTokenRefreshed = (token: string) => {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+};
+
 // Base axios instance for direct API calls
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
@@ -21,23 +68,69 @@ const axiosInstance = axios.create({
   },
 });
 
+// Refresh token function - must be defined after axiosInstance
+const refreshToken = async (): Promise<string> => {
+  try {
+    const response = await axiosInstance.post('/auth/refresh');
+    const { access_token, expires_in } = response.data;
+    tokenManager.setToken(access_token, expires_in);
+    return access_token;
+  } catch (error) {
+    tokenManager.clearToken();
+    if (!window.location.pathname.includes('/login')) {
+      window.location.href = '/login';
+    }
+    throw error;
+  } finally {
+    isRefreshing = false;
+  }
+};
+
 // Attach token to axios requests
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('sekolahpay_token');
+  const token = tokenManager.getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Handle 401 unauthorized
+// Handle 401 unauthorized and token refresh
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('sekolahpay_token');
-      window.location.href = '/login';
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // If error is 401 and we haven't retried yet
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      // If we're already on login page, don't try to refresh
+      if (window.location.pathname.includes('/login')) {
+        return Promise.reject(error);
+      }
+      
+      if (!isRefreshing) {
+        isRefreshing = true;
+        originalRequest._retry = true;
+        
+        try {
+          const newToken = await refreshToken();
+          onTokenRefreshed(newToken);
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return axiosInstance(originalRequest);
+        } catch (refreshError) {
+          return Promise.reject(refreshError);
+        }
+      }
+      
+      // Queue requests while refreshing
+      return new Promise((resolve) => {
+        subscribeTokenRefresh((token: string) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          resolve(axiosInstance(originalRequest));
+        });
+      });
     }
+    
     return Promise.reject(error);
   }
 );
@@ -48,7 +141,7 @@ export const trpcClient = createTRPCProxyClient<AppRouter>({
     httpBatchLink({
       url: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
       fetch: async (input, init) => {
-        const token = localStorage.getItem('sekolahpay_token');
+        const token = tokenManager.getToken();
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
           ...(init?.headers as Record<string, string>),
@@ -95,11 +188,6 @@ export const apiClient = {
       const response = await axiosInstance.get<{ message: string }>('/admin-test');
       return response.data;
     },
-    
-    financeTest: async (): Promise<{ message: string }> => {
-      const response = await axiosInstance.get<{ message: string }>('/auth/finance-test');
-      return response.data;
-    },
   },
   
   students: {
@@ -130,4 +218,7 @@ export const apiClient = {
   },
 };
 
+// Also delete the useApi.ts file that references the removed financeTest
+// Export only once
+export { axiosInstance, tokenManager };
 export default axiosInstance;
