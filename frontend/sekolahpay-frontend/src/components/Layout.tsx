@@ -1,5 +1,4 @@
 import { AppSidebar } from './AppSidebar';
-import { Toaster } from '../components/ui/sonner';
 import { Outlet } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import { Menu } from 'lucide-react';
@@ -45,10 +44,6 @@ export default function Layout() {
           <div>
             <Outlet />
           </div>
-          <Toaster 
-            position="top-right" 
-            className="mobile:!bottom-6 mobile:!top-auto mobile:!right-4 mobile:!left-4 mobile:!w-auto"
-          />
         </main>
           <Footer />
       </div>
