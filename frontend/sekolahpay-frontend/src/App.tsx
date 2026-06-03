@@ -4,6 +4,7 @@ import { ThemeProvider } from 'next-themes';
 import { useAuth } from './hooks/useAuth';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import TagihanPage from './pages/Tagihan';
 import UserAdminPage from './pages/UserAdmin';
@@ -42,6 +43,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/tagihan" element={<TagihanPage />} />
