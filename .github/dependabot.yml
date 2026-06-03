@@ -12,7 +12,7 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-      timezone: "UTC"
+      timezone: "Asia/Jakarta"
     reviewers:
       - "@snap-star"
     labels:
@@ -21,6 +21,18 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      minor-patch-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      major-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
     open-pull-requests-limit: 5
 
   # Frontend (pnpm) - weekly updates
@@ -30,7 +42,7 @@ updates:
       interval: "weekly"
       day: "tuesday"
       time: "09:00"
-      timezone: "UTC"
+      timezone: "Asia/Jakarta"
     reviewers:
       - "@snap-star"
     labels:
@@ -40,6 +52,18 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      minor-patch-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      major-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
     versioning-strategy: "increase"
     open-pull-requests-limit: 5
     ignore:
@@ -53,7 +77,7 @@ updates:
       interval: "weekly"
       day: "wednesday"
       time: "09:00"
-      timezone: "UTC"
+      timezone: "Asia/Jakarta"
     reviewers:
       - "@lordfroze"
     labels:
@@ -63,6 +87,18 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    groups:
+      minor-patch-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      major-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
     open-pull-requests-limit: 5
     ignore:
       - dependency-name: "*"
