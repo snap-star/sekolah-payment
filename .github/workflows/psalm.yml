@@ -1,7 +1,5 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+# Psalm Security Scan for Laravel PHP Project
+# This workflow scans your PHP codebase for security vulnerabilities using Psalm
 
 name: Psalm Security Scan
 
@@ -10,11 +8,12 @@ on:
     branches: [ "master" ]
     paths:
       - 'backend/sekolahpay_server/**'
+      - '.github/workflows/psalm.yml'
   pull_request:
-    # The branches below must be a subset of the branches above
     branches: [ "master" ]
     paths:
       - 'backend/sekolahpay_server/**'
+      - '.github/workflows/psalm.yml'
   schedule:
     - cron: '00 6 * * 1'
 
@@ -33,12 +32,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Psalm Security Scan
-        uses: psalm/psalm-github-security-scan@f3e6fd9432bc3e44aec078572677ce9d2ef9c287
-        # Note: Pinning to '@v1' or a specific SHA like your original is fine.
-        # If your psalm.xml is inside the backend folder, you can point to it here:
-        # with:
-        #   config_file: backend/psalm.xml
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, json, fileinfo, pdo, mysql
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+        working-directory: backend/sekolahpay_server
+
+      - name: Install Psalm globally
+        run: |
+          composer global require --dev vimeo/psalm psalm/psalm-plugin-laravel
+          echo $HOME/.composer/vendor/bin >> $GITHUB_PATH
+
+      - name: Initialize Psalm configuration
+        run: |
+          cd backend/sekolahpay_server
+          psalm --init
+          psalm-plugin enable psalm/psalm-plugin-laravel
+        continue-on-error: true
+
+      - name: Run Psalm Security Scan
+        run: |
+          cd backend/sekolahpay_server
+          psalm --security-analysis --output sarif results.sarif
+
+      - name: Move results to root
+        run: mv backend/sekolahpay_server/results.sarif results.sarif
 
       - name: Upload Security Analysis results to GitHub
         uses: github/codeql-action/upload-sarif@v3

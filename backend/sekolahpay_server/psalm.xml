@@ -1,0 +1,39 @@
+e:\next plus laravel\backend\sekolahpay_server\psalm.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<psalm
+    errorLevel="1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config/vendor/vimeo/psalm/src/psalm/config.xsd"
+    totallyTyped="false"
+    findUnusedBaselineEntry="false"
+>
+    <projectFiles>
+        <directory name="app" />
+        <directory name="bootstrap" />
+        <directory name="config" />
+        <directory name="database" />
+        <directory name="routes" />
+        <ignoreFiles>
+            <directory name="vendor" />
+            <directory name="storage" />
+            <directory name="public" />
+            <directory name="resources" />
+            <file name="*.blade.php" />
+        </ignoreFiles>
+    </projectFiles>
+
+    <plugins>
+        <pluginClass class="Psalm\\LaravelPlugin\\Plugin" />
+    </plugins>
+
+    <issueHandlers>
+        <UndefinedDocblockClass errorLevel="suppress" />
+        <MissingReturnType errorLevel="info" />
+        <MissingParamType errorLevel="info" />
+        <UnusedVariable errorLevel="info" />
+        <PossiblyUnusedVariable errorLevel="info" />
+    </issueHandlers>
+
+    <phpVersion>8.3</phpVersion>
+</psalm>
