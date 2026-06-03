@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -19,17 +20,17 @@ export default function Login() {
     e.preventDefault();
     try {
       await login.mutateAsync({ email, password, rememberMe });
-      toast.success('Selamat datang!');
+      toast.success(`Selamat datang! ${email}`);
       navigate('/');
     } catch (err: unknown) {
-      // Handle different types of API errors
-      if (err && typeof err === 'object' && 'response' in err) {
-        const axiosError = err as { response?: { data?: { message?: string }, status?: number } };
-        const errorMessage = axiosError.response?.data?.message;
+      // Handle different types of API errors with proper AxiosError typing
+      if (err instanceof AxiosError) {
+        // Properly typed AxiosError - only extract necessary error information
+        const errorMessage = err.response?.data?.message;
         
-        if (axiosError.response?.status === 401) {
+        if (err.response?.status === 401) {
           toast.error(errorMessage || 'Email atau password salah');
-        } else if (axiosError.response?.status === 403) {
+        } else if (err.response?.status === 403) {
           toast.error(errorMessage || 'Akun tidak aktif');
         } else {
           toast.error('Terjadi kesalahan server. Silakan coba lagi.');
@@ -53,14 +54,14 @@ export default function Login() {
           <CardDescription>Masuk ke sistem pembayaran sekolah</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} method="post" className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="admin@sekolah.test" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input id="email" type="email" placeholder="admin@sekolah.test" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
             </div>
             <div className="flex items-center gap-2">
               <input type="checkbox" id="remember" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="rounded border-border" />

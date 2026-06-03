@@ -105,7 +105,13 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       // If we're already on login page, don't try to refresh
       if (window.location.pathname.includes('/login')) {
-        return Promise.reject(error);
+        // Create a sanitized error that doesn't expose the full API URL
+        const sanitizedError = new Error('Authentication failed');
+        Object.assign(sanitizedError, {
+          response: error.response,
+          // Don't include config/request that would expose the URL in logs
+        });
+        return Promise.reject(sanitizedError);
       }
       
       if (!isRefreshing) {
@@ -118,7 +124,14 @@ axiosInstance.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return axiosInstance(originalRequest);
         } catch (refreshError) {
-          return Promise.reject(refreshError);
+          const sanitizedRefreshError = new Error('Token refresh failed');
+          // Properly type check the refresh error before accessing properties
+          if (refreshError && typeof refreshError === 'object' && 'response' in refreshError) {
+            Object.assign(sanitizedRefreshError, {
+              response: (refreshError as { response?: unknown }).response,
+            });
+          }
+          return Promise.reject(sanitizedRefreshError);
         }
       }
       
@@ -131,7 +144,13 @@ axiosInstance.interceptors.response.use(
       });
     }
     
-    return Promise.reject(error);
+    // Create sanitized error for all other cases to prevent exposing API URL in console
+    const sanitizedError = new Error('API request failed');
+    Object.assign(sanitizedError, {
+      response: error.response,
+      // Omit the full config/request to prevent URL exposure in console logs
+    });
+    return Promise.reject(sanitizedError);
   }
 );
 
