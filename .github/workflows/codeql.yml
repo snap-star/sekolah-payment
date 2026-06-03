@@ -5,12 +5,10 @@ on:
     branches: [ "master" ]
     paths:
       - 'frontend/sekolahpay-frontend/**'
-      - '.github/workflows/codeql.yml'
   pull_request:
     branches: [ "master" ]
     paths:
       - 'frontend/sekolahpay-frontend/**'
-      - '.github/workflows/codeql.yml'
   schedule:
     - cron: '00 6 * * 6'
 
