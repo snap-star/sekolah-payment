@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
@@ -18,7 +19,7 @@ export default function Register() {
   // Uncomment these when backend adds /auth/register endpoint
   // const { register } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     // Basic client-side validation
@@ -63,10 +64,9 @@ export default function Register() {
         toast.error('Pendaftaran gagal. Silakan coba lagi.');
       }
       */
-     if (err instanceof Error) {
-    console.log(err.message); // Safe to access .message now
-  }
+     if (err instanceof AxiosError) {
       toast.info('Fitur pendaftaran belum tersedia. Silakan hubungi administrator.');
+     }
     };
   };
 
@@ -90,6 +90,7 @@ export default function Register() {
                 placeholder="John Doe" 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
+                autoComplete="name"
                 required 
               />
             </div>
@@ -101,6 +102,7 @@ export default function Register() {
                 placeholder="admin@sekolah.test" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
+                autoComplete="email"
                 required 
               />
             </div>
@@ -112,6 +114,8 @@ export default function Register() {
                 placeholder="Minimal 8 karakter" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
+                autoComplete="new-password"
+                minLength={8}
                 required 
               />
             </div>
@@ -123,6 +127,7 @@ export default function Register() {
                 placeholder="Ulangi password" 
                 value={passwordConfirmation} 
                 onChange={(e) => setPasswordConfirmation(e.target.value)} 
+                autoComplete="new-password"
                 required 
               />
             </div>
