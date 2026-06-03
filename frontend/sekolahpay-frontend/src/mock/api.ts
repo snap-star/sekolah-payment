@@ -120,8 +120,7 @@ export const mockApi = {
 
   async updateTagihan(id: number, data: { nominal_disesuaikan: number }) {
     await sleep(300);
-    console.log('Updated tagihan', id, data);
-    return { success: true };
+    return { success: true, id, data };
   },
 
   async generateQris(id: number) {
