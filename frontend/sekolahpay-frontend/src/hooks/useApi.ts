@@ -8,10 +8,15 @@ import type {
   ReportResponse, 
   GetInvoicesResponse,
   GetStudentsResponse,
+  GetParentsResponse,
   StudentResponse,
   CreateStudentInput,
   UpdateStudentInput,
-  DeleteStudentResponse
+  DeleteStudentResponse,
+  CreateStudentGuardianInput,
+  UpdateStudentGuardianInput,
+  GetStudentGuardiansResponse,
+  StudentGuardianResponse
 } from '@/types/server/api';
 
 // ============================================================================
@@ -56,16 +61,6 @@ export const useAdminTest = (options?: Omit<UseQueryOptions<{ message: string },
   });
 };
 
-//mock finance test data
-// export const useFinanceTest = (options?: Omit<UseQueryOptions<{ message: string }, Error>, 'queryKey' | 'queryFn'>) => {
-//   return useQuery({
-//     queryKey: ['auth', 'finance-test'],
-//     queryFn: () => apiClient.auth.financeTest(),
-//     enabled: false, // Only run when explicitly called
-//     ...options,
-//   });
-// };
-
 // ============================================================================
 // Invoice Hooks
 // ============================================================================
@@ -104,10 +99,19 @@ export const useReport = (options?: Omit<UseQueryOptions<ReportResponse, Error>,
 // Student Hooks
 // ============================================================================
 
-export const useStudents = (options?: Omit<UseQueryOptions<GetStudentsResponse, Error>, 'queryKey' | 'queryFn'>) => {
+export const useStudents = (
+  params?: { 
+    page?: number; 
+    perPage?: number;
+    search?: string;
+    status?: string;
+    gender?: string;
+  },
+  options?: Omit<UseQueryOptions<GetStudentsResponse, Error>, 'queryKey' | 'queryFn'>
+) => {
   return useQuery({
-    queryKey: ['students'],
-    queryFn: () => apiClient.students.getAll(),
+    queryKey: ['students', params],
+    queryFn: () => apiClient.students.getAll(params),
     ...options,
   });
 };
@@ -138,6 +142,81 @@ export const useUpdateStudent = (options?: Omit<UseMutationOptions<StudentRespon
 export const useDeleteStudent = (options?: Omit<UseMutationOptions<DeleteStudentResponse, Error, number>, 'mutationFn'>) => {
   return useMutation({
     mutationFn: (id: number) => apiClient.students.delete(id),
+    ...options,
+  });
+};
+
+// ============================================================================
+// Student Guardian Hooks (Orang Tua/Wali)
+// ============================================================================
+
+export const useStudentGuardians = (
+  studentId: number,
+  params?: { 
+    page?: number; 
+    perPage?: number;
+  },
+  options?: Omit<UseQueryOptions<GetStudentGuardiansResponse, Error>, 'queryKey' | 'queryFn'>
+) => {
+  return useQuery({
+    queryKey: ['student-guardians', studentId, params],
+    queryFn: () => apiClient.students.getGuardians(studentId, params),
+    enabled: !!studentId,
+    ...options,
+  });
+};
+
+export const useStudentGuardian = (
+  studentId: number, 
+  guardianId: number, 
+  options?: Omit<UseQueryOptions<StudentGuardianResponse, Error>, 'queryKey' | 'queryFn'>
+) => {
+  return useQuery({
+    queryKey: ['student-guardians', studentId, guardianId],
+    queryFn: () => apiClient.students.getGuardianById(studentId, guardianId),
+    enabled: !!studentId && !!guardianId,
+    ...options,
+  });
+};
+
+export const useCreateStudentGuardian = (options?: Omit<UseMutationOptions<StudentGuardianResponse, Error, { studentId: number; data: CreateStudentGuardianInput }>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: ({ studentId, data }: { studentId: number; data: CreateStudentGuardianInput }) => 
+      apiClient.students.createGuardian(studentId, data),
+    ...options,
+  });
+};
+
+export const useUpdateStudentGuardian = (options?: Omit<UseMutationOptions<StudentGuardianResponse, Error, { studentId: number; guardianId: number; data: UpdateStudentGuardianInput }>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: ({ studentId, guardianId, data }: { studentId: number; guardianId: number; data: UpdateStudentGuardianInput }) => 
+      apiClient.students.updateGuardian(studentId, guardianId, data),
+    ...options,
+  });
+};
+
+export const useDeleteStudentGuardian = (options?: Omit<UseMutationOptions<{ success: boolean; message: string }, Error, { studentId: number; guardianId: number }>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: ({ studentId, guardianId }: { studentId: number; guardianId: number }) => 
+      apiClient.students.deleteGuardian(studentId, guardianId),
+    ...options,
+  });
+};
+
+// ============================================================================
+// Parent/Guardian List Hooks (All guardians across all students)
+// ============================================================================
+
+export const useParents = (
+  params?: { 
+    page?: number; 
+    perPage?: number;
+  },
+  options?: Omit<UseQueryOptions<GetParentsResponse, Error>, 'queryKey' | 'queryFn'>
+) => {
+  return useQuery({
+    queryKey: ['parents', params],
+    queryFn: () => apiClient.parent.getAll(params),
     ...options,
   });
 };

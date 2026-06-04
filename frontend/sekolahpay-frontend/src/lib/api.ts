@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
-import type { AppRouter } from '@/types/server/api';
+import type { AppRouter, GetParentsResponse } from '@/types/server/api';
 import type { 
   LoginInput, 
   TokenResponse, 
@@ -9,7 +9,11 @@ import type {
   StudentResponse,
   CreateStudentInput,
   UpdateStudentInput,
-  DeleteStudentResponse
+  DeleteStudentResponse,
+  CreateStudentGuardianInput,
+  UpdateStudentGuardianInput,
+  GetStudentGuardiansResponse,
+  StudentGuardianResponse
 } from '@/types/server/api';
 
 // Token management utilities
@@ -188,56 +192,131 @@ export const apiClient = {
       return response.data;
     },
     
+    // Get user info endpoint
     me: async (): Promise<User> => {
       const response = await axiosInstance.get<User>('/auth/me');
       return response.data;
     },
     
+    // Refresh token endpoint
     refresh: async (): Promise<TokenResponse> => {
       const response = await axiosInstance.post<TokenResponse>('/auth/refresh');
       return response.data;
     },
     
+    // Logout endpoint
     logout: async (): Promise<{ message: string }> => {
       const response = await axiosInstance.post<{ message: string }>('/auth/logout');
       return response.data;
     },
     
+    // Admin test endpoint
     adminTest: async (): Promise<{ message: string }> => {
       const response = await axiosInstance.get<{ message: string }>('/admin-test');
       return response.data;
     },
   },
+
+  // Orang tua wali / api
+  parent: {
+    getAll: async (params?: { 
+      page?: number; 
+      perPage?: number;
+    }): Promise<GetParentsResponse> => {
+      const searchParams = new URLSearchParams();
+      if (params?.page) searchParams.append('page', params.page.toString());
+      if (params?.perPage) searchParams.append('per_page', params.perPage.toString());
+      
+      const url = `/student-guardians${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const response = await axiosInstance.get<GetParentsResponse>(url);
+      return response.data;
+    },
+  },
   
+  // Student API search endpoint
   students: {
-    getAll: async (): Promise<GetStudentsResponse> => {
-      const response = await axiosInstance.get<GetStudentsResponse>('/students');
+    getAll: async (params?: { 
+      page?: number; 
+      perPage?: number;
+      search?: string;
+      status?: string;
+      gender?: string;
+    }): Promise<GetStudentsResponse> => {
+      const searchParams = new URLSearchParams();
+      if (params?.page) searchParams.append('page', params.page.toString());
+      if (params?.perPage) searchParams.append('per_page', params.perPage.toString());
+      if (params?.search) searchParams.append('search', params.search);
+      if (params?.status) searchParams.append('status', params.status);
+      if (params?.gender) searchParams.append('gender', params.gender);
+      
+      const url = `/students${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const response = await axiosInstance.get<GetStudentsResponse>(url);
       return response.data;
     },
     
+    // Student API get by ID endpoint
     getById: async (id: number): Promise<StudentResponse> => {
       const response = await axiosInstance.get<StudentResponse>(`/students/${id}`);
       return response.data;
     },
     
+    // Student API create endpoint
     create: async (input: CreateStudentInput): Promise<StudentResponse> => {
       const response = await axiosInstance.post<StudentResponse>('/students', input);
       return response.data;
     },
     
+    // Student API update endpoint
     update: async (id: number, input: UpdateStudentInput): Promise<StudentResponse> => {
       const response = await axiosInstance.put<StudentResponse>(`/students/${id}`, input);
       return response.data;
     },
-    
+
+    // Student API delete endpoint
     delete: async (id: number): Promise<DeleteStudentResponse> => {
       const response = await axiosInstance.delete<DeleteStudentResponse>(`/students/${id}`);
+      return response.data;
+    },
+    
+    // Student Guardians API - Get all guardians for a specific student
+    getGuardians: async (studentId: number, params?: { 
+      page?: number; 
+      perPage?: number;
+    }): Promise<GetStudentGuardiansResponse> => {
+      const searchParams = new URLSearchParams();
+      if (params?.page) searchParams.append('page', params.page.toString());
+      if (params?.perPage) searchParams.append('per_page', params.perPage.toString());
+      
+      const url = `/students/${studentId}/guardians${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const response = await axiosInstance.get<GetStudentGuardiansResponse>(url);
+      return response.data;
+    },
+    
+    // Student Guardians API - Get single guardian
+    getGuardianById: async (studentId: number, guardianId: number): Promise<StudentGuardianResponse> => {
+      const response = await axiosInstance.get<StudentGuardianResponse>(`/students/${studentId}/guardians/${guardianId}`);
+      return response.data;
+    },
+    
+    // Student Guardians API - Create new guardian
+    createGuardian: async (studentId: number, input: CreateStudentGuardianInput): Promise<StudentGuardianResponse> => {
+      const response = await axiosInstance.post<StudentGuardianResponse>(`/students/${studentId}/guardians`, input);
+      return response.data;
+    },
+    
+    // Student Guardians API - Update guardian
+    updateGuardian: async (studentId: number, guardianId: number, input: UpdateStudentGuardianInput): Promise<StudentGuardianResponse> => {
+      const response = await axiosInstance.put<StudentGuardianResponse>(`/students/${studentId}/guardians/${guardianId}`, input);
+      return response.data;
+    },
+
+    // Student Guardians API - Delete guardian
+    deleteGuardian: async (studentId: number, guardianId: number): Promise<{ success: boolean; message: string }> => {
+      const response = await axiosInstance.delete(`/students/${studentId}/guardians/${guardianId}`);
       return response.data;
     },
   },
 };
 
-// Also delete the useApi.ts file that references the removed financeTest
-// Export only once
 export { axiosInstance, tokenManager };
 export default axiosInstance;

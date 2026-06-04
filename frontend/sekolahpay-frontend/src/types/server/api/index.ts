@@ -26,7 +26,7 @@ export type UserRole = z.infer<typeof UserRoleSchema>;
 export const UserSchema = z.object({
   id: z.number().int().positive(),
   name: z.string().min(1),
-  email: z.string().email(),
+  email: z.email(),
   role: UserRoleSchema,
 });
 export type User = z.infer<typeof UserSchema>;
@@ -49,7 +49,7 @@ export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
  * Login input schema
  */
 export const LoginInputSchema = z.object({
-  email: z.string().email('Email harus valid'),
+  email: z.email('Email harus valid'),
   password: z.string().min(1, 'Password tidak boleh kosong'),
 });
 export type LoginInput = z.infer<typeof LoginInputSchema>;
@@ -179,6 +179,85 @@ export type CreateStudentInput = z.infer<typeof CreateStudentInputSchema>;
  */
 export const UpdateStudentInputSchema = CreateStudentInputSchema.partial();
 export type UpdateStudentInput = z.infer<typeof UpdateStudentInputSchema>;
+
+// ============================================================================
+// Student Guardian Module Types (Orang Tua/Wali)
+// ============================================================================
+
+/**
+ * Student guardian schema (matches StudentGuardianResource from backend)
+ */
+export const StudentGuardianSchema = z.object({
+  id: z.number().int().positive(),
+  student: z.object({
+    id: z.number().int().positive(),
+    nis: z.string(),
+    name: z.string(),
+  }),
+  name: z.string().max(255),
+  relationship: z.string().nullable(), // Ayah, Ibu, Wali, etc.
+  phone: z.string().max(50).nullable(),
+  occupation: z.string().nullable(),
+  address: z.string().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+export type StudentGuardian = z.infer<typeof StudentGuardianSchema>;
+
+/**
+ * Get all parents/guardians response schema
+ */
+export const GetParentsResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.array(StudentGuardianSchema),
+  meta: PaginationMetaSchema,
+});
+export type GetParentsResponse = z.infer<typeof GetParentsResponseSchema>;
+
+/**
+ * Create guardian input schema
+ */
+export const CreateStudentGuardianInputSchema = z.object({
+  student_id: z.number().int().positive(),
+  name: z.string().max(255),
+  phone: z.string().max(50),
+  relation: z.string().max(100), // Ayah, Ibu, Wali, etc.
+  occupation: z.string().optional().nullable(),
+  address: z.string().optional().nullable(),
+});
+export type CreateStudentGuardianInput = z.infer<typeof CreateStudentGuardianInputSchema>;
+
+/**
+ * Update guardian input schema
+ */
+export const UpdateStudentGuardianInputSchema = CreateStudentGuardianInputSchema.partial();
+export type UpdateStudentGuardianInput = z.infer<typeof UpdateStudentGuardianInputSchema>;
+
+/**
+ * Get all guardians response schema
+ */
+export const GetStudentGuardiansResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.array(StudentGuardianSchema),
+  meta: PaginationMetaSchema,
+});
+export type GetStudentGuardiansResponse = z.infer<typeof GetStudentGuardiansResponseSchema>;
+
+/**
+ * Single guardian response schema
+ */
+export const StudentGuardianResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: StudentGuardianSchema,
+});
+export type StudentGuardianResponse = z.infer<typeof StudentGuardianResponseSchema>;
+
+// ============================================================================
+// Continue Student Module Types
+// ============================================================================
 
 /**
  * Single student response schema
