@@ -15,7 +15,7 @@ export function StatCard({ title, value, subtitle, className }: StatCardProps) {
         <CardTitle className="text-sm font-bold text-muted-foreground">{title}</CardTitle>
       </CardHeader>
       <CardContent className="px-0 pb-0 gap-0">
-        <div className="text-3xl transform translate-y-[-18px] font-bold text-foreground tracking-tight">{value}</div>
+        <div className="text-3xl transform -translate-y-4.5 font-bold text-foreground tracking-tight">{value}</div>
         {subtitle && <p className="text-sm text-muted-foreground mt-2">{subtitle}</p>}
       </CardContent>
     </Card>
