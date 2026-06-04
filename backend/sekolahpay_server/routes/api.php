@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\StudentController;
+use App\Http\Controllers\Api\StudentGuardianController;
 
 // auth resource
 Route::prefix('auth')->group(function () {
@@ -30,11 +31,12 @@ Route::middleware([
     ]);
 });
 
-// student 
+// Admin and Bendahara role
 Route::middleware([
     'auth:api',
     'role:admin,bendahara'
 ])->group(function () {
 
-    Route::apiResource('students', StudentController::class);
+    Route::apiResource('students', StudentController::class); // student resource
+    Route::apiResource('student-guardians', StudentGuardianController::class); // student guardian resource
 });
