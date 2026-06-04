@@ -13,6 +13,22 @@ export default defineConfig({
       typescript: true,
     }),
   ],
+  build: {
+    chunkSizeWarningLimit: 1000, // Increase limit to 1MB to avoid warnings
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Split vendor dependencies into separate chunks
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/@tanstack') || id.includes('node_modules/next-themes') || id.includes('node_modules/sonner') || id.includes('node_modules/lucide-react')) {
+            return 'ui-vendor';
+          }
+        }
+      }
+    }
+  },
   resolve:{
     tsconfigPaths: true,
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
@@ -32,5 +48,13 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    proxy: {
+      '/api': {
+        target: 'https://yogatama.web.id',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path,
+      },
+    },
   },
 });
