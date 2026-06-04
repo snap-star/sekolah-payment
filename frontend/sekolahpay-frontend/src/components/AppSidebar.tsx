@@ -6,6 +6,8 @@ import { Button } from './ui/button';
 
 const menuItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
+  { label: 'Siswa', icon: Users, path: '/siswa' },
+  { label: 'Orang Tua', icon: Users, path: '/orang-tua' },
   { label: 'Manajemen Tagihan', icon: Receipt, path: '/tagihan' },
   { label: 'User Admin', icon: Users, path: '/user-admin' },
   { label: 'Laporan', icon: FileText, path: '/report' },

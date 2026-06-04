@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
@@ -5,11 +6,16 @@ import { useAuth } from './hooks/useAuth';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import TagihanPage from './pages/Tagihan';
-import UserAdminPage from './pages/UserAdmin';
-import ReportPage from './pages/Report';
+
 import { RefreshCcw } from 'lucide-react';
+import OrangTuaPage from './pages/OrangTua';
+
+// Lazy load all page components for code splitting
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const TagihanPage = lazy(() => import('./pages/Tagihan'));
+const UserAdminPage = lazy(() => import('./pages/UserAdmin'));
+const ReportPage = lazy(() => import('./pages/Report'));
+const SiswaPage = lazy(() => import('./pages/Siswa'));
 
 const queryClient = new QueryClient();
 
@@ -45,10 +51,54 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/tagihan" element={<TagihanPage />} />
-              <Route path="/user-admin" element={<UserAdminPage />} />
-              <Route path="/report" element={<ReportPage />} />
+              <Route path="/" element={
+                <Suspense fallback={<div className="p-8 select-none">
+                  <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
+                  Memuat...
+                </div>}>
+                  <Dashboard />
+                </Suspense>
+              } />
+              <Route path="/tagihan" element={
+                <Suspense fallback={<div className="p-8 select-none">
+                  <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
+                  Memuat...
+                </div>}>
+                  <TagihanPage />
+                </Suspense>
+              } />
+              <Route path="/siswa" element={
+                <Suspense fallback={<div className="p-8 select-none">
+                  <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
+                  Memuat...
+                </div>}>
+                  <SiswaPage />
+                </Suspense>
+              } />
+              <Route path="/orang-tua" element={
+                <Suspense fallback={<div className="p-8 select-none">
+                  <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
+                  Memuat...
+                </div>}>
+                  <OrangTuaPage />
+                </Suspense>
+              }/>
+              <Route path="/user-admin" element={
+                <Suspense fallback={<div className="p-8 select-none">
+                  <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
+                  Memuat...
+                </div>}>
+                  <UserAdminPage />
+                </Suspense>
+              } />
+              <Route path="/report" element={
+                <Suspense fallback={<div className="p-8 select-none">
+                  <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
+                  Memuat...
+                </div>}>
+                  <ReportPage />
+                </Suspense>
+              } />
             </Route>
           </Routes>
         </BrowserRouter>
