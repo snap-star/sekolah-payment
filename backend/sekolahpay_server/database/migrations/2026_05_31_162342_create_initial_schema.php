@@ -122,8 +122,9 @@ return new class extends Migration
 
             $table->string('name');
             $table->string('phone');
-
-            $table->string('relation');
+            $table->string('occupation')->nullable();
+            $table->text('address')->nullable();
+            $table->string('relation')->nullable(); // Ayah, Ibu, Wali
 
             $table->boolean('is_primary')
                 ->default(false);

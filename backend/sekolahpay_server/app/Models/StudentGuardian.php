@@ -10,6 +10,8 @@ class StudentGuardian extends Model
         'student_id',
         'name',
         'phone',
+        'occupation',
+        'address',
         'relation',
         'is_primary',
     ];

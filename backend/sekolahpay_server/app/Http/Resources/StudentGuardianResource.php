@@ -20,7 +20,7 @@ class StudentGuardianResource extends JsonResource
             ],
 
             'name' => $this->name,
-            'relationship' => $this->relationship,
+            'relation' => $this->relation,
             'phone' => $this->phone,
             'occupation' => $this->occupation,
             'address' => $this->address,
