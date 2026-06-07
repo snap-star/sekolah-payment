@@ -1,0 +1,172 @@
+name: Release & Semantic Versioning
+
+# Trigger the workflow on push to main branch or when manually dispatched
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+
+# Permissions required for creating releases and pushing tags
+permissions:
+  contents: write
+  issues: write
+  pull-requests: read
+
+env:
+  DEFAULT_BRANCH: ${{ github.ref_name }}
+
+jobs:
+  release:
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'sekolahpay'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: 'frontend/sekolahpay-frontend/pnpm-lock.yaml'
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          
+      - name: Install semantic-release dependencies
+        run: |
+          npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github @semantic-release/npm conventional-changelog-conventionalcommits
+          
+      - name: Install frontend dependencies
+        run: |
+          cd frontend/sekolahpay-frontend
+          pnpm install
+          
+      - name: Install backend dependencies
+        run: |
+          cd backend/sekolahpay_server
+          composer install --no-dev --optimize-autoloader
+          
+      - name: Run TypeScript checks (frontend)
+        run: |
+          cd frontend/sekolahpay-frontend
+          pnpm tsc --noEmit
+          
+      - name: Run Psalm static analysis (backend)
+        run: |
+          cd backend/sekolahpay_server
+          vendor/bin/psalm --show-info=false
+          
+      - name: Build frontend for production
+        run: |
+          cd frontend/sekolahpay-frontend
+          pnpm run build
+          
+      - name: Run semantic-release
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx semantic-release --extends ./semantic-release.config.js
+          
+      - name: Upload release artifacts
+        if: steps.release.outputs.release_tag != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: sekolahpay-release-${{ steps.release.outputs.release_tag }}
+          path: |
+            frontend/sekolahpay-frontend/.next/standalone
+            frontend/sekolahpay-frontend/.next/static
+            backend/sekolahpay-server/public
+            backend/sekolahpay-server/app
+          if-no-files-found: ignore
+
+---
+
+name: Manual Version Bump
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Which version to bump?'
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+          - prerelease
+      prerelease_identifier:
+        description: 'Prerelease identifier (only for prerelease bump, e.g. beta, rc)'
+        required: false
+        type: string
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install semver tool
+        run: npm install -g semver
+          
+      - name: Read current version from CHANGELOG
+        id: get-current-version
+        run: |
+          CURRENT_VERSION=$(grep -m 1 "## \[" frontend/sekolahpay-frontend/CHANGELOG.md | grep -oP '\[\K\d+\.\d+\.\d+')
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+          
+      - name: Bump version
+        id: bump-version
+        run: |
+          if [ "${{ inputs.version_bump }}" = "prerelease" ]; then
+            NEW_VERSION=$(semver ${{ steps.get-current-version.outputs.current_version }} -i ${{ inputs.version_bump }} --preid ${inputs.prerelease_identifier:-rc})
+          else
+            NEW_VERSION=$(semver ${{ steps.get-current-version.outputs.current_version }} -i ${{ inputs.version_bump }})
+          fi
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+          
+      - name: Update CHANGELOG.md with new version
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          NEW_VERSION="${{ steps.bump-version.outputs.new_version }}"
+          sed -i "0,/## \[/s/## \[/## [$NEW_VERSION] - $TODAY\n\n### Summary\nAutomated version bump from ${{ steps.get-current-version.outputs.current_version }}\n\n---\n\n## [/" frontend/sekolahpay-frontend/CHANGELOG.md
+          
+      - name: Commit and tag version bump
+        uses: ad-m/github-push-action@master
+        with:
+          branch: ${{ github.ref_name }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tags: true
+          message: "chore: bump version to ${{ steps.bump-version.outputs.new_version }}"

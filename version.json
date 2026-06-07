@@ -1,0 +1,23 @@
+{
+  "version": "1.1.0",
+  "version_name": "Invoice & Fee Management Update",
+  "release_date": "2026-06-08",
+  "semantic_version": true,
+  "version_code": 10100,
+  "compatibility": {
+    "frontend": {
+      "node": ">=18.0.0",
+      "pnpm": ">=8.0.0"
+    },
+    "backend": {
+      "php": ">=8.2.0",
+      "laravel": ">=11.0.0"
+    },
+    "database": {
+      "mysql": ">=8.0",
+      "postgresql": ">=14.0"
+    }
+  },
+  "changelog_url": "https://github.com/sekolahpay/sekolahpay/blob/main/frontend/sekolahpay-frontend/CHANGELOG.md",
+  "release_notes": "Comprehensive billing system update with type-safe invoice management, fee type administration, and complete billing workflow implementation."
+}

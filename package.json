@@ -1,0 +1,45 @@
+{
+  "name": "sekolahpay-monorepo",
+  "version": "1.1.0",
+  "private": true,
+  "description": "SekolahPay School Management System - Full-stack monorepo",
+  "scripts": {
+    "version:check": "node scripts/bump-version.js check",
+    "version:bump:patch": "node scripts/bump-version.js bump patch",
+    "version:bump:minor": "node scripts/bump-version.js bump minor",
+    "version:bump:major": "node scripts/bump-version.js bump major",
+    "version:bump:rc": "node scripts/bump-version.js bump prerelease rc",
+    "version:bump:beta": "node scripts/bump-version.js bump prerelease beta",
+    "dev:frontend": "cd frontend/sekolahpay-frontend && pnpm dev",
+    "dev:backend": "cd backend/sekolahpay_server && php artisan serve",
+    "build:frontend": "cd frontend/sekolahpay-frontend && pnpm build",
+    "install:all": "cd frontend/sekolahpay-frontend && pnpm install && cd ../../ && cd backend/sekolahpay_server && composer install"
+  },
+  "devDependencies": {
+    "semver": "^7.6.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^10.0.0",
+    "@semantic-release/npm": "^12.0.0",
+    "semantic-release": "^24.0.0",
+    "conventional-changelog-conventionalcommits": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sekolahpay/sekolahpay.git"
+  },
+  "keywords": [
+    "school-management",
+    "billing",
+    "education",
+    "laravel",
+    "react",
+    "typescript"
+  ],
+  "author": "SekolahPay Team",
+  "license": "MIT"
+}
