@@ -16,7 +16,11 @@ import type {
   CreateStudentGuardianInput,
   UpdateStudentGuardianInput,
   GetStudentGuardiansResponse,
-  StudentGuardianResponse
+  StudentGuardianResponse,
+  GetFeeTypesResponse,
+  FeeTypeResponse,
+  CreateFeeTypeInput,
+  UpdateFeeTypeInput
 } from '@/types/server/api';
 
 // ============================================================================
@@ -172,7 +176,7 @@ export const useStudentGuardian = (
   options?: Omit<UseQueryOptions<StudentGuardianResponse, Error>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery({
-    queryKey: ['student-guardians', studentId, guardianId],
+    queryKey: ['parents', guardianId],
     queryFn: () => apiClient.students.getGuardianById(studentId, guardianId),
     enabled: !!studentId && !!guardianId,
     ...options,
@@ -199,6 +203,54 @@ export const useDeleteStudentGuardian = (options?: Omit<UseMutationOptions<{ suc
   return useMutation({
     mutationFn: ({ studentId, guardianId }: { studentId: number; guardianId: number }) => 
       apiClient.students.deleteGuardian(studentId, guardianId),
+    ...options,
+  });
+};
+
+// ============================================================================
+// Fee Types Hooks (Jenis Biaya)
+// ============================================================================
+
+export const useFeeTypes = (
+  params?: { 
+    page?: number; 
+    perPage?: number;
+  },
+  options?: Omit<UseQueryOptions<GetFeeTypesResponse, Error>, 'queryKey' | 'queryFn'>
+) => {
+  return useQuery({
+    queryKey: ['fee-types', params],
+    queryFn: () => apiClient.feeTypes.getAll(params),
+    ...options,
+  });
+};
+
+export const useFeeType = (id: number, options?: Omit<UseQueryOptions<FeeTypeResponse, Error>, 'queryKey' | 'queryFn'>) => {
+  return useQuery({
+    queryKey: ['fee-types', id],
+    queryFn: () => apiClient.feeTypes.getById(id),
+    enabled: !!id,
+    ...options,
+  });
+};
+
+export const useCreateFeeType = (options?: Omit<UseMutationOptions<FeeTypeResponse, Error, CreateFeeTypeInput>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: (input: CreateFeeTypeInput) => apiClient.feeTypes.create(input),
+    ...options,
+  });
+};
+
+export const useUpdateFeeType = (options?: Omit<UseMutationOptions<FeeTypeResponse, Error, { id: number; data: UpdateFeeTypeInput }>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateFeeTypeInput }) => apiClient.feeTypes.update(id, data),
+    ...options,
+  });
+};
+
+export const useDeleteFeeType = (options?: Omit<UseMutationOptions<{ success: boolean; message: string }, Error, number>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: (id: number) => apiClient.feeTypes.delete(id),
     ...options,
   });
 };

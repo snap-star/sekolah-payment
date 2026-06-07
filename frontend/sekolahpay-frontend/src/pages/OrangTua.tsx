@@ -16,7 +16,7 @@ import {
   PaginationNext,
 } from '../components/ui/pagination';
 import { toast } from 'sonner';
-import { Pencil, RefreshCcw, Trash, Search, Plus } from 'lucide-react';
+import { Pencil, RefreshCcw, Trash, Search, Plus, Save, CircleX } from 'lucide-react';
 import { 
   useParents,
   useStudents,
@@ -42,7 +42,7 @@ const GuardianRow = ({ guardian, onEdit, onDelete, getRelationBadge }: GuardianR
       <TableCell className="font-mono text-xs">{guardian.student?.nis || '-'}</TableCell>
       <TableCell className="font-medium">{guardian.name}</TableCell>
       <TableCell className="text-xs">{guardian.phone || '-'}</TableCell>
-      <TableCell>{getRelationBadge(guardian.relationship)}</TableCell>
+      <TableCell>{getRelationBadge(guardian.relation)}</TableCell>
       <TableCell>
         <div className="flex items-center gap-1">
           <Button
@@ -146,7 +146,7 @@ export default function OrangTuaPage() {
       student_id: guardian.student?.id || 0,
       name: guardian.name,
       phone: guardian.phone || '',
-      relation: guardian.relationship || 'Ayah',
+      relation: guardian.relation || 'Ayah',
       occupation: guardian.occupation || '',
       address: guardian.address || '',
     });
@@ -161,7 +161,7 @@ export default function OrangTuaPage() {
   // Create mutation
   const createGuardian = useCreateStudentGuardian({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['student-guardians'] });
+      queryClient.invalidateQueries({ queryKey: ['parents'] });
       setIsCreateDialogOpen(false);
       resetForm();
       toast.success('Wali/orang tua berhasil ditambahkan');
@@ -176,7 +176,7 @@ export default function OrangTuaPage() {
   // Update mutation
   const updateGuardian = useUpdateStudentGuardian({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['student-guardians'] });
+      queryClient.invalidateQueries({ queryKey: ['parents'] });
       setIsEditDialogOpen(false);
       resetForm();
       toast.success('Wali/orang tua berhasil diperbarui');
@@ -191,7 +191,7 @@ export default function OrangTuaPage() {
   // Delete mutation
   const deleteGuardian = useDeleteStudentGuardian({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['student-guardians'] });
+      queryClient.invalidateQueries({ queryKey: ['parents'] });
       setIsDeleteDialogOpen(false);
       resetForm();
       toast.success('Wali/orang tua berhasil dihapus');
@@ -237,10 +237,10 @@ export default function OrangTuaPage() {
     setSelectedGuardian(null);
   };
 
-  const getRelationBadge = (relationship: string | null) => {
-    if (!relationship) return <Badge variant="outline">-</Badge>;
+  const getRelationBadge = (relation: string | null) => {
+    if (!relation) return <Badge variant="outline">-</Badge>;
     
-    switch (relationship) {
+    switch (relation) {
       case 'Ayah':
         return <Badge variant="default">Ayah</Badge>;
       case 'Ibu':
@@ -248,7 +248,7 @@ export default function OrangTuaPage() {
       case 'Wali':
         return <Badge variant="secondary">Wali</Badge>;
       default:
-        return <Badge variant="outline">{relationship}</Badge>;
+        return <Badge variant="outline">{relation}</Badge>;
     }
   };
 
@@ -282,7 +282,7 @@ export default function OrangTuaPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap items-end gap-4">
-            <div className="flex-1 min-w-[200px]">
+            <div className="flex-1 min-w-50">
               <Label htmlFor="search" className="mb-2 block">Cari</Label>
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -308,7 +308,7 @@ export default function OrangTuaPage() {
               </DialogTrigger>
               <DialogContent className="max-w-md" aria-describedby="createGuardianForm">
                 <DialogHeader>
-                  <DialogTitle>Tambah Wali/Orang Tua Baru</DialogTitle>
+                  <DialogTitle className="gemini-page-title">Tambah Wali/Orang Tua Baru</DialogTitle>
                 </DialogHeader>
                 <form id="createGuardianForm" className="space-y-4" onSubmit={handleCreateSubmit}>
                   <div className="space-y-2">
@@ -387,10 +387,10 @@ export default function OrangTuaPage() {
                   </div>
                   <div className="flex justify-end gap-2 pt-4">
                     <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                      Batal
+                      <CircleX className="mr-2 h-4 w-4" />Batal
                     </Button>
                     <Button type="submit" disabled={createGuardian.isPending}>
-                      {createGuardian.isPending ? 'Menyimpan...' : 'Simpan'}
+                      {createGuardian.isPending ? <><Save className="mr-2 h-4 w-4 animate-pulse" />Menyimpan...</> : <><Save className="mr-2 h-4 w-4" />Simpan</>}
                     </Button>
                   </div>
                 </form>
@@ -559,10 +559,10 @@ export default function OrangTuaPage() {
             </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                Batal
+                <CircleX className="mr-2 h-4 w-4" />Batal
               </Button>
               <Button type="submit" disabled={updateGuardian.isPending}>
-                {updateGuardian.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
+                {updateGuardian.isPending ? <><Save className="mr-2 h-4 w-4 animate-pulse" />Menyimpan...</> : <><Save className="mr-2 h-4 w-4" />Simpan Perubahan</>}
               </Button>
             </div>
           </form>

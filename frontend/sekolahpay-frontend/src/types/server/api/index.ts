@@ -188,14 +188,14 @@ export type UpdateStudentInput = z.infer<typeof UpdateStudentInputSchema>;
  * Student guardian schema (matches StudentGuardianResource from backend)
  */
 export const StudentGuardianSchema = z.object({
-  id: z.number().int().positive(),
+  id: z.number().int().positive(), // Orang tua wali ID
   student: z.object({
-    id: z.number().int().positive(),
+    id: z.number().int().positive(), // Siswa ID
     nis: z.string(),
     name: z.string(),
   }),
   name: z.string().max(255),
-  relationship: z.string().nullable(), // Ayah, Ibu, Wali, etc.
+  relation: z.string().nullable(), // Ayah, Ibu, Wali, etc. (matches backend field name)
   phone: z.string().max(50).nullable(),
   occupation: z.string().nullable(),
   address: z.string().nullable(),
@@ -227,6 +227,81 @@ export const CreateStudentGuardianInputSchema = z.object({
   address: z.string().optional().nullable(),
 });
 export type CreateStudentGuardianInput = z.infer<typeof CreateStudentGuardianInputSchema>;
+
+// ============================================================================
+// Fee Type Module Types (Jenis Biaya)
+// ============================================================================
+
+/**
+ * Fee type recurring type enum
+ */
+export const FeeTypeRecurringSchema = z.enum(['once', 'monthly', 'yearly']);
+export type FeeTypeRecurring = z.infer<typeof FeeTypeRecurringSchema>;
+
+/**
+ * Fee type schema (matches FeeTypeResource from backend)
+ */
+export const FeeTypeSchema = z.object({
+  id: z.number().int().positive(),
+  code: z.string().max(50),
+  name: z.string().max(255),
+  default_amount: z.number().int().positive(),
+  recurring_type: FeeTypeRecurringSchema,
+  description: z.string().nullable(),
+  is_active: z.boolean(),
+  created_at: z.string(), // ISO datetime string
+  updated_at: z.string(), // ISO datetime string
+});
+export type FeeType = z.infer<typeof FeeTypeSchema>;
+
+/**
+ * Get all fee types response schema
+ */
+export const GetFeeTypesResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.array(FeeTypeSchema),
+  meta: PaginationMetaSchema,
+});
+export type GetFeeTypesResponse = z.infer<typeof GetFeeTypesResponseSchema>;
+
+/**
+ * Create fee type input schema (matches StoreFeeTypeRequest from backend)
+ */
+export const CreateFeeTypeInputSchema = z.object({
+  code: z.string().max(50),
+  name: z.string().max(255),
+  default_amount: z.number().int().positive(),
+  recurring_type: FeeTypeRecurringSchema,
+  description: z.string().optional().nullable(),
+  is_active: z.boolean().optional().default(true),
+});
+export type CreateFeeTypeInput = z.infer<typeof CreateFeeTypeInputSchema>;
+
+/**
+ * Update fee type input schema (matches UpdateFeeTypeRequest from backend)
+ */
+export const UpdateFeeTypeInputSchema = CreateFeeTypeInputSchema.partial();
+export type UpdateFeeTypeInput = z.infer<typeof UpdateFeeTypeInputSchema>;
+
+/**
+ * Single fee type response schema
+ */
+export const FeeTypeResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: FeeTypeSchema,
+});
+export type FeeTypeResponse = z.infer<typeof FeeTypeResponseSchema>;
+
+/**
+ * Delete fee type response schema
+ */
+export const DeleteFeeTypeResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteFeeTypeResponse = z.infer<typeof DeleteFeeTypeResponseSchema>;
 
 /**
  * Update guardian input schema
@@ -379,6 +454,43 @@ export type GetInvoicesResponse = z.infer<typeof GetInvoicesResponseSchema>;
 // ============================================================================
 
 export const appRouter = t.router({
+  // Fee Type procedures (Admin & Bendahara only)
+  feeTypes: t.router({
+    getAll: t.procedure
+      .output(GetFeeTypesResponseSchema)
+      .query(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+    
+    getById: t.procedure
+      .input(z.number().int().positive())
+      .output(FeeTypeResponseSchema)
+      .query(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+    
+    create: t.procedure
+      .input(CreateFeeTypeInputSchema)
+      .output(FeeTypeResponseSchema)
+      .mutation(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+    
+    update: t.procedure
+      .input(z.object({ id: z.number().int().positive(), data: UpdateFeeTypeInputSchema }))
+      .output(FeeTypeResponseSchema)
+      .mutation(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+    
+    delete: t.procedure
+      .input(z.number().int().positive())
+      .output(DeleteFeeTypeResponseSchema)
+      .mutation(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+  }),
+
   // Auth procedures
   auth: t.router({
     login: t.procedure

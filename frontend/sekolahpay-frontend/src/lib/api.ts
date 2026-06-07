@@ -13,7 +13,11 @@ import type {
   CreateStudentGuardianInput,
   UpdateStudentGuardianInput,
   GetStudentGuardiansResponse,
-  StudentGuardianResponse
+  StudentGuardianResponse,
+  GetFeeTypesResponse,
+  FeeTypeResponse,
+  CreateFeeTypeInput,
+  UpdateFeeTypeInput
 } from '@/types/server/api';
 
 // Token management utilities
@@ -217,7 +221,7 @@ export const apiClient = {
     },
   },
 
-  // Orang tua wali / api
+  // fetch Orang tua wali
   parent: {
     getAll: async (params?: { 
       page?: number; 
@@ -232,7 +236,7 @@ export const apiClient = {
       return response.data;
     },
   },
-  
+
   // Student API search endpoint
   students: {
     getAll: async (params?: { 
@@ -280,39 +284,82 @@ export const apiClient = {
     
     // Student Guardians API - Get all guardians for a specific student
     getGuardians: async (studentId: number, params?: { 
-      page?: number; 
-      perPage?: number;
+    page?: number; 
+    perPage?: number;
     }): Promise<GetStudentGuardiansResponse> => {
-      const searchParams = new URLSearchParams();
-      if (params?.page) searchParams.append('page', params.page.toString());
-      if (params?.perPage) searchParams.append('per_page', params.perPage.toString());
-      
-      const url = `/students/${studentId}/guardians${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-      const response = await axiosInstance.get<GetStudentGuardiansResponse>(url);
-      return response.data;
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.perPage) searchParams.append('per_page', params.perPage.toString());
+    
+    // Filter by student_id since we now use the standalone student-guardians endpoint
+    searchParams.append('student_id', studentId.toString());
+    const url = `/student-guardians${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    const response = await axiosInstance.get<GetStudentGuardiansResponse>(url);
+    return response.data;
     },
     
     // Student Guardians API - Get single guardian
-    getGuardianById: async (studentId: number, guardianId: number): Promise<StudentGuardianResponse> => {
-      const response = await axiosInstance.get<StudentGuardianResponse>(`/students/${studentId}/guardians/${guardianId}`);
+    getGuardianById: async (_studentId: number, guardianId: number): Promise<StudentGuardianResponse> => {
+      const response = await axiosInstance.get<StudentGuardianResponse>(`/student-guardians/${guardianId}`);
       return response.data;
     },
     
-    // Student Guardians API - Create new guardian
-    createGuardian: async (studentId: number, input: CreateStudentGuardianInput): Promise<StudentGuardianResponse> => {
-      const response = await axiosInstance.post<StudentGuardianResponse>(`/students/${studentId}/guardians`, input);
+    // Student Guardians API - Create new orang tua/wali
+    createGuardian: async (_studentId: number, input: CreateStudentGuardianInput): Promise<StudentGuardianResponse> => {
+      const response = await axiosInstance.post<StudentGuardianResponse>(`/student-guardians`, input);
       return response.data;
     },
     
-    // Student Guardians API - Update guardian
-    updateGuardian: async (studentId: number, guardianId: number, input: UpdateStudentGuardianInput): Promise<StudentGuardianResponse> => {
-      const response = await axiosInstance.put<StudentGuardianResponse>(`/students/${studentId}/guardians/${guardianId}`, input);
+    // Student Guardians API - Update orang tua/wali
+    updateGuardian: async (_studentId: number, guardianId: number, input: UpdateStudentGuardianInput): Promise<StudentGuardianResponse> => {
+      const response = await axiosInstance.put<StudentGuardianResponse>(`/student-guardians/${guardianId}`, input);
       return response.data;
     },
 
     // Student Guardians API - Delete guardian
-    deleteGuardian: async (studentId: number, guardianId: number): Promise<{ success: boolean; message: string }> => {
-      const response = await axiosInstance.delete(`/students/${studentId}/guardians/${guardianId}`);
+    deleteGuardian: async (_studentId: number, guardianId: number): Promise<{ success: boolean; message: string }> => {
+      const response = await axiosInstance.delete(`/student-guardians/${guardianId}`);
+      return response.data;
+    },
+  },
+
+  // Fee Types API - Jenis Biaya
+  feeTypes: {
+    // Get all fee types with pagination
+    getAll: async (params?: { 
+      page?: number; 
+      perPage?: number;
+    }): Promise<GetFeeTypesResponse> => {
+      const searchParams = new URLSearchParams();
+      if (params?.page) searchParams.append('page', params.page.toString());
+      if (params?.perPage) searchParams.append('per_page', params.perPage.toString());
+      
+      const url = `/fee-types${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const response = await axiosInstance.get<GetFeeTypesResponse>(url);
+      return response.data;
+    },
+
+    // Get single fee type
+    getById: async (id: number): Promise<FeeTypeResponse> => {
+      const response = await axiosInstance.get<FeeTypeResponse>(`/fee-types/${id}`);
+      return response.data;
+    },
+
+    // Create new fee type
+    create: async (input: CreateFeeTypeInput): Promise<FeeTypeResponse> => {
+      const response = await axiosInstance.post<FeeTypeResponse>('/fee-types', input);
+      return response.data;
+    },
+
+    // Update fee type
+    update: async (id: number, input: UpdateFeeTypeInput): Promise<FeeTypeResponse> => {
+      const response = await axiosInstance.put<FeeTypeResponse>(`/fee-types/${id}`, input);
+      return response.data;
+    },
+
+    // Delete fee type
+    delete: async (id: number): Promise<{ success: boolean; message: string }> => {
+      const response = await axiosInstance.delete<{ success: boolean; message: string }>(`/fee-types/${id}`);
       return response.data;
     },
   },

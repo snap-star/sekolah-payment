@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Receipt, Users, FileText, LogOut } from 'lucide-react';
+import { LayoutDashboard, Receipt, Users, FileText, LogOut, ScrollText } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './ui/button';
@@ -9,6 +9,7 @@ const menuItems = [
   { label: 'Siswa', icon: Users, path: '/siswa' },
   { label: 'Orang Tua', icon: Users, path: '/orang-tua' },
   { label: 'Manajemen Tagihan', icon: Receipt, path: '/tagihan' },
+  { label: 'Set Tagihan', icon: ScrollText, path: '/set-tagihan' },
   { label: 'User Admin', icon: Users, path: '/user-admin' },
   { label: 'Laporan', icon: FileText, path: '/report' },
 ];

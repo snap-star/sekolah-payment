@@ -18,7 +18,7 @@ import {
   PaginationPrevious,
 } from '../components/ui/pagination';
 import { toast } from 'sonner';
-import { Pencil, RefreshCcw, Trash, Search } from 'lucide-react';
+import { Pencil, RefreshCcw, Trash, Search, Plus, Save } from 'lucide-react';
 import { 
   useStudents, 
   useCreateStudent, 
@@ -39,7 +39,7 @@ interface StudentRowProps {
 
 const StudentRow = ({ student, onEdit, onDelete, getGenderLabel, getStatusBadge }: StudentRowProps) => {
   // Get guardians for this specific student - hooks work here because it's a component
-  const { data: guardiansData } = useStudentGuardians(student.id, { perPage: 100 });
+  const { data: guardiansData } = useStudentGuardians(student.id, { page: 1, perPage: 100 });
   // Get the first guardian
   const primaryGuardian = guardiansData?.data?.[0];
 
@@ -55,9 +55,15 @@ const StudentRow = ({ student, onEdit, onDelete, getGenderLabel, getStatusBadge 
       <TableCell>{getStatusBadge(student.status)}</TableCell>
       <TableCell className="text-xs">
         {primaryGuardian ? (
-          <div>
+          <div className="flex flex-col items-center gap-1">
             <div>{primaryGuardian.name}</div>
+            {/* Relation badge uncomment jika diperlukan tampilkan status relasi siswa dan wali */}
+            {/* <Badge className="ml-2 text-muted-foreground" variant="secondary">
+              {primaryGuardian.relation || '-'}
+            </Badge> */}
+            <Badge className="ml-2 text-muted-foreground" variant="secondary">
             <div className="text-muted-foreground">{primaryGuardian.phone || '-'}</div>
+            </Badge>
           </div>
         ) : '-'}
       </TableCell>
@@ -234,7 +240,7 @@ export default function SiswaPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge variant="default">`Aktif</Badge>;
+        return <Badge variant="default">Aktif</Badge>;
       case 'inactive':
         return <Badge variant="secondary">Nonaktif</Badge>;
       case 'graduated':
@@ -264,7 +270,7 @@ export default function SiswaPage() {
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={(open) => { setIsCreateDialogOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
-            <Button>Tambah Siswa</Button>
+            <Button><Plus className="mr-2 h-4 w-4" />Tambah Siswa</Button>
           </DialogTrigger>
           <DialogContent className="max-w-md" aria-describedby="createStudentForm">
             <DialogHeader>
@@ -275,6 +281,7 @@ export default function SiswaPage() {
                 <Label htmlFor="nis">NIS <span className="text-destructive">*</span></Label>
                 <Input
                   id="nis"
+                  placeholder="Masukkan NIS"
                   value={formData.nis}
                   autoComplete="off"
                   onChange={(e) => setFormData({ ...formData, nis: e.target.value })}
@@ -286,6 +293,7 @@ export default function SiswaPage() {
                 <Label htmlFor="nisn">NISN</Label>
                 <Input
                   id="nisn"
+                  placeholder="Masukkan NISN"
                   value={formData.nisn || ''}
                   autoComplete="off"
                   onChange={(e) => setFormData({ ...formData, nisn: e.target.value })}
@@ -296,6 +304,7 @@ export default function SiswaPage() {
                 <Label htmlFor="name">Nama Lengkap <span className="text-destructive">*</span></Label>
                 <Input
                   id="name"
+                  placeholder="Masukkan Nama Lengkap"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
@@ -307,6 +316,7 @@ export default function SiswaPage() {
                 <div className="space-y-2">
                   <Label htmlFor="gender">Jenis Kelamin <span className="text-destructive">*</span></Label>
                   <Select
+                    defaultValue="L"
                     value={formData.gender}
                     onValueChange={(value: 'L' | 'P') => setFormData({ ...formData, gender: value })}
                   >
@@ -323,6 +333,7 @@ export default function SiswaPage() {
                   <Label htmlFor="birth_date">Tanggal Lahir</Label>
                   <Input
                     id="birth_date"
+                    placeholder="Pilih Tanggal Lahir"
                     autoComplete="off"
                     type="date"
                     value={formData.birth_date || ''}
@@ -339,7 +350,7 @@ export default function SiswaPage() {
                   }
                 >
                   <SelectTrigger id="status">
-                    <SelectValue placeholder="Pilih status" />
+                    <SelectValue aria-placeholder="Pilih Status" placeholder="Pilih status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="active">Aktif</SelectItem>
@@ -356,9 +367,10 @@ export default function SiswaPage() {
                 {createStudent.isPending ? (
                   <>
                     <RefreshCcw className="animate-spin mr-2 h-4 w-4" />
+                    <Save className="mr-2 h-4 w-4 animate-pulse" />
                     Menyimpan...
                   </>
-                ) : 'Simpan'}
+                ) : <><Save className="mr-2 h-4 w-4" />Simpan</>}
               </Button>
             </form>
           </DialogContent>
@@ -435,7 +447,7 @@ export default function SiswaPage() {
                   }
                 >
                   <SelectTrigger id="edit-status">
-                    <SelectValue placeholder="Pilih status" />
+                    <SelectValue aria-placeholder="Pilih Status" placeholder="Pilih status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="active">Aktif</SelectItem>

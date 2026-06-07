@@ -8,14 +8,15 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 
 import { RefreshCcw } from 'lucide-react';
-import OrangTuaPage from './pages/OrangTua';
 
 // Lazy load all page components for code splitting
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const TagihanPage = lazy(() => import('./pages/Tagihan'));
+const SetTagihanPage = lazy(() => import('./pages/SetJenisTagihan'));
 const UserAdminPage = lazy(() => import('./pages/UserAdmin'));
 const ReportPage = lazy(() => import('./pages/Report'));
 const SiswaPage = lazy(() => import('./pages/Siswa'));
+const OrangTuaPage = lazy(() => import('./pages/OrangTua'));
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,14 @@ function App() {
                   Memuat...
                 </div>}>
                   <TagihanPage />
+                </Suspense>
+              } />
+              <Route path="/set-tagihan" element={
+                <Suspense fallback={<div className="p-8 select-none">
+                  <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
+                  Memuat...
+                </div>}>
+                  <SetTagihanPage />
                 </Suspense>
               } />
               <Route path="/siswa" element={

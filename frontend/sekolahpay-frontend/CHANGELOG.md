@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-06-08 - Invoice & Fee Management Update
+
+### Summary
+Comprehensive billing system update with type-safe invoice management, fee type administration, and complete billing workflow implementation.
+
+---
+
 ## [1.0.0] - 2026-06-03 - Initial Production Release
 
 ### Summary
@@ -13,6 +20,22 @@ First production-ready release with complete student management system, authenti
 ---
 
 ## 📦 Backend (Laravel) - `sekolahpay_server`
+
+### 🔄 Updates in v1.1.0 (2026-06-08)
+
+#### 📊 Invoices Database Enhancement
+- **Added period column to invoices table** via migration `2026_06_05_111627_add_period_to_invoices_table.php`
+- Enhanced invoice tracking with academic period support for multi-year billing
+- Maintains backward compatibility with existing invoice data
+
+#### 🏷️ FeeTypeController Full Implementation
+- Complete CRUD API for fee types management already operational
+- Full resource controller supporting all REST operations
+- Already integrated with frontend type-safe hooks
+
+---
+
+## 📦 Backend (Laravel) - `sekolahpay_server` (Previously documented features)
 
 ### ✨ New Features
 
@@ -85,6 +108,53 @@ First production-ready release with complete student management system, authenti
 ---
 
 ## 🎨 Frontend (Vite SPA + React + TypeScript + Tailwindcss) - `sekolahpay-frontend`
+
+### 🔄 Updates in v1.1.0 (2026-06-08)
+
+#### 💰 Tagihan (Invoices) Page Overhaul - `src/pages/Tagihan.tsx`
+- **Complete rewrite with type-safe implementation** - removed all `any` types for full TypeScript compliance
+- **Removed mock data entirely** - now uses real backend APIs: `/students` and `/fee-types`
+- **Implemented complete billing workflow**:
+  - Create new invoices with auto-populated `nominal_asli` (original amount) from selected fee type
+  - `nominal_asli` field is read-only to preserve original fee integrity
+  - `nominal_disesuaikan` (adjusted amount) field for school cost relief support
+  - Clear labels and explanations for relief functionality
+- **Advanced table features**:
+  - Search functionality: search by student name, NIS, or NISN
+  - Filtering capabilities for efficient invoice management
+  - Sortable columns for data organization
+  - Numbered pagination with 25 items per page ([prev, 1,2,3,4, next])
+- **QRIS payment simulation**: mock QR generator with 7-day expiry (simulates future payment gateway integration)
+- **Independent implementation**: no dependencies on OrangTua.tsx or Siswa.tsx pages
+- **Full React Query integration**: caching, invalidation, and state management
+
+#### 🏷️ New Fee Type Management Page - `src/pages/SetJenisTagihan.tsx`
+- **New control page for managing fee types (jenis tagihan)** - controls default amounts used in Tagihan.tsx
+- **Full CRUD operations interface**:
+  - Create new fee types with code, name, default amount, recurrence pattern
+  - Inline editing of existing fee types
+  - Delete with confirmation dialog
+  - Activate/deactivate fee types without deletion
+- **Real-time synchronization**: changes to fee types automatically reflect in Tagihan.tsx via React Query cache
+- **Rupiah formatting**: proper Indonesian currency display for all amounts
+- **Recurrence type support**: Sekali Bayar (one-time), Bulanan (monthly), Tahunan (yearly)
+- **Shadcn/ui components**: modern dialogs, tables, cards, switches, and form controls
+
+#### 🛡️ Type Safety Improvements
+- **API Client restructure**: reorganized feeTypes methods in `src/lib/api.ts` for consistent namespace usage
+- **Removed duplicate methods**: eliminated duplicate deleteFeeType from API client
+- **Updated TypeScript interfaces**: modified FeeType interface to match backend schema, removed deprecated fields
+- **Zero `any` types across all billing pages** - strict TypeScript compliance
+- **Fixed import errors**: resolved all unused import warnings and missing namespace issues
+
+#### 📝 API Updates Report
+- Generated comprehensive `api-updates-report.md` documenting all backend API mismatches
+- Documented missing Invoice controller on backend and client-side workarounds
+- Recorded all type mismatches and frontend adaptations
+
+---
+
+## 🎨 Frontend (Vite SPA + React + TypeScript + Tailwindcss) - `sekolahpay-frontend` (Previously documented features)
 
 ### ✨ New Features
 
@@ -159,6 +229,15 @@ First production-ready release with complete student management system, authenti
 | PUT | `/students/{id}` | Update student | admin, bendahara |
 | DELETE | `/students/{id}` | Delete student | admin, bendahara |
 
+### Fee Types
+| Method | Endpoint | Description | Roles |
+|--------|----------|-------------|-------|
+| GET | `/fee-types` | List all fee types | admin, bendahara |
+| POST | `/fee-types` | Create fee type | admin, bendahara |
+| GET | `/fee-types/{id}` | Get fee type details | admin, bendahara |
+| PUT | `/fee-types/{id}` | Update fee type | admin, bendahara |
+| DELETE | `/fee-types/{id}` | Delete fee type | admin, bendahara |
+
 ### Admin
 | Method | Endpoint | Description | Roles |
 |--------|----------|-------------|-------|
@@ -196,30 +275,16 @@ First production-ready release with complete student management system, authenti
 
 ---
 
-## 🚀 Getting Started
-
-### Backend Setup
-```bash
-cd backend/sekolahpay_server
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan db:seed
-php artisan serve
-```
-
-### Frontend Setup
-```bash
-cd frontend/sekolahpay-frontend
-pnpm install
-cp .env.example .env.local
-pnpm dev
-```
-
 ---
 
 ## 📝 Commit History (Development Timeline)
+
+### 2026-06-08 - Billing System Updates (v1.1.0)
+- **billing-complete** SetJenisTagihan.tsx - Created complete fee type management page with full CRUD operations
+- **tagihan-overhaul** Tagihan.tsx - Complete rewrite with type-safe implementation, removed all mocks, added filtering/pagination/QRIS
+- **nominal-asli-implementation** Added nominal_asli field for original tuition amounts with cost relief support
+- **api-client-fixes** src/lib/api.ts - Fixed feeTypes namespace, removed duplicate methods, improved type safety
+- **2026_06_05_111627** Backend migration: added period column to invoices table for academic year tracking
 
 ### 2026-06-03 - Latest Updates
 - **527eb45** Update psalm.yml - Updated PHP static analysis configuration
