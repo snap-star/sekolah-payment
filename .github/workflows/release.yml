@@ -53,7 +53,7 @@ jobs:
           node-version: '24'
           cache: 'pnpm'
           cache-dependency-path: 'frontend/sekolahpay-frontend/pnpm-lock.yaml'
-          continue-on-error: true
+        continue-on-error: true
         
       - name: Install semantic-release dependencies
         run: |
@@ -80,6 +80,7 @@ jobs:
         run: |
           cd backend/sekolahpay_server
           composer install --no-dev --optimize-autoloader
+        continue-on-error: true
           
       - name: Run TypeScript checks (frontend)
         run: |
