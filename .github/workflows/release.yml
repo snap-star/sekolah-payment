@@ -35,7 +35,7 @@ jobs:
   release:
     name: Automatic Semantic Release
     runs-on: ubuntu-latest
-    if: github.repository_owner == 'sekolah-payment' && github.event_name == 'push'
+    if: github.repository_owner == 'snap-star' && github.event_name == 'push'
     
     steps:
       - name: Checkout repository
@@ -108,7 +108,7 @@ jobs:
   manual-bump:
     name: Manual Version Bump
     runs-on: ubuntu-latest
-    if: github.repository_owner == 'sekolah-payment' && github.event_name == 'workflow_dispatch' && github.event.inputs.version_bump != ''
+    if: github.repository_owner == 'snap-star' && github.event_name == 'workflow_dispatch' && github.event.inputs.version_bump != ''
     steps:
       - name: Checkout
         uses: actions/checkout@v4
