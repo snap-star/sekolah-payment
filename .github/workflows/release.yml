@@ -94,6 +94,10 @@ jobs:
           cd frontend/sekolahpay-frontend
           pnpm run build
           
+      - name: Install @semantic-release/commit-analyzer
+        run: |
+          npm install -D @semantic-release/commit-analyzer
+          
       - name: Run semantic-release
         id: release
         env:
