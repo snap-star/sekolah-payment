@@ -57,7 +57,7 @@ jobs:
         
       - name: Install semantic-release dependencies
         run: |
-          npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github @semantic-release/npm conventional-changelog-conventionalcommits
+          npm install -g @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/changelog @semantic-release/npm @semantic-release/git @semantic-release/github conventional-changelog-conventionalcommits semantic-release
         continue-on-error: true
         
       - name: Setup PHP
@@ -66,10 +66,6 @@ jobs:
           php-version: '8.2'
           coverage: none
         continue-on-error: true
-          
-      - name: Install semantic-release dependencies
-        run: |
-          npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github @semantic-release/npm conventional-changelog-conventionalcommits
           
       - name: Install frontend dependencies
         run: |
