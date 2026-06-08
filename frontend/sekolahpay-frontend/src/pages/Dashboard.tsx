@@ -5,6 +5,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { useQuery } from '@tanstack/react-query';
 import { mockApi } from '../mock/api';
 import { RefreshCcw } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { useEffect, useState } from 'react';
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
@@ -16,11 +19,32 @@ export default function Dashboard() {
     queryFn: () => mockApi.getDashboard(),
   });
 
-  if (isLoading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="flex items-center gap-3 text-muted-foreground">
-        <RefreshCcw className="animate-gemini-spin h-6 w-6 animate-gemini-pulse" />
-        <span className="text-lg">Memuat dashboard...</span>
+  const [progress, setProgress] = useState(0);
+
+  // Animate progress bar while loading
+  useEffect(() => {
+    if (isLoading) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setProgress(0);
+      const timer = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) return 90; // Hold at 90% until complete
+          return prev + 10;
+        });
+      }, 200);
+      return () => clearInterval(timer);
+    } else {
+      setProgress(100); // Complete when loading finishes
+    }
+  }, [isLoading]);
+
+  if (isLoading || progress < 100) return (
+    <div className="p-4 select-none flex flex-col gap-4 items-center justify-center min-h-[60vh]">
+      <RefreshCcw className="animate-spin mr-2 inline-block h-8 w-8 text-primary" />
+      <Label htmlFor="progress" className="text-2xl font-semibold">Memuat data tagihan ...</Label>
+      <div className="w-80 mt-2">
+        <Progress value={progress} className="w-full h-3" />
+        <p className="text-center text-sm text-muted-foreground mt-2">{Math.round(progress)}%</p>
       </div>
     </div>
   );

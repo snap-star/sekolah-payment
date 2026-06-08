@@ -10,14 +10,41 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { toast } from 'sonner';
 import { mockApi } from '../mock/api';
 import { Pencil, RefreshCcw, Trash } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { useEffect, useState } from 'react';
 
 export default function UserAdminPage() {
   const { data, isLoading } = useQuery({ queryKey: ['users'], queryFn: () => mockApi.getUserAdmin() });
 
-  if (isLoading) return <div className="p-4 select-none">
-    <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
-    <span className="select-none">Memuat...</span>
-    </div>;
+  const [progress, setProgress] = useState(0);
+
+  // Animate progress bar while loading
+  useEffect(() => {
+    if (isLoading) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setProgress(0);
+      const timer = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) return 90; // Hold at 90% until complete
+          return prev + 10;
+        });
+      }, 200);
+      return () => clearInterval(timer);
+    } else {
+      setProgress(100); // Complete when loading finishes
+    }
+  }, [isLoading]);
+
+  if (isLoading || progress < 100) return (
+    <div className="p-4 select-none flex flex-col gap-4 items-center justify-center min-h-[60vh]">
+      <RefreshCcw className="animate-spin mr-2 inline-block h-8 w-8 text-primary" />
+      <Label htmlFor="progress" className="text-2xl font-semibold">Memuat data tagihan ...</Label>
+      <div className="w-80 mt-2">
+        <Progress value={progress} className="w-full h-3" />
+        <p className="text-center text-sm text-muted-foreground mt-2">{Math.round(progress)}%</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">

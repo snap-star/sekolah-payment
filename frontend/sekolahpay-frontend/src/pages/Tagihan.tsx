@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -14,6 +14,7 @@ import { mockApi } from '../mock/api';
 import { useStudents } from '@/hooks/useApi';
 import { useFeeTypes } from '@/hooks/useApi';
 import type { Student, FeeType } from '@/types/server/api';
+import { Progress } from '@/components/ui/progress';
 
 // Type definition for Invoice since backend doesn't have API endpoints yet
 interface Invoice {
@@ -175,12 +176,34 @@ export default function TagihanPage() {
     createInvoiceMutation.mutate(newInvoice);
   };
 
+  const [progress, setProgress] = useState(0);
   const isLoading = studentsLoading || feeTypesLoading || invoicesLoading;
 
-  if (isLoading) return (
-    <div className="p-4 select-none flex items-center">
-      <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
-      <span>Memuat data tagihan...</span>
+  // Animate progress bar while loading
+  useEffect(() => {
+    if (isLoading) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setProgress(0);
+      const timer = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) return 90; // Hold at 90% until complete
+          return prev + 10;
+        });
+      }, 200);
+      return () => clearInterval(timer);
+    } else {
+      setProgress(100); // Complete when loading finishes
+    }
+  }, [isLoading]);
+
+  if (isLoading || progress < 100) return (
+    <div className="p-4 select-none flex flex-col gap-4 items-center justify-center min-h-[60vh]">
+      <RefreshCcw className="animate-spin mr-2 inline-block h-8 w-8 text-primary" />
+      <Label htmlFor="progress" className="text-2xl font-semibold">Memuat data tagihan ...</Label>
+      <div className="w-80 mt-2">
+        <Progress value={progress} className="w-full h-3" />
+        <p className="text-center text-sm text-muted-foreground mt-2">{Math.round(progress)}%</p>
+      </div>
     </div>
   );
 

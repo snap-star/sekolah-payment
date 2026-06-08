@@ -267,7 +267,7 @@ export default function OrangTuaPage() {
   );
 
   if (guardiansLoading) return (
-    <div className="p-4 select-none">
+    <div className="p-4 select-none flex items-center justify-center h-64">
       <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
       <span className="select-none">Memuat data wali/orang tua...</span>
     </div>
