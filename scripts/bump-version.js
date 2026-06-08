@@ -14,8 +14,8 @@ function readJson(filePath) {
     const content = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(content);
   } catch (error) {
-    console.error(`Error reading ${filePath}:`, error.message);
-    process.exit(1);
+    // Preserve the original error to let caller handle ENOENT specifically
+    throw error;
   }
 }
 
@@ -44,9 +44,15 @@ function validateVersion(currentVersion, newVersion) {
 }
 
 function bumpVersion(bumpType, prereleaseId = null) {
-  // Read current versions
-  const versionData = readJson(VERSION_FILE);
-  const frontendPkg = readJson(FRONTEND_PACKAGE);
+  // Read current versions (these are required files that must exist)
+  let versionData, frontendPkg;
+  try {
+    versionData = readJson(VERSION_FILE);
+    frontendPkg = readJson(FRONTEND_PACKAGE);
+  } catch (error) {
+    console.error(`Error reading required file:`, error.message);
+    process.exit(1);
+  }
   const currentVersion = versionData.version;
   
   console.log(`\nCurrent version: ${currentVersion}`);
@@ -81,15 +87,22 @@ function bumpVersion(bumpType, prereleaseId = null) {
   frontendPkg.version = newVersion;
   writeJson(FRONTEND_PACKAGE, frontendPkg);
   
-  // Update backend composer.json if it exists
-  if (fs.existsSync(BACKEND_COMPOSER)) {
+  // Update backend composer.json (handle ENOENT if file doesn't exist)
+  try {
     const backendComposer = readJson(BACKEND_COMPOSER);
     backendComposer.version = newVersion;
     writeJson(BACKEND_COMPOSER, backendComposer);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      // File doesn't exist, skip update silently
+    } else {
+      console.error(`Error updating ${path.relative(ROOT_DIR, BACKEND_COMPOSER)}:`, error.message);
+      process.exit(1);
+    }
   }
   
-  // Add new entry to CHANGELOG.md
-  if (fs.existsSync(CHANGELOG)) {
+  // Add new entry to CHANGELOG.md (handle ENOENT if file doesn't exist)
+  try {
     const changelogContent = fs.readFileSync(CHANGELOG, 'utf8');
     const today = new Date().toISOString().split('T')[0];
     const newChangelogEntry = `## [${newVersion}] - ${today}\n\n### Summary\nVersion bump from ${currentVersion} to ${newVersion} (${bumpType})\n\n---\n\n`;
@@ -98,8 +111,18 @@ function bumpVersion(bumpType, prereleaseId = null) {
     const headerEnd = changelogContent.indexOf('## [');
     if (headerEnd !== -1) {
       const updatedChangelog = changelogContent.slice(0, headerEnd) + newChangelogEntry + changelogContent.slice(headerEnd);
-      fs.writeFileSync(CHANGELOG, updatedChangelog);
-      console.log(`✓ Updated ${path.relative(ROOT_DIR, CHANGELOG)}`);
+      
+      if (updatedChangelog !== changelogContent) {
+        fs.writeFileSync(CHANGELOG, updatedChangelog);
+        console.log(`✓ Updated ${path.relative(ROOT_DIR, CHANGELOG)}`);
+      }
+    }
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      // File doesn't exist, skip update silently
+    } else {
+      console.error(`Error updating ${path.relative(ROOT_DIR, CHANGELOG)}:`, error.message);
+      process.exit(1);
     }
   }
   
@@ -112,8 +135,15 @@ function bumpVersion(bumpType, prereleaseId = null) {
 }
 
 function checkVersion() {
-  const versionData = readJson(VERSION_FILE);
-  const frontendPkg = readJson(FRONTEND_PACKAGE);
+  // Read required version files (these must exist)
+  let versionData, frontendPkg;
+  try {
+    versionData = readJson(VERSION_FILE);
+    frontendPkg = readJson(FRONTEND_PACKAGE);
+  } catch (error) {
+    console.error(`Error reading required file:`, error.message);
+    process.exit(1);
+  }
   const currentVersion = versionData.version;
   
   console.log(`\n📋 Version Check:`);
