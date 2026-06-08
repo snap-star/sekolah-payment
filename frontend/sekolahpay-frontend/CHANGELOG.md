@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0 (2026-06-08)
+
+### ✨ New Features
+
+* added new pages: setTagihan, Orang Tua Wali, (test)consume api on tagihan, (test)Siswa, (test) OrangTua ([78dfff4](https://github.com/snap-star/sekolah-payment/commit/78dfff488c67fe04a382d7ea8dab43cf99653f65))
+* new page register (not live) ([de8f5cd](https://github.com/snap-star/sekolah-payment/commit/de8f5cdae34193191f68117f7bcc2ba4d4655fb8))
+* proper github action ([d744545](https://github.com/snap-star/sekolah-payment/commit/d744545e3ddc211dcc4c62313782f66f7325413e))
+* semver versioning control ([fa27bc1](https://github.com/snap-star/sekolah-payment/commit/fa27bc10d42b5459204d183b29a4e77d00654599))
+* semver versioning control ([76968c6](https://github.com/snap-star/sekolah-payment/commit/76968c6fa4044b8d8d18e2720812d72ddf8c49dc))
+
+### 🔨 Code Refactoring
+
+* remove unused code, disable mock data ([2f42cc6](https://github.com/snap-star/sekolah-payment/commit/2f42cc6c14c57a7111bd80eb10651b70e8cc4ef3))
+* remove unused console ([19e975d](https://github.com/snap-star/sekolah-payment/commit/19e975db08ff7623e1209876ba85eeac19135154))
+
+### 🧪 Tests
+
+* codeQL ([fdf7b03](https://github.com/snap-star/sekolah-payment/commit/fdf7b036c46bb45943749c80a22a2515da41c588))
+
+### 🔄 CI/CD
+
+* fix Potential file system race condition ([5255363](https://github.com/snap-star/sekolah-payment/commit/525536335408f8dddea0699fdeceef39db661529))
+* fix semver version ([d074085](https://github.com/snap-star/sekolah-payment/commit/d074085add1ffa29fa1ea5938ff4b523e366ce13))
+* semver release ([75b744c](https://github.com/snap-star/sekolah-payment/commit/75b744cf70b8d9a8d17d11fa05219400529ae722))
+
+### 🧹 Maintenance
+
+* add skills-lock.json ([bf3d6a6](https://github.com/snap-star/sekolah-payment/commit/bf3d6a66fa54e099d9ffb6243d0d2042a60404cb))
+* Change repository owner in release workflow ([e435a10](https://github.com/snap-star/sekolah-payment/commit/e435a100d2975af324002f08ecc4ba7047dba9a2))
+* comment some mock data ([d52076d](https://github.com/snap-star/sekolah-payment/commit/d52076d640615aa1039b63aef75b49d2bc188b3b))
+* **deps:** bump actions/checkout from 4 to 6 ([ef9ebf5](https://github.com/snap-star/sekolah-payment/commit/ef9ebf500fc2b98423d23a2a607ac96bd04b4d74))
+* **deps:** bump actions/dependency-review-action from 4 to 5 ([1a2cce1](https://github.com/snap-star/sekolah-payment/commit/1a2cce162d357f8ef8f5fc22ab116e1a8bfad34c))
+* **deps:** bump actions/labeler from 5 to 6 ([391d7f5](https://github.com/snap-star/sekolah-payment/commit/391d7f59aaffc8eb6b9a2e57207032cc59d89e60))
+* **deps:** bump actions/setup-node from 4 to 6 ([50f143f](https://github.com/snap-star/sekolah-payment/commit/50f143f27733ca9935bf56ed5fd5b89723274d66))
+* **deps:** bump github/codeql-action from 3 to 4 ([d64ee03](https://github.com/snap-star/sekolah-payment/commit/d64ee03c75aab8c2f8f9327fa4a11401bbc181c6))
+* **deps:** bump the major-dependencies group with 3 updates ([73ef841](https://github.com/snap-star/sekolah-payment/commit/73ef841e052dd00417858959b4f65718f84e4d0c))
+* **deps:** bump the minor-patch-dependencies group across 1 directory with 10 updates ([0f3667c](https://github.com/snap-star/sekolah-payment/commit/0f3667cab4a390a50ac6daac22233050cb2d4d99))
+* fix github action release ([095eed6](https://github.com/snap-star/sekolah-payment/commit/095eed6f81c053752b1154bd113dac2cf0926f00))
+* fix github action releases ([a18ea06](https://github.com/snap-star/sekolah-payment/commit/a18ea06f35552067d100aeedb875970e84109bc3))
+* github action (test) ([bb22d64](https://github.com/snap-star/sekolah-payment/commit/bb22d64db344ca039ddbc07b3ce9fb3fe33d16a5))
+* tRPC matches to the other definition ([1e88d58](https://github.com/snap-star/sekolah-payment/commit/1e88d586c44a16d632960b99c7e503b4b24ef110))
+
 ## [1.1.0] - 2026-06-08 - Invoice & Fee Management Update
 
 ### Summary
