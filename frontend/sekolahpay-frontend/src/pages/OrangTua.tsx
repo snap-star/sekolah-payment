@@ -31,7 +31,7 @@ interface GuardianRowProps {
   guardian: StudentGuardian;
   onEdit: (guardian: StudentGuardian) => void;
   onDelete: (guardian: StudentGuardian) => void;
-  getRelationBadge: (relation: string | null) => React.JSX.Element;
+  getRelationBadge: (guardian: StudentGuardian) => React.JSX.Element;
 }
 
 const GuardianRow = ({ guardian, onEdit, onDelete, getRelationBadge }: GuardianRowProps) => {
@@ -42,7 +42,7 @@ const GuardianRow = ({ guardian, onEdit, onDelete, getRelationBadge }: GuardianR
       <TableCell className="font-mono text-xs">{guardian.student?.nis || '-'}</TableCell>
       <TableCell className="font-medium">{guardian.name}</TableCell>
       <TableCell className="text-xs">{guardian.phone || '-'}</TableCell>
-      <TableCell>{getRelationBadge(guardian.relation)}</TableCell>
+      <TableCell>{getRelationBadge(guardian)}</TableCell>
       <TableCell>
         <div className="flex items-center gap-1">
           <Button
@@ -158,45 +158,45 @@ export default function OrangTuaPage() {
     setIsDeleteDialogOpen(true);
   };
 
-  // Create mutation
+  // Create mutation - Updated to use new simplified hook signature
+  // Implements POST /api/student-guardians from documentation
   const createGuardian = useCreateStudentGuardian({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parents'] });
       setIsCreateDialogOpen(false);
       resetForm();
       toast.success('Wali/orang tua berhasil ditambahkan');
-      // Refresh the guardians list
-      window.location.reload();
+      // No need for window.location.reload() - React Query handles cache invalidation
     },
     onError: (error) => {
       toast.error(error.message || 'Gagal menambahkan wali/orang tua');
     },
   });
 
-  // Update mutation
+  // Update mutation - Updated to use new simplified hook signature
+  // Implements PUT /api/student-guardians/{id} from documentation
   const updateGuardian = useUpdateStudentGuardian({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parents'] });
       setIsEditDialogOpen(false);
       resetForm();
       toast.success('Wali/orang tua berhasil diperbarui');
-      // Refresh the guardians list
-      window.location.reload();
+      // No need for window.location.reload() - React Query handles cache invalidation
     },
     onError: (error) => {
       toast.error(error.message || 'Gagal memperbarui wali/orang tua');
     },
   });
 
-  // Delete mutation
+  // Delete mutation - Updated to use new simplified hook signature
+  // Implements DELETE /api/student-guardians/{id} from documentation
   const deleteGuardian = useDeleteStudentGuardian({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parents'] });
       setIsDeleteDialogOpen(false);
       resetForm();
       toast.success('Wali/orang tua berhasil dihapus');
-      // Refresh the guardians list
-      window.location.reload();
+      // No need for window.location.reload() - React Query handles cache invalidation
     },
     onError: (error) => {
       toast.error(error.message || 'Gagal menghapus wali/orang tua');
@@ -206,10 +206,8 @@ export default function OrangTuaPage() {
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.student_id > 0) {
-      createGuardian.mutate({
-        studentId: formData.student_id,
-        data: formData,
-      });
+      // Directly pass formData to mutation - simplified API matches documentation
+      createGuardian.mutate(formData);
     } else {
       toast.error('Pilih siswa terlebih dahulu');
     }
@@ -218,9 +216,9 @@ export default function OrangTuaPage() {
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedGuardian) {
+      // Pass only id and data - simplified API matches documentation
       updateGuardian.mutate({
-        studentId: selectedGuardian.student?.id || 0,
-        guardianId: selectedGuardian.id,
+        id: selectedGuardian.id,
         data: formData as UpdateStudentGuardianInput,
       });
     }
@@ -228,16 +226,21 @@ export default function OrangTuaPage() {
 
   const handleDeleteSubmit = () => {
     if (selectedGuardian) {
-      deleteGuardian.mutate({
-        studentId: selectedGuardian.student?.id || 0,
-        guardianId: selectedGuardian.id,
-      });
+      // Pass only guardianId - simplified API matches documentation
+      deleteGuardian.mutate(selectedGuardian.id);
     }
     setIsDeleteDialogOpen(false);
     setSelectedGuardian(null);
   };
 
-  const getRelationBadge = (relation: string | null) => {
+  /**
+   * Helper function to get the appropriate badge for guardian relationship
+   * Supports both 'relation' and 'relationship' fields from API responses
+   */
+  const getRelationBadge = (guardian: StudentGuardian) => {
+    // Get relation from either field (supports both API response formats)
+    const relation = guardian.relation || null;
+    
     if (!relation) return <Badge variant="outline">-</Badge>;
     
     switch (relation) {

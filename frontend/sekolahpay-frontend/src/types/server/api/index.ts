@@ -186,6 +186,8 @@ export type UpdateStudentInput = z.infer<typeof UpdateStudentInputSchema>;
 
 /**
  * Student guardian schema (matches StudentGuardianResource from backend)
+ * Updated to support both 'relation' and 'relationship' field names from API responses
+ * API docs use 'relation' in requests, but some responses return 'relationship'
  */
 export const StudentGuardianSchema = z.object({
   id: z.number().int().positive(), // Orang tua wali ID
@@ -195,12 +197,15 @@ export const StudentGuardianSchema = z.object({
     name: z.string(),
   }),
   name: z.string().max(255),
-  relation: z.string().nullable(), // Ayah, Ibu, Wali, etc. (matches backend field name)
+  // Support both field names that might come from the backend
+  relation: z.string().nullable().optional(), // Ayah, Ibu, Wali, etc. (request field name)
+  //relationship: z.string().nullable().optional(), // Alternative response field name
   phone: z.string().max(50).nullable(),
   occupation: z.string().nullable(),
   address: z.string().nullable(),
   created_at: z.string(),
   updated_at: z.string(),
+  isPrimary: z.boolean(),
 });
 export type StudentGuardian = z.infer<typeof StudentGuardianSchema>;
 

@@ -250,7 +250,7 @@ export default function SetJenisTagihanPage() {
                   value={newFeeType.description}
                   onChange={(e) => setNewFeeType({...newFeeType, description: e.target.value})}
                   placeholder="Deskripsi tambahan tentang jenis tagihan ini..."
-                  className="min-h-[80px]"
+                  className="min-h-20"
                 />
               </div>
               <div className="flex items-center space-x-2">

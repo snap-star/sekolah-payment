@@ -170,39 +170,56 @@ export const useStudentGuardians = (
   });
 };
 
+/**
+ * Hook to fetch a single student guardian by ID
+ * Updated to use apiClient.parent.getById() which implements the documented API
+ * @param guardianId - ID of the guardian to fetch
+ */
 export const useStudentGuardian = (
-  studentId: number, 
-  guardianId: number, 
+  guardianId: number,
   options?: Omit<UseQueryOptions<StudentGuardianResponse, Error>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery({
     queryKey: ['parents', guardianId],
-    queryFn: () => apiClient.students.getGuardianById(studentId, guardianId),
-    enabled: !!studentId && !!guardianId,
+    queryFn: () => apiClient.parent.getById(guardianId),
+    enabled: !!guardianId,
     ...options,
   });
 };
 
-export const useCreateStudentGuardian = (options?: Omit<UseMutationOptions<StudentGuardianResponse, Error, { studentId: number; data: CreateStudentGuardianInput }>, 'mutationFn'>) => {
+/**
+ * Hook to create a new student guardian (orang tua/wali)
+ * Updated to use apiClient.parent.create() which implements the documented API
+ * Fixes duplication issues by using the centralized parent API section
+ */
+export const useCreateStudentGuardian = (options?: Omit<UseMutationOptions<StudentGuardianResponse, Error, CreateStudentGuardianInput>, 'mutationFn'>) => {
   return useMutation({
-    mutationFn: ({ studentId, data }: { studentId: number; data: CreateStudentGuardianInput }) => 
-      apiClient.students.createGuardian(studentId, data),
+    mutationFn: (input: CreateStudentGuardianInput) => 
+      apiClient.parent.create(input),
     ...options,
   });
 };
 
-export const useUpdateStudentGuardian = (options?: Omit<UseMutationOptions<StudentGuardianResponse, Error, { studentId: number; guardianId: number; data: UpdateStudentGuardianInput }>, 'mutationFn'>) => {
+/**
+ * Hook to update an existing student guardian
+ * Updated to use apiClient.parent.update() which implements the documented API
+ */
+export const useUpdateStudentGuardian = (options?: Omit<UseMutationOptions<StudentGuardianResponse, Error, { id: number; data: UpdateStudentGuardianInput }>, 'mutationFn'>) => {
   return useMutation({
-    mutationFn: ({ studentId, guardianId, data }: { studentId: number; guardianId: number; data: UpdateStudentGuardianInput }) => 
-      apiClient.students.updateGuardian(studentId, guardianId, data),
+    mutationFn: ({ id, data }: { id: number; data: UpdateStudentGuardianInput }) => 
+      apiClient.parent.update(id, data),
     ...options,
   });
 };
 
-export const useDeleteStudentGuardian = (options?: Omit<UseMutationOptions<{ success: boolean; message: string }, Error, { studentId: number; guardianId: number }>, 'mutationFn'>) => {
+/**
+ * Hook to delete a student guardian
+ * Updated to use apiClient.parent.delete() which implements the documented API
+ */
+export const useDeleteStudentGuardian = (options?: Omit<UseMutationOptions<{ success: boolean; message: string }, Error, number>, 'mutationFn'>) => {
   return useMutation({
-    mutationFn: ({ studentId, guardianId }: { studentId: number; guardianId: number }) => 
-      apiClient.students.deleteGuardian(studentId, guardianId),
+    mutationFn: (guardianId: number) => 
+      apiClient.parent.delete(guardianId),
     ...options,
   });
 };

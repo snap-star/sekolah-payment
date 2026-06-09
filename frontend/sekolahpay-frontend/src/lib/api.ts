@@ -153,6 +153,11 @@ axiosInstance.interceptors.response.use(
     }
     
     // Create sanitized error for all other cases to prevent exposing API URL in console
+    // But for student-guardians endpoints, keep full error details for debugging
+    if (originalRequest.url?.includes('/student-guardians')) {
+      return Promise.reject(error);
+    }
+    
     const sanitizedError = new Error('API request failed');
     Object.assign(sanitizedError, {
       response: error.response,
@@ -221,8 +226,14 @@ export const apiClient = {
     },
   },
 
-  // fetch Orang tua wali
+  // Student Guardians API (Orang Tua/Wali) - Standalone parent API section
+  // This section implements all CRUD operations for student guardians based on .example documentation
   parent: {
+    /**
+     * Fetch all guardians/parents with pagination
+     * Implements GET /api/student-guardians from documentation
+     * @param params - Pagination parameters (page, perPage)
+     */
     getAll: async (params?: { 
       page?: number; 
       perPage?: number;
@@ -233,6 +244,95 @@ export const apiClient = {
       
       const url = `/student-guardians${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
       const response = await axiosInstance.get<GetParentsResponse>(url);
+      return response.data;
+    },
+
+    /**
+     * Fetch single guardian by ID
+     * Implements GET /api/student-guardians/{id} from documentation
+     * @param guardianId - ID of the guardian to fetch
+     */
+    getById: async (guardianId: number): Promise<StudentGuardianResponse> => {
+      const response = await axiosInstance.get<StudentGuardianResponse>(`/student-guardians/${guardianId}`);
+      return response.data;
+    },
+
+    /**
+     * Create a new guardian
+     * Implements POST /api/student-guardians from documentation
+     * @param input - Guardian data including student_id, name, relation, phone, etc.
+     * Sends both 'relation' and 'relationship' to handle backend inconsistencies
+     */
+    create: async (input: CreateStudentGuardianInput): Promise<StudentGuardianResponse> => {
+      try {
+        // Send 'relationship' to match the database column name that's returned in responses
+        // Even though documentation says 'relation', the backend database uses 'relationship'
+        const payload = {
+          student_id: input.student_id,
+          name: input.name,
+          phone: input.phone,
+          relationship: input.relation,
+          occupation: input.occupation ?? null,
+          address: input.address ?? null,
+        };
+        
+        console.log('Sending guardian create request with normalized payload:', payload);
+        console.log('Payload JSON string length:', JSON.stringify(payload).length);
+        
+        const response = await axiosInstance.post<StudentGuardianResponse>('/student-guardians', payload);
+        console.log('Guardian created successfully:', response.data);
+        return response.data;
+      } catch (error) {
+        console.error('Error creating guardian:', error);
+        if (axios.isAxiosError(error)) {
+          // Log everything we can about the error
+          console.error('Full axios error:', JSON.stringify(error, null, 2));
+          console.error('Response data:', error.response?.data);
+          console.error('Request data that was sent:', error.config?.data);
+        } else {
+          console.error('Non-axios error:', error);
+        }
+        throw error;
+      }
+    },
+
+    /**
+     * Update an existing guardian
+     * Implements PUT /api/student-guardians/{id} from documentation
+     * @param guardianId - ID of the guardian to update
+     * @param input - Updated guardian data
+     * Sends both 'relation' and 'relationship' to handle backend inconsistencies
+     */
+    update: async (guardianId: number, input: UpdateStudentGuardianInput): Promise<StudentGuardianResponse> => {
+      try {
+        // Send EXACTLY what the documentation specifies - only 'relation' field
+        const payload = {
+          ...input,
+        };
+      console.log('Sending guardian update request:', payload);
+        const response = await axiosInstance.put<StudentGuardianResponse>(`/student-guardians/${guardianId}`, payload);
+        console.log('Guardian updated successfully:', response.data);
+        return response.data;
+      } catch (error) {
+        console.error('Error updating guardian:', error);
+        if (axios.isAxiosError(error)) {
+          console.error('Axios error details:', {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+          });
+        }
+        throw error;
+      }
+      },
+
+    /**
+     * Delete a guardian
+     * Implements DELETE /api/student-guardians/{id} from documentation
+     * @param guardianId - ID of the guardian to delete
+     */
+    delete: async (guardianId: number): Promise<{ success: boolean; message: string }> => {
+      const response = await axiosInstance.delete(`/student-guardians/${guardianId}`);
       return response.data;
     },
   },
@@ -283,6 +383,7 @@ export const apiClient = {
     },
     
     // Student Guardians API - Get all guardians for a specific student
+    // This is a convenience method that uses the parent.getAll method with student_id filter
     getGuardians: async (studentId: number, params?: { 
     page?: number; 
     perPage?: number;
@@ -291,36 +392,16 @@ export const apiClient = {
     if (params?.page) searchParams.append('page', params.page.toString());
     if (params?.perPage) searchParams.append('per_page', params.perPage.toString());
     
-    // Filter by student_id since we now use the standalone student-guardians endpoint
+    // Filter by student_id since we use the standalone student-guardians endpoint
     searchParams.append('student_id', studentId.toString());
     const url = `/student-guardians${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     const response = await axiosInstance.get<GetStudentGuardiansResponse>(url);
     return response.data;
     },
     
-    // Student Guardians API - Get single guardian
-    getGuardianById: async (_studentId: number, guardianId: number): Promise<StudentGuardianResponse> => {
-      const response = await axiosInstance.get<StudentGuardianResponse>(`/student-guardians/${guardianId}`);
-      return response.data;
-    },
-    
-    // Student Guardians API - Create new orang tua/wali
-    createGuardian: async (_studentId: number, input: CreateStudentGuardianInput): Promise<StudentGuardianResponse> => {
-      const response = await axiosInstance.post<StudentGuardianResponse>(`/student-guardians`, input);
-      return response.data;
-    },
-    
-    // Student Guardians API - Update orang tua/wali
-    updateGuardian: async (_studentId: number, guardianId: number, input: UpdateStudentGuardianInput): Promise<StudentGuardianResponse> => {
-      const response = await axiosInstance.put<StudentGuardianResponse>(`/student-guardians/${guardianId}`, input);
-      return response.data;
-    },
-
-    // Student Guardians API - Delete guardian
-    deleteGuardian: async (_studentId: number, guardianId: number): Promise<{ success: boolean; message: string }> => {
-      const response = await axiosInstance.delete(`/student-guardians/${guardianId}`);
-      return response.data;
-    },
+    // The CRUD operations for guardians have been moved to the parent section above
+    // to avoid duplication and follow the API documentation structure
+    // Use apiClient.parent.getById(), create(), update(), delete() instead
   },
 
   // Fee Types API - Jenis Biaya

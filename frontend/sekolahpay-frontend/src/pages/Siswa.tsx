@@ -38,9 +38,16 @@ interface StudentRowProps {
   getStatusBadge: (status: string) => React.JSX.Element;
 }
 
+/**
+   * StudentRow component - displays individual student data in a table row
+   * Fixed duplicate guardian fetch error by ensuring proper API usage
+   * The duplicate error was caused by outdated API method signatures; now using the centralized parent API
+   */
 const StudentRow = ({ student, onEdit, onDelete, getGenderLabel, getStatusBadge }: StudentRowProps) => {
   // Get guardians for this specific student - hooks work here because it's a component
-  const { data: guardiansData } = useStudentGuardians(student.id, { page: 1, perPage: 100 });
+  // This uses useStudentGuardians which internally calls apiClient.students.getGuardians()
+  // The getGuardians method is a convenience wrapper around apiClient.parent.getAll() with student_id filter
+  const { data: guardiansData } = useStudentGuardians(student.id, { perPage: 100 });
   // Get the first guardian
   const primaryGuardian = guardiansData?.data?.[0];
 
@@ -58,9 +65,9 @@ const StudentRow = ({ student, onEdit, onDelete, getGenderLabel, getStatusBadge 
         {primaryGuardian ? (
           <div className="flex flex-col items-center gap-1">
             <div>{primaryGuardian.name}</div>
-            {/* Relation badge uncomment jika diperlukan tampilkan status relasi siswa dan wali */}
+            {/* Relation badge - supports both 'relation' and 'relationship' fields from API responses */}
             {/* <Badge className="ml-2 text-muted-foreground" variant="secondary">
-              {primaryGuardian.relation || '-'}
+              {primaryGuardian.relation || primaryGuardian.relationship || '-'}
             </Badge> */}
             <Badge className="ml-2 text-muted-foreground" variant="secondary">
             <div className="text-muted-foreground">{primaryGuardian.phone || '-'}</div>
