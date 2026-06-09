@@ -13,6 +13,13 @@ class SchoolYear extends Model
         'is_active',
     ];
 
+    // Hanya boleh ada 1 tahun ajaran aktif (is_active = true) dalam satu waktu.
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'is_active' => 'boolean',
+    ];
+
     public function invoices()
     {
         return $this->hasMany(Invoice::class);
