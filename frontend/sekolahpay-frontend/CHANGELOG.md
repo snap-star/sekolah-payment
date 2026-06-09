@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1](https://github.com/snap-star/sekolah-payment/compare/v1.0.0...v1.0.1) (2026-06-09)
+
+### 🎨 Styling
+
+* add some loading animation to all pages ([df15507](https://github.com/snap-star/sekolah-payment/commit/df15507a5cd363e56d487d416299d3fca904d327))
+
+### 🧹 Maintenance
+
+* eslint config ([b1e9679](https://github.com/snap-star/sekolah-payment/commit/b1e9679dbdf624fba3bbc309b5e55e4e94c3d0b7))
+* updating api Siswa and OrangTua ([48d8a9a](https://github.com/snap-star/sekolah-payment/commit/48d8a9a3c46ccb01056d5d3ba5f79c85f3e251c1))
+
 ## 1.0.0 (2026-06-08)
 
 ### ✨ New Features
