@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3](https://github.com/snap-star/sekolah-payment/compare/v1.0.2...v1.0.3) (2026-06-10)
+
+### 🧹 Maintenance
+
+* fix add orang tua wali, fix forms type and aria ([6307067](https://github.com/snap-star/sekolah-payment/commit/6307067f851f16425c85520711f973812f55de78))
+* pnpm lint ([11d4c20](https://github.com/snap-star/sekolah-payment/commit/11d4c20eda57453bad2ecd8933528ab2accd620d))
+
 ## [1.0.2](https://github.com/snap-star/sekolah-payment/compare/v1.0.1...v1.0.2) (2026-06-10)
 
 ### 🧹 Maintenance
