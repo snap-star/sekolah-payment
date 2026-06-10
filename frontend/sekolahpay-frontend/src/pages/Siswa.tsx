@@ -4,7 +4,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -32,6 +32,9 @@ import { Progress } from '../components/ui/progress';
 // Student Row component that can safely use hooks
 interface StudentRowProps {
   student: Student;
+  index: number;
+  currentPage: number;
+  perPage: number;
   onEdit: (student: Student) => void;
   onDelete: (student: Student) => void;
   getGenderLabel: (gender: string) => string;
@@ -43,16 +46,19 @@ interface StudentRowProps {
    * Fixed duplicate guardian fetch error by ensuring proper API usage
    * The duplicate error was caused by outdated API method signatures; now using the centralized parent API
    */
-const StudentRow = ({ student, onEdit, onDelete, getGenderLabel, getStatusBadge }: StudentRowProps) => {
+const StudentRow = ({ student, index, currentPage, perPage, onEdit, onDelete, getGenderLabel, getStatusBadge }: StudentRowProps) => {
   // Get guardians for this specific student - hooks work here because it's a component
   // This uses useStudentGuardians which internally calls apiClient.students.getGuardians()
   // The getGuardians method is a convenience wrapper around apiClient.parent.getAll() with student_id filter
   const { data: guardiansData } = useStudentGuardians(student.id, { perPage: 100 });
   // Get the first guardian
   const primaryGuardian = guardiansData?.data?.[0];
+  // Calculate the correct row number based on pagination
+  const rowNumber = (currentPage - 1) * perPage + index + 1;
 
   return (
     <TableRow key={student.id}>
+      <TableCell className="font-mono text-xs">{rowNumber}</TableCell>
       <TableCell className="font-mono text-xs">{student.nis}</TableCell>
       <TableCell className="font-mono text-xs">{student.nisn || '-'}</TableCell>
       <TableCell className="font-medium">{student.name}</TableCell>
@@ -119,14 +125,19 @@ export default function SiswaPage() {
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, genderFilter]);
   
   // Fetch students with pagination and filters
   const { data, isLoading } = useStudents({
     page: currentPage,
     perPage: 10,
     search: debouncedSearch,
-    status: statusFilter || undefined,
-    gender: genderFilter || undefined,
+    status: statusFilter === 'all'? undefined : statusFilter || undefined,
+    gender: genderFilter === 'all' ? undefined : genderFilter || undefined,
   });
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -306,12 +317,18 @@ export default function SiswaPage() {
           <DialogContent className="max-w-md" aria-describedby="createStudentForm">
             <DialogHeader>
               <DialogTitle>Tambah Siswa Baru</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                Tambahkan data siswa baru ke sekolah.
+              </DialogDescription>
             </DialogHeader>
             <form id="createStudentForm" className="space-y-4" onSubmit={handleCreateSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="nis">NIS <span className="text-destructive">*</span></Label>
                 <Input
                   id="nis"
+                  type="number"
+                  onWheel={(e) => e.currentTarget.blur()}
+                  pattern="[0-9]+"
                   placeholder="Masukkan NIS"
                   value={formData.nis}
                   autoComplete="off"
@@ -324,6 +341,9 @@ export default function SiswaPage() {
                 <Label htmlFor="nisn">NISN</Label>
                 <Input
                   id="nisn"
+                  type="number"
+                  onWheel={(e) => e.currentTarget.blur()}
+                  pattern="[0-9]+"
                   placeholder="Masukkan NISN"
                   value={formData.nisn || ''}
                   autoComplete="off"
@@ -335,6 +355,8 @@ export default function SiswaPage() {
                 <Label htmlFor="name">Nama Lengkap <span className="text-destructive">*</span></Label>
                 <Input
                   id="name"
+                  type="text"
+                  pattern="[a-zA-Z\s]+"
                   placeholder="Masukkan Nama Lengkap"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -347,7 +369,8 @@ export default function SiswaPage() {
                 <div className="space-y-2">
                   <Label htmlFor="gender">Jenis Kelamin <span className="text-destructive">*</span></Label>
                   <Select
-                    defaultValue="L"
+                    required
+                    defaultValue=""
                     value={formData.gender}
                     onValueChange={(value: 'L' | 'P') => setFormData({ ...formData, gender: value })}
                   >
@@ -367,6 +390,7 @@ export default function SiswaPage() {
                     placeholder="Pilih Tanggal Lahir"
                     autoComplete="off"
                     type="date"
+                    required
                     value={formData.birth_date || ''}
                     onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
                   />
@@ -375,6 +399,8 @@ export default function SiswaPage() {
               <div className="space-y-2">
                 <Label htmlFor="status">Status <span className="text-destructive">*</span></Label>
                 <Select
+                  defaultValue="active"
+                  required
                   value={formData.status}
                   onValueChange={(value: 'active' | 'inactive' | 'graduated') => 
                     setFormData({ ...formData, status: value })
@@ -412,6 +438,9 @@ export default function SiswaPage() {
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Edit Siswa</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                Merubah data siswa
+              </DialogDescription>
             </DialogHeader>
             <form id="editStudentForm" className="space-y-4" onSubmit={handleEditSubmit}>
               <div className="space-y-2">
@@ -508,11 +537,11 @@ export default function SiswaPage() {
           <DialogContent className="max-w-sm">
             <DialogHeader>
               <DialogTitle>Hapus Siswa</DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                Apakah Anda yakin ingin menghapus siswa <strong>{selectedStudent?.name}</strong>? Tindakan ini tidak dapat dibatalkan.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Apakah Anda yakin ingin menghapus siswa <strong>{selectedStudent?.name}</strong>? Tindakan ini tidak dapat dibatalkan.
-              </p>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
@@ -542,7 +571,8 @@ export default function SiswaPage() {
         </Dialog>
       </div>
 
-      {/* Filter Bar */}
+      {/* Filter Bar */} 
+      {/* TODO : FILTER STATE  */}
       <Card className="border-border">
         <CardContent className="pt-6">
           <div className="flex flex-wrap gap-4 items-end">
@@ -601,6 +631,7 @@ export default function SiswaPage() {
           <Table>
             <TableHeader>
               <TableRow className="text-sm">
+                <TableHead>No.</TableHead>
                 <TableHead>NIS</TableHead>
                 <TableHead>NISN</TableHead>
                 <TableHead>Nama</TableHead>
@@ -612,10 +643,13 @@ export default function SiswaPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data?.data?.map((student) => (
+              {data?.data?.map((student, index) => (
                 <StudentRow 
                   key={student.id}
                   student={student}
+                  index={index}
+                  currentPage={currentPage}
+                  perPage={10}
                   onEdit={openEditDialog}
                   onDelete={openDeleteDialog}
                   getGenderLabel={getGenderLabel}
@@ -625,7 +659,7 @@ export default function SiswaPage() {
               
               {(!data?.data || data.data.length === 0) && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                     Belum ada data siswa
                   </TableCell>
                 </TableRow>

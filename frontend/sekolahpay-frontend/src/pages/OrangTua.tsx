@@ -4,11 +4,11 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import {
+import { 
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -25,6 +25,13 @@ import {
   useDeleteStudentGuardian 
 } from '../hooks/useApi';
 import type { StudentGuardian, CreateStudentGuardianInput, UpdateStudentGuardianInput } from '@/types/server/api';
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+} from '@/components/ui/combobox';
 
 // Guardian Row component that can safely use hooks
 interface GuardianRowProps {
@@ -76,6 +83,8 @@ export default function OrangTuaPage() {
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  // Student search state for combobox
+  const [studentSearchQuery, setStudentSearchQuery] = useState('');
   
   // Debounce search to avoid too many API calls
   useEffect(() => {
@@ -92,6 +101,17 @@ export default function OrangTuaPage() {
     perPage: 1000, // Get all students to populate dropdowns
   });
   const students = studentsData?.data || [];
+  
+  // Filter students based on search query (name, nis, or nisn)
+  const filteredStudents = students.filter(student => {
+    if (!studentSearchQuery) return true;
+    const searchLower = studentSearchQuery.toLowerCase();
+    return (
+      student.name.toLowerCase().includes(searchLower) ||
+      student.nis.toLowerCase().includes(searchLower) ||
+      (student.nisn && student.nisn.toLowerCase().includes(searchLower))
+    );
+  });
   
   // Fetch all guardians/parents using the new useParents hook
   const { data: guardiansData } = useParents({
@@ -114,7 +134,7 @@ export default function OrangTuaPage() {
     student_id: 0,
     name: '',
     phone: '',
-    relation: 'Ayah',
+    relation: '',
     occupation: '',
     address: '',
   });
@@ -124,11 +144,12 @@ export default function OrangTuaPage() {
       student_id: 0,
       name: '',
       phone: '',
-      relation: 'Ayah',
+      relation: '',
       occupation: '',
       address: '',
     });
     setSelectedGuardian(null);
+    setStudentSearchQuery('');
   };
 
   const handlePageChange = (page: number) => {
@@ -146,7 +167,7 @@ export default function OrangTuaPage() {
       student_id: guardian.student?.id || 0,
       name: guardian.name,
       phone: guardian.phone || '',
-      relation: guardian.relation || 'Ayah',
+      relation: guardian.relation || '',
       occupation: guardian.occupation || '',
       address: guardian.address || '',
     });
@@ -309,33 +330,61 @@ export default function OrangTuaPage() {
                   Tambah Wali/Orang Tua
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md" aria-describedby="createGuardianForm">
+              <DialogContent className="max-w-md">
                 <DialogHeader>
                   <DialogTitle className="gemini-page-title">Tambah Wali/Orang Tua Baru</DialogTitle>
+                  <DialogDescription className="text-sm text-muted-foreground">
+                    Isi informasi wali atau orang tua untuk siswa ini.
+                  </DialogDescription>
                 </DialogHeader>
                 <form id="createGuardianForm" className="space-y-4" onSubmit={handleCreateSubmit}>
                   <div className="space-y-2">
                     <Label htmlFor="student">Siswa <span className="text-destructive">*</span></Label>
-                    <Select 
-                      value={formData.student_id.toString()} 
-                      onValueChange={(value) => setFormData({ ...formData, student_id: parseInt(value) })}
+                    <Combobox
+                      value={formData.student_id.toString()}
+                      required
+                      onValueChange={(value) => {
+                        if (value) {
+                          setFormData({ ...formData, student_id: parseInt(value) });
+                        }
+                      }}
                     >
-                      <SelectTrigger id="student">
-                        <SelectValue placeholder="Pilih Siswa" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {students.map(student => (
-                          <SelectItem key={student.id} value={student.id.toString()}>
-                            {student.name} (NIS: {student.nis})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <ComboboxInput
+                        id="student"
+                        placeholder="Cari berdasarkan nama, NIS, atau NISN..."
+                        showClear
+                        className="w-full"
+                        onChange={(e) => setStudentSearchQuery(e.target.value)}
+                      />
+                      <ComboboxContent className="w-full max-h-60 overflow-y-auto">
+                        <ComboboxList>
+                          {filteredStudents.length === 0 ? (
+                            <div className="p-2 text-sm text-muted-foreground text-center">
+                              Tidak ada siswa yang ditemukan
+                            </div>
+                          ) : (
+                            filteredStudents.map(student => (
+                              <ComboboxItem key={student.id} value={student.id.toString()}>
+                                <div className="flex flex-col">
+                                  <span>{student.name}</span>
+                                  <span className="text-xs text-muted-foreground">
+                                    NIS: {student.nis}{student.nisn ? ` | NISN: ${student.nisn}` : ''}
+                                  </span>
+                                </div>
+                              </ComboboxItem>
+                            ))
+                          )}
+                        </ComboboxList>
+                      </ComboboxContent>
+                    </Combobox>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="name">Nama Lengkap <span className="text-destructive">*</span></Label>
                     <Input
                       id="name"
+                      type="text"
+                      pattern="[a-zA-Z\s]+"
+                      placeholder="Masukkan nama lengkap"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
@@ -346,6 +395,10 @@ export default function OrangTuaPage() {
                     <Label htmlFor="phone">Nomor Telepon <span className="text-destructive">*</span></Label>
                     <Input
                       id="phone"
+                      type="tel"
+                      pattern="[0-9\s]+"
+                      placeholder="Masukkan nomor telepon"
+
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       required
@@ -484,25 +537,49 @@ export default function OrangTuaPage() {
         <DialogContent className="max-w-md" aria-describedby="editGuardianForm">
           <DialogHeader>
             <DialogTitle>Edit Wali/Orang Tua</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Merubah data orang tua atau wali dari siswa.
+            </DialogDescription>
           </DialogHeader>
           <form id="editGuardianForm" className="space-y-4" onSubmit={handleEditSubmit}>
             <div className="space-y-2">
               <Label htmlFor="edit-student">Siswa</Label>
-              <Select 
-                value={formData.student_id.toString()} 
-                onValueChange={(value) => setFormData({ ...formData, student_id: parseInt(value) })}
-              >
-                <SelectTrigger id="edit-student">
-                  <SelectValue placeholder="Pilih Siswa" />
-                </SelectTrigger>
-                <SelectContent>
-                  {students.map(student => (
-                    <SelectItem key={student.id} value={student.id.toString()}>
-                      {student.name} (NIS: {student.nis})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Combobox
+                  value={formData.student_id.toString()}
+                  onValueChange={(value) => {
+                    if (value) {
+                      setFormData({ ...formData, student_id: parseInt(value) });
+                    }
+                  }}
+                >
+                  <ComboboxInput
+                    id="student-edit"
+                    placeholder="Cari berdasarkan nama, NIS, atau NISN..."
+                    showClear
+                    className="w-full"
+                    onChange={(e) => setStudentSearchQuery(e.target.value)}
+                  />
+                <ComboboxContent className="w-full max-h-60 overflow-y-auto">
+                  <ComboboxList>
+                    {filteredStudents.length === 0 ? (
+                      <div className="p-2 text-sm text-muted-foreground text-center">
+                        Tidak ada siswa yang ditemukan
+                      </div>
+                    ) : (
+                      filteredStudents.map(student => (
+                        <ComboboxItem key={student.id} value={student.id.toString()}>
+                          <div className="flex flex-col">
+                            <span>{student.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              NIS: {student.nis}{student.nisn ? ` | NISN: ${student.nisn}` : ''}
+                            </span>
+                          </div>
+                        </ComboboxItem>
+                      ))
+                    )}
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-name">Nama Lengkap <span className="text-destructive">*</span></Label>
@@ -577,11 +654,11 @@ export default function OrangTuaPage() {
         <DialogContent className="max-w-md" aria-describedby="deleteGuardianForm">
           <DialogHeader>
             <DialogTitle>Hapus Wali/Orang Tua</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              Apakah Anda yakin ingin menghapus data wali/orang tua ini? Tindakan ini tidak dapat dibatalkan.
+            </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm text-muted-foreground">
-              Apakah Anda yakin ingin menghapus data wali/orang tua ini? Tindakan ini tidak dapat dibatalkan.
-            </p>
             {selectedGuardian && (
               <div className="mt-4 p-3 bg-muted rounded-md">
                 <p className="font-medium">{selectedGuardian.name}</p>
