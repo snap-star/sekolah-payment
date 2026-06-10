@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\StudentGuardianController;
 use App\Http\Controllers\Api\FeeTypeController;
 use App\Http\Controllers\Api\SchoolYearController;
+use App\Http\Controllers\Api\PaymentMethodController;
 
 // auth resource
 Route::prefix('auth')->group(function () {
@@ -43,4 +44,5 @@ Route::middleware([
     Route::apiResource('student-guardians', StudentGuardianController::class); // student guardian resource
     Route::apiResource('fee-types', FeeTypeController::class);
     Route::apiResource('school-years', SchoolYearController::class);
+    Route::apiResource('payment-methods', PaymentMethodController::class);
 });
