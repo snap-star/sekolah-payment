@@ -182,7 +182,7 @@ export default function TagihanPage() {
   // Animate progress bar while loading
   useEffect(() => {
     if (isLoading) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setProgress(0);
       const timer = setInterval(() => {
         setProgress((prev) => {
