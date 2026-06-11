@@ -276,26 +276,25 @@ export const apiClient = {
           address: input.address ?? null,
         };
         
-        console.log('Sending guardian create request with normalized payload:', payload);
-        console.log('Payload JSON string length:', JSON.stringify(payload).length);
+        // console.log('Sending guardian create request with normalized payload:', payload);
+        // console.log('Payload JSON string length:', JSON.stringify(payload).length);
         
         const response = await axiosInstance.post<StudentGuardianResponse>('/student-guardians', payload);
-        console.log('Guardian created successfully:', response.data);
+        // console.log('Guardian created successfully:', response.data);
         return response.data;
       } catch (error) {
-        console.error('Error creating guardian:', error);
+        // console.error('Error creating guardian:', error);
         if (axios.isAxiosError(error)) {
           // Log everything we can about the error
-          console.error('Full axios error:', JSON.stringify(error, null, 2));
-          console.error('Response data:', error.response?.data);
-          console.error('Request data that was sent:', error.config?.data);
+          // console.error('Full axios error:', JSON.stringify(error, null, 2));
+          // console.error('Response data:', error.response?.data);
+          // console.error('Request data that was sent:', error.config?.data);
         } else {
-          console.error('Non-axios error:', error);
+          // console.error('Non-axios error:', error);
         }
         throw error;
       }
     },
-
     /**
      * Update an existing guardian
      * Implements PUT /api/student-guardians/{id} from documentation
@@ -309,18 +308,18 @@ export const apiClient = {
         const payload = {
           ...input,
         };
-      console.log('Sending guardian update request:', payload);
+        // console.log('Sending guardian update request:', payload);
         const response = await axiosInstance.put<StudentGuardianResponse>(`/student-guardians/${guardianId}`, payload);
-        console.log('Guardian updated successfully:', response.data);
+        // console.log('Guardian updated successfully:', response.data);
         return response.data;
       } catch (error) {
-        console.error('Error updating guardian:', error);
+        // console.error('Error updating guardian:', error);
         if (axios.isAxiosError(error)) {
-          console.error('Axios error details:', {
-            status: error.response?.status,
-            statusText: error.response?.statusText,
-            data: error.response?.data,
-          });
+          // console.error('Axios error details:', {
+          //   status: error.response?.status,
+          //   statusText: error.response?.statusText,
+          //   data: error.response?.data,
+          // });
         }
         throw error;
       }
