@@ -20,22 +20,13 @@ class Invoice extends Model
         'created_by',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'amount' => 'decimal:2',
-            'discount_amount' => 'decimal:2',
-            'paid_amount' => 'decimal:2',
-            'remaining_amount' => 'decimal:2',
-            'due_date' => 'date',
-        ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Relationships
-    |--------------------------------------------------------------------------
-    */
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
+        'paid_amount' => 'decimal:2',
+        'remaining_amount' => 'decimal:2',
+        'due_date' => 'date',
+    ];
 
     public function student()
     {
@@ -60,26 +51,5 @@ class Invoice extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Helpers
-    |--------------------------------------------------------------------------
-    */
-
-    public function isPaid(): bool
-    {
-        return $this->status === 'paid';
-    }
-
-    public function isPartial(): bool
-    {
-        return $this->status === 'partial';
-    }
-
-    public function isUnpaid(): bool
-    {
-        return $this->status === 'unpaid';
     }
 }
