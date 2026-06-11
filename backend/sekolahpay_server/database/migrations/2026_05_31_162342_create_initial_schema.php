@@ -241,36 +241,36 @@ return new class extends Migration
         |--------------------------------------------------------------------------
         */
 
-        Schema::create('payments', function (Blueprint $table) {
-            $table->id();
+        // Schema::create('payments', function (Blueprint $table) {
+        //     $table->id();
 
-            $table->foreignId('invoice_id')
-                ->constrained('invoices')
-                ->cascadeOnDelete();
+        //     $table->foreignId('invoice_id')
+        //         ->constrained('invoices')
+        //         ->cascadeOnDelete();
 
-            $table->foreignId('payment_method_id')
-                ->constrained('payment_methods')
-                ->cascadeOnDelete();
+        //     $table->foreignId('payment_method_id')
+        //         ->constrained('payment_methods')
+        //         ->cascadeOnDelete();
 
-            $table->string('payment_code')
-                ->unique();
+        //     $table->string('payment_code')
+        //         ->unique();
 
-            $table->string('receipt_number')
-                ->nullable();
+        //     $table->string('receipt_number')
+        //         ->nullable();
 
-            $table->decimal('amount_paid', 15, 2);
+        //     $table->decimal('amount_paid', 15, 2);
 
-            $table->timestamp('paid_at');
+        //     $table->timestamp('paid_at');
 
-            $table->foreignId('paid_by')
-                ->constrained('users')
-                ->cascadeOnDelete();
+        //     $table->foreignId('paid_by')
+        //         ->constrained('users')
+        //         ->cascadeOnDelete();
 
-            $table->text('note')
-                ->nullable();
+        //     $table->text('note')
+        //         ->nullable();
 
-            $table->timestamps();
-        });
+        //     $table->timestamps();
+        // });
 
         /*
         |--------------------------------------------------------------------------
@@ -278,27 +278,27 @@ return new class extends Migration
         |--------------------------------------------------------------------------
         */
 
-        Schema::create('payment_gateway_transactions', function (Blueprint $table) {
-            $table->id();
+        // Schema::create('payment_gateway_transactions', function (Blueprint $table) {
+        //     $table->id();
 
-            $table->foreignId('payment_id')
-                ->constrained('payments')
-                ->cascadeOnDelete();
+        //     $table->foreignId('payment_id')
+        //         ->constrained('payments')
+        //         ->cascadeOnDelete();
 
-            $table->string('provider');
+        //     $table->string('provider');
 
-            $table->string('external_id');
+        //     $table->string('external_id');
 
-            $table->string('status');
+        //     $table->string('status');
 
-            $table->text('qr_string')
-                ->nullable();
+        //     $table->text('qr_string')
+        //         ->nullable();
 
-            $table->longText('raw_response')
-                ->nullable();
+        //     $table->longText('raw_response')
+        //         ->nullable();
 
-            $table->timestamps();
-        });
+        //     $table->timestamps();
+        // });
 
         /*
         |--------------------------------------------------------------------------

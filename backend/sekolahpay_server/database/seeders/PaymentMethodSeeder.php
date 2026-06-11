@@ -17,7 +17,9 @@ class PaymentMethodSeeder extends Seeder
 
         foreach ($methods as $method) {
             PaymentMethod::create([
+                'code' => strtolower($method),
                 'name' => $method,
+                'description' => $method,
                 'is_active' => true,
             ]);
         }
