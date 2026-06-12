@@ -269,7 +269,7 @@ export const apiClient = {
         // Even though documentation says 'relation', the backend database uses 'relationship'
         const payload = {
           student_id: input.student_id,
-          name: input.name,
+          name: input.guardian_name,
           phone: input.phone,
           relationship: input.relation,
           occupation: input.occupation ?? null,

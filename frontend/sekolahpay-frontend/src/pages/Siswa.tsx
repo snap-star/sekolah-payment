@@ -50,9 +50,16 @@ const StudentRow = ({ student, index, currentPage, perPage, onEdit, onDelete, ge
   // Get guardians for this specific student - hooks work here because it's a component
   // This uses useStudentGuardians which internally calls apiClient.students.getGuardians()
   // The getGuardians method is a convenience wrapper around apiClient.parent.getAll() with student_id filter
-  const { data: guardiansData } = useStudentGuardians(student.id, { perPage: 100 });
-  // Get the first guardian
-  const primaryGuardian = guardiansData?.data?.[0];
+  const { data: guardiansData, isLoading: guardiansLoading } = useStudentGuardians(student.id, { perPage: 100 });
+  
+  // Client-side filtering: ensure we only get guardians that belong to THIS student
+  // Fix for backend not applying student_id filter - mitigates the issue without backend changes
+  const studentGuardians = guardiansData?.data?.filter(guardian => guardian.student.id === student.id) || [];
+  
+  // Get the first guardian (primary guardian) from the filtered array
+  const primaryGuardian = studentGuardians[0];
+  console.log(`Filtered guardians for student ${student.id} (${student.name}):`, studentGuardians);
+  console.log(`Raw API response (all guardians):`, guardiansData);
   // Calculate the correct row number based on pagination
   const rowNumber = (currentPage - 1) * perPage + index + 1;
 
@@ -68,16 +75,22 @@ const StudentRow = ({ student, index, currentPage, perPage, onEdit, onDelete, ge
       </TableCell>
       <TableCell>{getStatusBadge(student.status)}</TableCell>
       <TableCell className="text-xs">
-        {primaryGuardian ? (
-          <div className="flex flex-col items-center gap-1">
-            <div>{primaryGuardian.name}</div>
-            {/* Relation badge - supports both 'relation' and 'relationship' fields from API responses */}
-            {/* <Badge className="ml-2 text-muted-foreground" variant="secondary">
-              {primaryGuardian.relation || primaryGuardian.relationship || '-'}
-            </Badge> */}
-            <Badge className="ml-2 text-muted-foreground" variant="secondary">
-            <div className="text-muted-foreground">{primaryGuardian.phone || '-'}</div>
-            </Badge>
+        {guardiansLoading ? (
+          <div className="text-muted-foreground">Loading...</div>
+        ) : primaryGuardian ? (
+          <div className="flex flex-col items-start gap-1">
+            <div className="font-medium">{primaryGuardian.name}</div>
+            <div className="flex items-center gap-1">
+              <Badge className="text-muted-foreground" variant="secondary">
+                {primaryGuardian.relation || '-'}
+              </Badge>
+              <span className="text-muted-foreground">{primaryGuardian.phone || '-'}</span>
+            </div>
+            {studentGuardians.length > 1 && (
+              <Badge variant="outline" className="text-xs">
+                +{studentGuardians.length - 1} lainnya
+              </Badge>
+            )}
           </div>
         ) : '-'}
       </TableCell>

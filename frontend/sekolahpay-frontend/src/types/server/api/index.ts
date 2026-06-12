@@ -225,7 +225,8 @@ export type GetParentsResponse = z.infer<typeof GetParentsResponseSchema>;
  */
 export const CreateStudentGuardianInputSchema = z.object({
   student_id: z.number().int().positive(),
-  name: z.string().max(255),
+  student_name: z.string().max(255),
+  guardian_name: z.string().max(255),
   phone: z.string().max(50),
   relation: z.string().max(100), // Ayah, Ibu, Wali, etc.
   occupation: z.string().optional().nullable(),

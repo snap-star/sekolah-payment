@@ -163,7 +163,7 @@ export const useStudentGuardians = (
   options?: Omit<UseQueryOptions<GetStudentGuardiansResponse, Error>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery({
-    queryKey: ['student-guardians', studentId, params],
+    queryKey: ['student-guardians', 'parents', studentId, params],
     queryFn: () => apiClient.students.getGuardians(studentId, params),
     enabled: !!studentId,
     ...options,
@@ -177,10 +177,11 @@ export const useStudentGuardians = (
  */
 export const useStudentGuardian = (
   guardianId: number,
+  studentId: number,
   options?: Omit<UseQueryOptions<StudentGuardianResponse, Error>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery({
-    queryKey: ['parents', guardianId],
+    queryKey: ['student-guardian', 'parents', studentId, guardianId],
     queryFn: () => apiClient.parent.getById(guardianId),
     enabled: !!guardianId,
     ...options,

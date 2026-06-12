@@ -31,6 +31,7 @@ import {
   ComboboxContent,
   ComboboxList,
   ComboboxItem,
+  ComboboxEmpty,
 } from '@/components/ui/combobox';
 
 // Guardian Row component that can safely use hooks
@@ -39,12 +40,16 @@ interface GuardianRowProps {
   onEdit: (guardian: StudentGuardian) => void;
   onDelete: (guardian: StudentGuardian) => void;
   getRelationBadge: (guardian: StudentGuardian) => React.JSX.Element;
+  index: number;
+  currentPage: number;
+  perPage: number;
 }
 
-const GuardianRow = ({ guardian, onEdit, onDelete, getRelationBadge }: GuardianRowProps) => {
+const GuardianRow = ({ index, guardian, onEdit, onDelete, getRelationBadge, perPage, currentPage }: GuardianRowProps) => {
+  const rowNumber = (currentPage - 1) * perPage + index + 1;
   return (
     <TableRow key={guardian.id}>
-      <TableCell className="font-mono text-xs">{guardian.id}</TableCell>
+      <TableCell className="font-mono text-xs">{rowNumber}</TableCell>
       <TableCell className="font-medium">{guardian.student?.name || '-'}</TableCell>
       <TableCell className="font-mono text-xs">{guardian.student?.nis || '-'}</TableCell>
       <TableCell className="font-medium">{guardian.name}</TableCell>
@@ -132,7 +137,8 @@ export default function OrangTuaPage() {
   // Form states
   const [formData, setFormData] = useState<CreateStudentGuardianInput>({
     student_id: 0,
-    name: '',
+    student_name: '',
+    guardian_name: '',
     phone: '',
     relation: '',
     occupation: '',
@@ -142,7 +148,8 @@ export default function OrangTuaPage() {
   const resetForm = () => {
     setFormData({
       student_id: 0,
-      name: '',
+      student_name: '',
+      guardian_name: '',
       phone: '',
       relation: '',
       occupation: '',
@@ -165,7 +172,8 @@ export default function OrangTuaPage() {
     setSelectedGuardian(guardian);
     setFormData({
       student_id: guardian.student?.id || 0,
-      name: guardian.name,
+      student_name: guardian.student?.name || '',
+      guardian_name: guardian.name || '',
       phone: guardian.phone || '',
       relation: guardian.relation || '',
       occupation: guardian.occupation || '',
@@ -224,9 +232,9 @@ export default function OrangTuaPage() {
     },
   });
 
-  const handleCreateSubmit = (e: React.FormEvent) => {
+  const handleCreateSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
-    if (formData.student_id > 0) {
+    if (formData.student_id > 0 && formData.student_name) {
       // Directly pass formData to mutation - simplified API matches documentation
       createGuardian.mutate(formData);
     } else {
@@ -234,7 +242,7 @@ export default function OrangTuaPage() {
     }
   };
 
-  const handleEditSubmit = (e: React.FormEvent) => {
+  const handleEditSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
     if (selectedGuardian) {
       // Pass only id and data - simplified API matches documentation
@@ -290,6 +298,7 @@ export default function OrangTuaPage() {
     currentPage * perPage
   );
 
+
   if (guardiansLoading) return (
     <div className="p-4 select-none flex items-center justify-center h-64">
       <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
@@ -340,37 +349,39 @@ export default function OrangTuaPage() {
                 <form id="createGuardianForm" className="space-y-4" onSubmit={handleCreateSubmit}>
                   <div className="space-y-2">
                     <Label htmlFor="student">Siswa <span className="text-destructive">*</span></Label>
+                    {/* TODO: INPUT COMBOBOX SEHARUSNYA BERUBAH JADI NAMA STUDENT, DAN FORM YANG TERSUBMIT ADALAH ID STUDENT */}
                     <Combobox
+                      id="search-student"
                       value={formData.student_id.toString()}
                       required
+                      items={students.map(student => student.name)}
                       onValueChange={(value) => {
                         if (value) {
                           setFormData({ ...formData, student_id: parseInt(value) });
                         }
                       }}
                     >
+                      {/* TODO: INPUT COMBOBOX SEHARUSNYA BERUBAH JADI NAMA STUDENT, DAN FORM YANG TERSUBMIT ADALAH ID STUDENT */}
                       <ComboboxInput
-                        id="student"
+                        id="search-student"
                         placeholder="Cari berdasarkan nama, NIS, atau NISN..."
                         showClear
                         className="w-full"
                         onChange={(e) => setStudentSearchQuery(e.target.value)}
                       />
-                      <ComboboxContent className="w-full max-h-60 overflow-y-auto">
+                      <ComboboxContent className="w-full max-h-60 overflow-y-auto cursor-pointer">
                         <ComboboxList>
                           {filteredStudents.length === 0 ? (
-                            <div className="p-2 text-sm text-muted-foreground text-center">
-                              Tidak ada siswa yang ditemukan
-                            </div>
+                            <ComboboxEmpty>
+                              Tidak ada data siswa yang ditemukan
+                            </ComboboxEmpty>
                           ) : (
                             filteredStudents.map(student => (
                               <ComboboxItem key={student.id} value={student.id.toString()}>
-                                <div className="flex flex-col">
                                   <span>{student.name}</span>
                                   <span className="text-xs text-muted-foreground">
                                     NIS: {student.nis}{student.nisn ? ` | NISN: ${student.nisn}` : ''}
                                   </span>
-                                </div>
                               </ComboboxItem>
                             ))
                           )}
@@ -379,14 +390,14 @@ export default function OrangTuaPage() {
                     </Combobox>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="name">Nama Lengkap <span className="text-destructive">*</span></Label>
+                    <Label htmlFor="name">Nama Lengkap Orang Tua <span className="text-destructive">*</span></Label>
                     <Input
                       id="name"
                       type="text"
                       pattern="[a-zA-Z\s]+"
-                      placeholder="Masukkan nama lengkap"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Masukkan nama lengkap Orang Tua"
+                      value={formData.guardian_name || ''}
+                      onChange={(e) => setFormData({ ...formData, guardian_name: e.target.value })}
                       required
                       maxLength={255}
                     />
@@ -464,7 +475,7 @@ export default function OrangTuaPage() {
           <Table>
             <TableHeader>
               <TableRow className="text-sm">
-                <TableHead>ID</TableHead>
+                <TableHead>No.</TableHead>
                 <TableHead>Siswa</TableHead>
                 <TableHead>NIS Siswa</TableHead>
                 <TableHead>Nama Wali</TableHead>
@@ -474,10 +485,13 @@ export default function OrangTuaPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedGuardians.map((guardian) => (
+              {paginatedGuardians.map((guardian, index) => (
                 <GuardianRow
                   key={guardian.id}
+                  index={index}
                   guardian={guardian}
+                  perPage={perPage}
+                  currentPage={currentPage}
                   onEdit={openEditDialog}
                   onDelete={openDeleteDialog}
                   getRelationBadge={getRelationBadge}
@@ -545,6 +559,9 @@ export default function OrangTuaPage() {
             <div className="space-y-2">
               <Label htmlFor="edit-student">Siswa</Label>
               <Combobox
+                id="edit-student"
+                readOnly
+                disabled
                   value={formData.student_id.toString()}
                   onValueChange={(value) => {
                     if (value) {
@@ -557,7 +574,8 @@ export default function OrangTuaPage() {
                     placeholder="Cari berdasarkan nama, NIS, atau NISN..."
                     showClear
                     className="w-full"
-                    onChange={(e) => setStudentSearchQuery(e.target.value)}
+                    // onChange={(e) => setStudentSearchQuery(e.target.value)}
+                    disabled
                   />
                 <ComboboxContent className="w-full max-h-60 overflow-y-auto">
                   <ComboboxList>
@@ -568,12 +586,10 @@ export default function OrangTuaPage() {
                     ) : (
                       filteredStudents.map(student => (
                         <ComboboxItem key={student.id} value={student.id.toString()}>
-                          <div className="flex flex-col">
                             <span>{student.name}</span>
                             <span className="text-xs text-muted-foreground">
                               NIS: {student.nis}{student.nisn ? ` | NISN: ${student.nisn}` : ''}
                             </span>
-                          </div>
                         </ComboboxItem>
                       ))
                     )}
@@ -585,8 +601,8 @@ export default function OrangTuaPage() {
               <Label htmlFor="edit-name">Nama Lengkap <span className="text-destructive">*</span></Label>
               <Input
                 id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                value={formData.guardian_name}
+                onChange={(e) => setFormData({ ...formData, guardian_name: e.target.value })}
                 required
                 maxLength={255}
               />
