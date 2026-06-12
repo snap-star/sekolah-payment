@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\FeeTypeController;
 use App\Http\Controllers\Api\SchoolYearController;
 use App\Http\Controllers\Api\PaymentMethodController;
 use App\Http\Controllers\Api\InvoiceController;
+use App\Http\Controllers\Api\PaymentController;
+
 
 // auth resource
 Route::prefix('auth')->group(function () {
@@ -47,4 +49,5 @@ Route::middleware([
     Route::apiResource('school-years', SchoolYearController::class);
     Route::apiResource('payment-methods', PaymentMethodController::class);
     Route::apiResource('invoices', InvoiceController::class);
+    Route::apiResource('payments', PaymentController::class)->only(['index', 'show', 'store', 'destroy']);
 });
