@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/snap-star/sekolah-payment/compare/v1.0.4...v1.1.0) (2026-06-12)
+
+### ✨ New Features
+
+* initial use API for tagihan ([3365cb5](https://github.com/snap-star/sekolah-payment/commit/3365cb58b34a71ead7667e4e0bb640f1d5ced897))
+* Refactor Dashboard and Report pages to use real API hooks and improve data handling ([0ed82f7](https://github.com/snap-star/sekolah-payment/commit/0ed82f7780374b4f1c589e84aaddf87b603f668d))
+
+### 📝 Documentation
+
+* update api reports - implementation and TODOS ([5c1d7a8](https://github.com/snap-star/sekolah-payment/commit/5c1d7a85b27a0b1bcfb4ec3bb464420d4d50b76e))
+
+### 🔄 CI/CD
+
+* pnpm lint ([fb245c2](https://github.com/snap-star/sekolah-payment/commit/fb245c20199f8c20ae1415d4d76b56c9e7ed0948))
+
 ## [1.0.4](https://github.com/snap-star/sekolah-payment/compare/v1.0.3...v1.0.4) (2026-06-11)
 
 ### 🧹 Maintenance
