@@ -7,6 +7,10 @@ import type {
   User, 
   ReportResponse, 
   GetInvoicesResponse,
+  InvoiceResponse,
+  CreateInvoiceInput,
+  UpdateInvoiceInput,
+  DeleteInvoiceResponse,
   GetStudentsResponse,
   GetParentsResponse,
   StudentResponse,
@@ -20,7 +24,12 @@ import type {
   GetFeeTypesResponse,
   FeeTypeResponse,
   CreateFeeTypeInput,
-  UpdateFeeTypeInput
+  UpdateFeeTypeInput,
+  GetSchoolYearsResponse,
+  SchoolYearResponse,
+  CreateSchoolYearInput,
+  UpdateSchoolYearInput,
+  DeleteSchoolYearResponse
 } from '@/types/server/api';
 
 // ============================================================================
@@ -66,18 +75,99 @@ export const useAdminTest = (options?: Omit<UseQueryOptions<{ message: string },
 };
 
 // ============================================================================
-// Invoice Hooks
+// School Year Hooks (Tahun Ajaran)
 // ============================================================================
 
-export const useInvoices = (options?: Omit<UseQueryOptions<GetInvoicesResponse, Error>, 'queryKey' | 'queryFn'>) => {
+export const useSchoolYears = (
+  params?: { 
+    page?: number; 
+    perPage?: number;
+  },
+  options?: Omit<UseQueryOptions<GetSchoolYearsResponse, Error>, 'queryKey' | 'queryFn'>
+) => {
   return useQuery({
-    queryKey: ['invoices'],
-    queryFn: async () => {
-      // This would be implemented when the backend adds this endpoint
-      // For now, we import from mock api
-      const { mockApi } = await import('@/mock/api');
-      return mockApi.getTagihan();
-    },
+    queryKey: ['school-years', params],
+    queryFn: () => apiClient.schoolYears.getAll(params),
+    ...options,
+  });
+};
+
+export const useSchoolYear = (id: number, options?: Omit<UseQueryOptions<SchoolYearResponse, Error>, 'queryKey' | 'queryFn'>) => {
+  return useQuery({
+    queryKey: ['school-years', id],
+    queryFn: () => apiClient.schoolYears.getById(id),
+    enabled: !!id,
+    ...options,
+  });
+};
+
+export const useCreateSchoolYear = (options?: Omit<UseMutationOptions<SchoolYearResponse, Error, CreateSchoolYearInput>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: (input: CreateSchoolYearInput) => apiClient.schoolYears.create(input),
+    ...options,
+  });
+};
+
+export const useUpdateSchoolYear = (options?: Omit<UseMutationOptions<SchoolYearResponse, Error, { id: number; data: UpdateSchoolYearInput }>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateSchoolYearInput }) => apiClient.schoolYears.update(id, data),
+    ...options,
+  });
+};
+
+export const useDeleteSchoolYear = (options?: Omit<UseMutationOptions<DeleteSchoolYearResponse, Error, number>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: (id: number) => apiClient.schoolYears.delete(id),
+    ...options,
+  });
+};
+
+// ============================================================================
+// Invoice Hooks (Tagihan)
+// ============================================================================
+
+export const useInvoices = (
+  params?: { 
+    page?: number; 
+    perPage?: number;
+    search?: string;
+    status?: string;
+  },
+  options?: Omit<UseQueryOptions<GetInvoicesResponse, Error>, 'queryKey' | 'queryFn'>
+) => {
+  return useQuery({
+    queryKey: ['invoices', params],
+    queryFn: () => apiClient.invoices.getAll(params),
+    ...options,
+  });
+};
+
+export const useInvoice = (id: number, options?: Omit<UseQueryOptions<InvoiceResponse, Error>, 'queryKey' | 'queryFn'>) => {
+  return useQuery({
+    queryKey: ['invoices', id],
+    queryFn: () => apiClient.invoices.getById(id),
+    enabled: !!id,
+    ...options,
+  });
+};
+
+export const useCreateInvoice = (options?: Omit<UseMutationOptions<InvoiceResponse, Error, CreateInvoiceInput>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: (input: CreateInvoiceInput) => apiClient.invoices.create(input),
+    ...options,
+  });
+};
+
+export const useUpdateInvoice = (options?: Omit<UseMutationOptions<InvoiceResponse, Error, { id: number; data: UpdateInvoiceInput }>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateInvoiceInput }) => apiClient.invoices.update(id, data),
+    ...options,
+  });
+};
+
+export const useDeleteInvoice = (options?: Omit<UseMutationOptions<DeleteInvoiceResponse, Error, number>, 'mutationFn'>) => {
+  return useMutation({
+    mutationFn: (id: number) => apiClient.invoices.delete(id),
     ...options,
   });
 };

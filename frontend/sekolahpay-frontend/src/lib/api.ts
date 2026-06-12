@@ -17,7 +17,16 @@ import type {
   GetFeeTypesResponse,
   FeeTypeResponse,
   CreateFeeTypeInput,
-  UpdateFeeTypeInput
+  UpdateFeeTypeInput,
+  GetSchoolYearsResponse,
+  SchoolYearResponse,
+  CreateSchoolYearInput,
+  UpdateSchoolYearInput,
+  GetInvoicesResponse,
+  InvoiceResponse,
+  CreateInvoiceInput,
+  UpdateInvoiceInput,
+  DeleteInvoiceResponse
 } from '@/types/server/api';
 
 // Token management utilities
@@ -440,6 +449,92 @@ export const apiClient = {
     // Delete fee type
     delete: async (id: number): Promise<{ success: boolean; message: string }> => {
       const response = await axiosInstance.delete<{ success: boolean; message: string }>(`/fee-types/${id}`);
+      return response.data;
+    },
+  },
+
+  // School Years API - Tahun Ajaran
+  schoolYears: {
+    // Get all school years with pagination
+    getAll: async (params?: { 
+      page?: number; 
+      perPage?: number;
+    }): Promise<GetSchoolYearsResponse> => {
+      const searchParams = new URLSearchParams();
+      if (params?.page) searchParams.append('page', params.page.toString());
+      if (params?.perPage) searchParams.append('per_page', params.perPage.toString());
+      
+      const url = `/school-years${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const response = await axiosInstance.get<GetSchoolYearsResponse>(url);
+      return response.data;
+    },
+
+    // Get single school year
+    getById: async (id: number): Promise<SchoolYearResponse> => {
+      const response = await axiosInstance.get<SchoolYearResponse>(`/school-years/${id}`);
+      return response.data;
+    },
+
+    // Create new school year
+    create: async (input: CreateSchoolYearInput): Promise<SchoolYearResponse> => {
+      const response = await axiosInstance.post<SchoolYearResponse>('/school-years', input);
+      return response.data;
+    },
+
+    // Update school year
+    update: async (id: number, input: UpdateSchoolYearInput): Promise<SchoolYearResponse> => {
+      const response = await axiosInstance.put<SchoolYearResponse>(`/school-years/${id}`, input);
+      return response.data;
+    },
+
+    // Delete school year
+    delete: async (id: number): Promise<{ success: boolean; message: string }> => {
+      const response = await axiosInstance.delete<{ success: boolean; message: string }>(`/school-years/${id}`);
+      return response.data;
+    },
+  },
+
+  // Invoices API - Tagihan
+  invoices: {
+    // Get all invoices with pagination
+    getAll: async (params?: { 
+      page?: number; 
+      perPage?: number;
+      search?: string;
+      status?: string;
+    }): Promise<GetInvoicesResponse> => {
+      const searchParams = new URLSearchParams();
+      if (params?.page) searchParams.append('page', params.page.toString());
+      if (params?.perPage) searchParams.append('per_page', params.perPage.toString());
+      if (params?.search) searchParams.append('search', params.search);
+      if (params?.status) searchParams.append('status', params.status);
+      
+      const url = `/invoices${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const response = await axiosInstance.get<GetInvoicesResponse>(url);
+      return response.data;
+    },
+
+    // Get single invoice
+    getById: async (id: number): Promise<InvoiceResponse> => {
+      const response = await axiosInstance.get<InvoiceResponse>(`/invoices/${id}`);
+      return response.data;
+    },
+
+    // Create new invoice
+    create: async (input: CreateInvoiceInput): Promise<InvoiceResponse> => {
+      const response = await axiosInstance.post<InvoiceResponse>('/invoices', input);
+      return response.data;
+    },
+
+    // Update invoice
+    update: async (id: number, input: UpdateInvoiceInput): Promise<InvoiceResponse> => {
+      const response = await axiosInstance.put<InvoiceResponse>(`/invoices/${id}`, input);
+      return response.data;
+    },
+
+    // Delete invoice
+    delete: async (id: number): Promise<DeleteInvoiceResponse> => {
+      const response = await axiosInstance.delete<DeleteInvoiceResponse>(`/invoices/${id}`);
       return response.data;
     },
   },

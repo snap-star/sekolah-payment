@@ -360,45 +360,186 @@ export const DeleteStudentResponseSchema = z.object({
 export type DeleteStudentResponse = z.infer<typeof DeleteStudentResponseSchema>;
 
 // ============================================================================
-// Invoice / Tagihan Types (based on mock data and Laravel models)
+// School Year Types (Tahun Ajaran)
 // ============================================================================
 
 /**
- * Student info schema for invoices
+ * School year schema (matches SchoolYearResource from backend)
  */
-export const StudentInfoSchema = z.object({
-  nama: z.string(),
-  nis: z.string(),
-  kelas: z.string(),
+export const SchoolYearSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string().max(255),
+  start_date: z.string().nullable(),
+  end_date: z.string().nullable(),
+  is_active: z.boolean(),
+  created_at: z.string(),
+  updated_at: z.string(),
 });
-export type StudentInfo = z.infer<typeof StudentInfoSchema>;
+export type SchoolYear = z.infer<typeof SchoolYearSchema>;
 
 /**
- * Invoice status enum
+ * Get all school years response schema
+ */
+export const GetSchoolYearsResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.array(SchoolYearSchema),
+  meta: PaginationMetaSchema,
+});
+export type GetSchoolYearsResponse = z.infer<typeof GetSchoolYearsResponseSchema>;
+
+/**
+ * Create school year input schema
+ */
+export const CreateSchoolYearInputSchema = z.object({
+  name: z.string().max(255),
+  start_date: z.string().optional().nullable(),
+  end_date: z.string().optional().nullable(),
+  is_active: z.boolean().optional().default(false),
+});
+export type CreateSchoolYearInput = z.infer<typeof CreateSchoolYearInputSchema>;
+
+/**
+ * Update school year input schema
+ */
+export const UpdateSchoolYearInputSchema = CreateSchoolYearInputSchema.partial();
+export type UpdateSchoolYearInput = z.infer<typeof UpdateSchoolYearInputSchema>;
+
+/**
+ * Single school year response schema
+ */
+export const SchoolYearResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: SchoolYearSchema,
+});
+export type SchoolYearResponse = z.infer<typeof SchoolYearResponseSchema>;
+
+/**
+ * Delete school year response schema
+ */
+export const DeleteSchoolYearResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteSchoolYearResponse = z.infer<typeof DeleteSchoolYearResponseSchema>;
+
+// ============================================================================
+// Invoice / Tagihan Types (based on actual Laravel backend implementation)
+// ============================================================================
+
+/**
+ * Invoice status enum from backend
  */
 export const InvoiceStatusSchema = z.enum([
-  'lunas',
-  'menunggak',
-  'belum_lunas'
+  'unpaid',
+  'paid',
+  'overdue'
 ]);
 export type InvoiceStatus = z.infer<typeof InvoiceStatusSchema>;
 
 /**
- * Invoice schema
+ * Student schema in invoice response
+ */
+export const InvoiceStudentSchema = z.object({
+  id: z.number().int().positive(),
+  nis: z.string(),
+  name: z.string(),
+});
+export type InvoiceStudent = z.infer<typeof InvoiceStudentSchema>;
+
+/**
+ * Fee type schema in invoice response
+ */
+export const InvoiceFeeTypeSchema = z.object({
+  id: z.number().int().positive(),
+  code: z.string(),
+  name: z.string(),
+});
+export type InvoiceFeeType = z.infer<typeof InvoiceFeeTypeSchema>;
+
+/**
+ * School year schema in invoice response
+ */
+export const InvoiceSchoolYearSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string(),
+});
+export type InvoiceSchoolYear = z.infer<typeof InvoiceSchoolYearSchema>;
+
+/**
+ * Invoice schema (matches InvoiceResource from backend)
  */
 export const InvoiceSchema = z.object({
   id: z.number().int().positive(),
-  siswa: StudentInfoSchema,
-  jenis: z.string(),
-  nominal_asli: z.number().int().positive(),
-  nominal_disesuaikan: z.number().int().positive(),
-  periode: z.string(),
+  invoice_number: z.string(),
+  student: InvoiceStudentSchema,
+  fee_type: InvoiceFeeTypeSchema,
+  school_year: InvoiceSchoolYearSchema,
+  amount: z.number(),
+  discount_amount: z.number(),
+  paid_amount: z.number(),
+  remaining_amount: z.number(),
+  due_date: z.string().nullable(),
   status: InvoiceStatusSchema,
-  qris_string: z.string().nullable(),
-  qris_expiry: z.string().nullable(),
-  dibayar_pada: z.string().nullable(),
+  created_at: z.string(),
 });
 export type Invoice = z.infer<typeof InvoiceSchema>;
+
+/**
+ * Get all invoices response schema
+ */
+export const GetInvoicesResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.array(InvoiceSchema),
+  meta: PaginationMetaSchema,
+});
+export type GetInvoicesResponse = z.infer<typeof GetInvoicesResponseSchema>;
+
+/**
+ * Single invoice response schema
+ */
+export const InvoiceResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: InvoiceSchema,
+});
+export type InvoiceResponse = z.infer<typeof InvoiceResponseSchema>;
+
+/**
+ * Create invoice input schema (matches StoreInvoiceRequest from backend)
+ */
+export const CreateInvoiceInputSchema = z.object({
+  student_id: z.number().int().positive(),
+  fee_type_id: z.number().int().positive(),
+  school_year_id: z.number().int().positive(),
+  amount: z.number().int().positive(),
+  discount_amount: z.number().optional().nullable(),
+  due_date: z.string().optional().nullable(),
+});
+export type CreateInvoiceInput = z.infer<typeof CreateInvoiceInputSchema>;
+
+/**
+ * Update invoice input schema (matches UpdateInvoiceRequest from backend)
+ */
+export const UpdateInvoiceInputSchema = z.object({
+  due_date: z.string().optional().nullable(),
+});
+export type UpdateInvoiceInput = z.infer<typeof UpdateInvoiceInputSchema>;
+
+/**
+ * Delete invoice response schema
+ */
+export const DeleteInvoiceResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteInvoiceResponse = z.infer<typeof DeleteInvoiceResponseSchema>;
+
+// ============================================================================
+// Report Types (for backward compatibility)
+// ============================================================================
 
 /**
  * Payment history schema
@@ -416,7 +557,11 @@ export type PaymentHistory = z.infer<typeof PaymentHistorySchema>;
  */
 export const ReportItemSchema = z.object({
   id: z.number().int().positive(),
-  siswa: StudentInfoSchema,
+  siswa: z.object({
+    nama: z.string(),
+    nis: z.string(),
+    kelas: z.string(),
+  }),
   jenis_tagihan: z.string(),
   periode: z.string(),
   nominal_tagihan: z.number().int().positive(),
@@ -446,14 +591,6 @@ export const ReportResponseSchema = z.object({
   summary: ReportSummarySchema,
 });
 export type ReportResponse = z.infer<typeof ReportResponseSchema>;
-
-/**
- * Get invoices response schema
- */
-export const GetInvoicesResponseSchema = z.object({
-  tagihan: z.array(InvoiceSchema),
-});
-export type GetInvoicesResponse = z.infer<typeof GetInvoicesResponseSchema>;
 
 // ============================================================================
 // tRPC Router Definition
@@ -533,11 +670,76 @@ export const appRouter = t.router({
       }),
   }),
 
-  // Invoice procedures
+  // School Year procedures (Admin & Bendahara only)
+  schoolYears: t.router({
+    getAll: t.procedure
+      .output(GetSchoolYearsResponseSchema)
+      .query(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+    
+    getById: t.procedure
+      .input(z.number().int().positive())
+      .output(SchoolYearResponseSchema)
+      .query(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+    
+    create: t.procedure
+      .input(CreateSchoolYearInputSchema)
+      .output(SchoolYearResponseSchema)
+      .mutation(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+    
+    update: t.procedure
+      .input(z.object({ id: z.number().int().positive(), data: UpdateSchoolYearInputSchema }))
+      .output(SchoolYearResponseSchema)
+      .mutation(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+    
+    delete: t.procedure
+      .input(z.number().int().positive())
+      .output(DeleteSchoolYearResponseSchema)
+      .mutation(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+  }),
+
+  // Invoice procedures (Admin & Bendahara only)
   invoices: t.router({
     getAll: t.procedure
       .output(GetInvoicesResponseSchema)
       .query(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+    
+    getById: t.procedure
+      .input(z.number().int().positive())
+      .output(InvoiceResponseSchema)
+      .query(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+    
+    create: t.procedure
+      .input(CreateInvoiceInputSchema)
+      .output(InvoiceResponseSchema)
+      .mutation(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+    
+    update: t.procedure
+      .input(z.object({ id: z.number().int().positive(), data: UpdateInvoiceInputSchema }))
+      .output(InvoiceResponseSchema)
+      .mutation(async () => {
+        throw new Error('Use apiClient to call the actual backend');
+      }),
+    
+    delete: t.procedure
+      .input(z.number().int().positive())
+      .output(DeleteInvoiceResponseSchema)
+      .mutation(async () => {
         throw new Error('Use apiClient to call the actual backend');
       }),
   }),

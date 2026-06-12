@@ -1,5 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { RefreshCcw, ChevronLeft, ChevronRight, Search, Plus, Trash2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -8,31 +10,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { toast } from 'sonner';
-import { RefreshCcw, ChevronLeft, ChevronRight, Search, Plus } from 'lucide-react';
-import { mockApi } from '../mock/api';
-import { useStudents } from '@/hooks/useApi';
-import { useFeeTypes } from '@/hooks/useApi';
-import type { Student, FeeType } from '@/types/server/api';
 import { Progress } from '@/components/ui/progress';
-
-// Type definition for Invoice since backend doesn't have API endpoints yet
-interface Invoice {
-  id: number;
-  siswa: {
-    nama: string;
-    nis: string;
-    kelas: string;
-  };
-  jenis: string;
-  nominal_asli: number;
-  nominal_disesuaikan: number;
-  periode: string;
-  status: 'lunas' | 'menunggak' | 'belum_lunas';
-  qris_string: string | null;
-  qris_expiry: string | null;
-  dibayar_pada: string | null;
-}
+import { 
+  useInvoices, 
+  useCreateInvoice, 
+  useUpdateInvoice, 
+  useDeleteInvoice,
+  useStudents, 
+  useFeeTypes,
+  useSchoolYears
+} from '@/hooks/useApi';
+import type { Invoice, Student, FeeType, SchoolYear, CreateInvoiceInput } from '@/types/server/api';
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
@@ -51,96 +39,56 @@ export default function TagihanPage() {
   
   // Create invoice dialog state
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [newInvoice, setNewInvoice] = useState({
-    student_id: '',
-    fee_type_id: '',
-    periode: new Date().getFullYear() + '-' + (new Date().getFullYear() + 1),
-    nominal_asli: '',
-    nominal_disesuaikan: ''
+  const [newInvoice, setNewInvoice] = useState<Partial<CreateInvoiceInput>>({
+    student_id: undefined,
+    fee_type_id: undefined,
+    school_year_id: undefined,
+    amount: undefined,
+    discount_amount: undefined,
+    due_date: ''
   });
   
   // Edit nominal state
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [newNominal, setNewNominal] = useState('');
+  const [editDueDate, setEditDueDate] = useState<string>('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
 
-  // Fetch real data from backend APIs
-  const { data: studentsData, isLoading: studentsLoading } = useStudents({ 
-    page: 1, 
-    perPage: 100 // Get all students for selection
+  // Fetch data from backend APIs
+  const { data: invoicesData, isLoading: invoicesLoading } = useInvoices({
+    page: currentPage,
+    perPage: itemsPerPage,
+    search: searchQuery,
+    status: statusFilter === 'all' ? undefined : statusFilter
   });
   
-  // Fetch real fee types from backend
+  const { data: studentsData, isLoading: studentsLoading } = useStudents({ 
+    page: 1, 
+    perPage: 500 // Get all students for selection
+  });
+  
   const { data: feeTypesData, isLoading: feeTypesLoading } = useFeeTypes({
     page: 1,
     perPage: 100
   });
+
+  const { data: schoolYearsData, isLoading: schoolYearsLoading } = useSchoolYears({
+    page: 1,
+    perPage: 100
+  });
   
-  // Fetch mock invoices data since backend invoice endpoints are not yet implemented
-  // NOTE: Backend has Invoice model and migration but no API controller yet
-  const { data: invoicesData, isLoading: invoicesLoading } = useQuery<{ tagihan: Invoice[] }>({
-    queryKey: ['invoices'],
-    queryFn: () => mockApi.getTagihan()
-  });
-
-  // Generate QRIS simulation - frontend only simulation since QRIS not implemented in backend
-  const generateQrisSimulation = (invoiceId: number) => {
-    const qrisString = `ID.SEKOLAHPAY.INV${invoiceId}.${Date.now()}`;
-    const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + 7); // QRIS valid for 7 days
-    return {
-      qris_string: qrisString,
-      qris_expiry: expiryDate.toISOString().split('T')[0]
-    };
-  };
-
-  // QRIS regeneration mutation (simulation only)
-  const qrisMutation = useMutation({
-    mutationFn: async (id: number) => {
-      // NOTE: QRIS generation will be implemented in backend in the future
-      // Currently this is a frontend-only simulation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return generateQrisSimulation(id);
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['invoices'] });
-      toast.success('QRIS berhasil diregenerasi (simulasi)');
-    },
-  });
-
-  // Update nominal mutation
-  const updateMutation = useMutation({
-    mutationFn: async (_: { id: number; nominal: number }) => {
-      // NOTE: Backend invoice update endpoint will be implemented here
-      await new Promise(resolve => setTimeout(resolve, 500));
-      return { success: true };
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['invoices'] });
-      setEditingId(null);
-      toast.success('Nominal diperbarui & QRIS diregenerasi');
-    },
-  });
-
-  // Create invoice mutation
-  const createInvoiceMutation = useMutation({
-    mutationFn: async (_: typeof newInvoice) => {
-      // NOTE: Backend invoice creation endpoint will be implemented here
-      // Currently this stores locally in mock data only
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return { success: true, id: Date.now() };
-    },
+  // Mutation hooks
+  const createInvoiceMutation = useCreateInvoice({
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['invoices'] });
       setCreateDialogOpen(false);
       setNewInvoice({
-        student_id: '',
-        fee_type_id: '',
-        nominal_asli: '',
-        periode: new Date().getFullYear() + '-' + (new Date().getFullYear() + 1),
-        nominal_disesuaikan: ''
+        student_id: undefined,
+        fee_type_id: undefined,
+        school_year_id: undefined,
+        amount: undefined,
+        discount_amount: undefined,
+        due_date: ''
       });
-      setEditingId(null);
-      setNewNominal('');
       toast.success('Tagihan baru berhasil dibuat');
     },
     onError: () => {
@@ -148,41 +96,98 @@ export default function TagihanPage() {
     }
   });
 
-  // Filter and paginate invoices
-  const filteredAndPaginatedInvoices = useMemo(() => {
-    if (!invoicesData?.tagihan) return { data: [], total: 0, totalPages: 0 };
-    
-    const filtered = invoicesData.tagihan.filter((invoice: Invoice) => {
-      const matchesSearch = invoice.siswa.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           invoice.siswa.nis.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
+  const updateInvoiceMutation = useUpdateInvoice({
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['invoices'] });
+      setEditingId(null);
+      setEditDueDate('');
+      toast.success('Tanggal jatuh tempo berhasil diperbarui');
+    },
+    onError: () => {
+      toast.error('Gagal memperbarui tagihan');
+    }
+  });
 
-    const total = filtered.length;
-    const totalPages = Math.ceil(total / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedData = filtered.slice(startIndex, startIndex + itemsPerPage);
+  const deleteInvoiceMutation = useDeleteInvoice({
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['invoices'] });
+      setDeleteDialogOpen(null);
+      toast.success('Tagihan berhasil dihapus');
+    },
+    onError: () => {
+      toast.error('Gagal menghapus tagihan');
+    }
+  });
 
-    return { data: paginatedData, total, totalPages };
-  }, [invoicesData, searchQuery, statusFilter, currentPage]);
+  // Filter and paginate invoices - backend handles pagination, but we keep client-side filters for local state
+  const paginationMeta = useMemo(() => {
+    if (!invoicesData?.meta) return { total: 0, lastPage: 1, currentPage: 1, perPage: itemsPerPage };
+    return {
+      total: invoicesData.meta.total,
+      lastPage: invoicesData.meta.last_page,
+      currentPage: invoicesData.meta.current_page,
+      perPage: invoicesData.meta.per_page
+    };
+  }, [invoicesData?.meta]);
+
+  const invoices = useMemo(() => invoicesData?.data || [], [invoicesData?.data]);
+  const students = useMemo(() => studentsData?.data || [], [studentsData?.data]);
+  const feeTypes = useMemo(() => feeTypesData?.data || [], [feeTypesData?.data]);
+  const schoolYears = useMemo(() => schoolYearsData?.data || [], [schoolYearsData?.data]);
 
   const handleCreateInvoice = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newInvoice.student_id || !newInvoice.fee_type_id) {
+    if (!newInvoice.student_id || !newInvoice.fee_type_id || !newInvoice.school_year_id || !newInvoice.amount) {
       toast.error('Mohon lengkapi semua field yang diperlukan');
       return;
     }
-    createInvoiceMutation.mutate(newInvoice);
+    
+    createInvoiceMutation.mutate({
+      student_id: newInvoice.student_id,
+      fee_type_id: newInvoice.fee_type_id,
+      school_year_id: newInvoice.school_year_id,
+      amount: newInvoice.amount,
+      discount_amount: newInvoice.discount_amount || undefined,
+      due_date: newInvoice.due_date || undefined
+    } as CreateInvoiceInput);
+  };
+
+  const handleUpdateDueDate = (invoice: Invoice) => {
+    if (!editDueDate) {
+      toast.error('Mohon masukkan tanggal jatuh tempo');
+      return;
+    }
+
+    updateInvoiceMutation.mutate({
+      id: invoice.id,
+      data: {
+        due_date: editDueDate
+      }
+    });
+  };
+
+  const handleDeleteInvoice = (id: number) => {
+    deleteInvoiceMutation.mutate(id);
+  };
+
+  const handleFeeTypeChange = (feeTypeId: string) => {
+    const selectedFee = feeTypes.find((fee: FeeType) => fee.id === Number(feeTypeId));
+    if (selectedFee) {
+      setNewInvoice({
+        ...newInvoice,
+        fee_type_id: Number(feeTypeId),
+        amount: selectedFee.default_amount,
+        discount_amount: selectedFee.default_amount
+      });
+    }
   };
 
   const [progress, setProgress] = useState(0);
-  const isLoading = studentsLoading || feeTypesLoading || invoicesLoading;
+  const isLoading = studentsLoading || feeTypesLoading || schoolYearsLoading || invoicesLoading;
 
   // Animate progress bar while loading
   useEffect(() => {
     if (isLoading) {
-       
       setProgress(0);
       const timer = setInterval(() => {
         setProgress((prev) => {
@@ -207,21 +212,29 @@ export default function TagihanPage() {
     </div>
   );
 
-  const students = studentsData?.data || [];
-  const feeTypes = feeTypesData?.data || [];
-
   // Generate page numbers for pagination
   const pageNumbers = [];
-  for (let i = 1; i <= filteredAndPaginatedInvoices.totalPages; i++) {
+  for (let i = 1; i <= paginationMeta.lastPage; i++) {
     pageNumbers.push(i);
   }
+
+  const getStatusBadge = (status: string) => {
+    switch(status) {
+      case 'paid':
+        return <Badge variant="default">Lunas</Badge>;
+      case 'overdue':
+        return <Badge variant="destructive">Menunggak</Badge>;
+      default:
+        return <Badge variant="secondary">Belum Lunas</Badge>;
+    }
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="gemini-page-title">Manajemen Tagihan</h2>
-          <p className="text-muted-foreground">Kelola tagihan siswa, nominal dinamis, dan QRIS.</p>
+          <p className="text-muted-foreground">Kelola tagihan siswa, nominal dinamis.</p>
         </div>
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" />Buat Tagihan Baru</Button></DialogTrigger>
@@ -232,8 +245,8 @@ export default function TagihanPage() {
                 <div className="space-y-2">
                   <Label>Pilih Siswa</Label>
                   <Select 
-                    value={newInvoice.student_id} 
-                    onValueChange={(value) => setNewInvoice({...newInvoice, student_id: value})}
+                    value={newInvoice.student_id?.toString() || ''} 
+                    onValueChange={(value) => setNewInvoice({...newInvoice, student_id: Number(value)})}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih siswa" />
@@ -250,21 +263,8 @@ export default function TagihanPage() {
                 <div className="space-y-2">
                   <Label>Jenis Tagihan</Label>
                   <Select 
-                    value={newInvoice.fee_type_id}
-                    onValueChange={(value) => {
-                      // When fee type is selected, automatically set nominal_asli from fee's default_amount
-                      const selectedFee = feeTypes.find((fee: FeeType) => fee.id === Number(value));
-                      if (selectedFee) {
-                        setNewInvoice({
-                          ...newInvoice, 
-                          fee_type_id: value,
-                          nominal_asli: String(selectedFee.default_amount),
-                          nominal_disesuaikan: String(selectedFee.default_amount)
-                        });
-                      } else {
-                        setNewInvoice({...newInvoice, fee_type_id: value});
-                      }
-                    }}
+                    value={newInvoice.fee_type_id?.toString() || ''}
+                    onValueChange={handleFeeTypeChange}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih jenis" />
@@ -281,11 +281,29 @@ export default function TagihanPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Periode</Label>
+                  <Label>Tahun Ajaran</Label>
+                  <Select 
+                    value={newInvoice.school_year_id?.toString() || ''}
+                    onValueChange={(value) => setNewInvoice({...newInvoice, school_year_id: Number(value)})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih tahun ajaran" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {schoolYears.map((sy: SchoolYear) => (
+                        <SelectItem key={sy.id} value={String(sy.id)}>
+                          {sy.name} {sy.is_active ? '(Aktif)' : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Tanggal Jatuh Tempo</Label>
                   <Input 
-                    value={newInvoice.periode}
-                    onChange={(e) => setNewInvoice({...newInvoice, periode: e.target.value})}
-                    placeholder="2025-2026" 
+                    type="date"
+                    value={newInvoice.due_date || ''}
+                    onChange={(e) => setNewInvoice({...newInvoice, due_date: e.target.value})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -294,19 +312,17 @@ export default function TagihanPage() {
                   </Label>
                   <Input
                     type="number" 
-                    value={newInvoice.nominal_asli}
-                    onChange={(e) => setNewInvoice({...newInvoice, nominal_asli: e.target.value})}
+                    value={newInvoice.amount?.toString() || ''}
+                    onChange={(e) => setNewInvoice({...newInvoice, amount: Number(e.target.value)})}
                     placeholder="1000000" 
-                    readOnly
-                    className="bg-muted"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Nominal Disesuaikan (Setelah Bantuan/Relief)</Label>
+                  <Label>Nominal Setelah Diskon</Label>
                   <Input 
                     type="number" 
-                    value={newInvoice.nominal_disesuaikan}
-                    onChange={(e) => setNewInvoice({...newInvoice, nominal_disesuaikan: e.target.value})}
+                    value={newInvoice.discount_amount?.toString() || ''}
+                    onChange={(e) => setNewInvoice({...newInvoice, discount_amount: Number(e.target.value)})}
                     placeholder="1000000" 
                   />
                   <p className="text-xs text-muted-foreground">
@@ -349,9 +365,9 @@ export default function TagihanPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua</SelectItem>
-                  <SelectItem value="lunas">Lunas</SelectItem>
-                  <SelectItem value="menunggak">Menunggak</SelectItem>
-                  <SelectItem value="belum_lunas">Belum Lunas</SelectItem>
+                  <SelectItem value="paid">Lunas</SelectItem>
+                  <SelectItem value="overdue">Menunggak</SelectItem>
+                  <SelectItem value="unpaid">Belum Lunas</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -362,7 +378,7 @@ export default function TagihanPage() {
       <Card className="border-border">
         <CardHeader>
           <CardTitle className="text-sm font-semibold">
-            Daftar Tagihan Aktif ({filteredAndPaginatedInvoices.total} total)
+            Daftar Tagihan Aktif ({paginationMeta.total} total)
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -370,93 +386,96 @@ export default function TagihanPage() {
             <Table>
               <TableHeader className="text-sm text-bold">
                 <TableRow>
+                  <TableHead>Nomor Invoice</TableHead>
                   <TableHead>Siswa</TableHead>
                   <TableHead>Jenis</TableHead>
-                  <TableHead>Periode</TableHead>
-                  <TableHead>Nominal Asli</TableHead>
-                  <TableHead>Nominal Aktif</TableHead>
+                  <TableHead>Tahun Ajaran</TableHead>
+                  <TableHead>Jumlah</TableHead>
+                  <TableHead>Sisa Bayar</TableHead>
+                  <TableHead>Jatuh Tempo</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>QRIS</TableHead>
                   <TableHead className="text-right">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAndPaginatedInvoices.data.map((t: Invoice) => (
-                  <TableRow key={t.id}>
+                {invoices.map((invoice: Invoice) => (
+                  <TableRow key={invoice.id}>
                     <TableCell>
-                      <div className="font-medium">{t.siswa.nama}</div>
-                      <div className="text-xs text-muted-foreground">{t.siswa.nis} • {t.siswa.kelas}</div>
+                      <div className="font-medium">{invoice.invoice_number}</div>
+                      <div className="text-xs text-muted-foreground">{new Date(invoice.created_at).toLocaleDateString('id-ID')}</div>
                     </TableCell>
-                    <TableCell>{t.jenis}</TableCell>
-                    <TableCell>{t.periode}</TableCell>
-                    <TableCell className="text-muted-foreground line-through text-xs">{formatRupiah(t.nominal_asli)}</TableCell>
+                    <TableCell>
+                      <div className="font-medium">{invoice.student?.name || '-'}</div>
+                      <div className="text-xs text-muted-foreground">{invoice.student?.nis || '-'}</div>
+                    </TableCell>
+                    <TableCell>{invoice.fee_type?.name || '-'}</TableCell>
+                    <TableCell>{invoice.school_year?.name || '-'}</TableCell>
+                    <TableCell className="text-muted-foreground line-through text-xs">{formatRupiah(invoice.amount)}</TableCell>
                     <TableCell className="font-medium">
-                      {editingId === t.id ? (
+                      {editingId === invoice.id ? (
                         <div className="flex gap-2">
                           <Input 
-                            type="number" 
+                            type="date" 
                             className="w-32 h-8" 
-                            value={newNominal} 
-                            onChange={(e) => setNewNominal(e.target.value)} 
+                            value={editDueDate} 
+                            onChange={(e) => setEditDueDate(e.target.value)} 
                             autoFocus 
                           />
                           <Button 
                             size="sm" 
-                            onClick={() => updateMutation.mutate({ id: t.id, nominal: Number(newNominal) })}
-                            disabled={updateMutation.isPending}
+                            onClick={() => handleUpdateDueDate(invoice)}
+                            disabled={updateInvoiceMutation.isPending}
                           >
                             Simpan
                           </Button>
                         </div>
-                      ) : (
-                        formatRupiah(t.nominal_disesuaikan)
-                      )}
+                      ) : formatRupiah(invoice.remaining_amount)}
                     </TableCell>
+                    <TableCell>{invoice.due_date ? new Date(invoice.due_date).toLocaleDateString('id-ID') : '-'}</TableCell>
                     <TableCell>
-                      <Badge variant={t.status === 'lunas' ? 'default' : 'destructive'}>
-                        {t.status === 'lunas' ? 'Lunas' : t.status === 'menunggak' ? 'Menunggak' : 'Belum Lunas'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {t.qris_string ? (
-                        <div className="space-y-1">
-                          <p className="text-xs font-mono truncate max-w-35">{t.qris_string.substring(0, 20)}...</p>
-                          <p className="text-[10px] text-muted-foreground">Exp: {t.qris_expiry}</p>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">-</span>
-                      )}
+                      {getStatusBadge(invoice.status)}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        {t.status !== 'lunas' && (
-                          <>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              onClick={() => { setEditingId(t.id); setNewNominal(String(t.nominal_disesuaikan)); }}
-                            >
-                              Ubah Nominal
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="secondary" 
-                              onClick={() => qrisMutation.mutate(t.id)} 
-                              disabled={qrisMutation.isPending}
-                            >
-                              {qrisMutation.isPending ? (
-                                <RefreshCcw className="animate-spin h-4 w-4" />
-                              ) : 'Regenerasi QRIS'}
-                            </Button>
-                          </>
+                        {invoice.status !== 'paid' && (
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => { setEditingId(invoice.id); setEditDueDate(invoice.due_date || ''); }}
+                          >
+                            Ubah Jatuh Tempo
+                          </Button>
                         )}
+                        <Dialog open={deleteDialogOpen === invoice.id} onOpenChange={(open) => setDeleteDialogOpen(open ? invoice.id : null)}>
+                          <DialogTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              disabled={deleteInvoiceMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Hapus Tagihan</DialogTitle>
+                            </DialogHeader>
+                            <p>Apakah Anda yakin ingin menghapus tagihan {invoice.invoice_number}?</p>
+                            <div className="flex justify-end gap-2">
+                              <Button variant="outline" onClick={() => setDeleteDialogOpen(null)}>Batal</Button>
+                              <Button variant="destructive" onClick={() => handleDeleteInvoice(invoice.id)} disabled={deleteInvoiceMutation.isPending}>
+                                {deleteInvoiceMutation.isPending ? <RefreshCcw className="animate-spin h-4 w-4" /> : 'Hapus'}
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </TableCell>
                   </TableRow>
                 ))}
-                {filteredAndPaginatedInvoices.data.length === 0 && (
+                {invoices.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                       Tidak ada data tagihan yang ditemukan
                     </TableCell>
                   </TableRow>
@@ -466,7 +485,7 @@ export default function TagihanPage() {
           </div>
 
           {/* Pagination */}
-          {filteredAndPaginatedInvoices.totalPages > 1 && (
+          {paginationMeta.lastPage > 1 && (
             <div className="flex items-center justify-center gap-1 mt-4">
               <Button
                 variant="outline"
@@ -490,8 +509,8 @@ export default function TagihanPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, filteredAndPaginatedInvoices.totalPages))}
-                disabled={currentPage === filteredAndPaginatedInvoices.totalPages}
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, paginationMeta.lastPage))}
+                disabled={currentPage === paginationMeta.lastPage}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
