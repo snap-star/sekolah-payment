@@ -21,18 +21,7 @@ export const UserRoleSchema = z.enum([
 export type UserRole = z.infer<typeof UserRoleSchema>;
 
 /**
- * Authenticated user schema
- */
-export const UserSchema = z.object({
-  id: z.number().int().positive(),
-  name: z.string().min(1),
-  email: z.email(),
-  role: UserRoleSchema,
-});
-export type User = z.infer<typeof UserSchema>;
-
-/**
- * Generic API response schema
+ * Generic API response schema (moved to top for all modules to use)
  */
 export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
@@ -40,6 +29,152 @@ export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
     message: z.string().optional(),
     data: dataSchema.optional(),
   });
+
+/**
+ * Pagination metadata schema (moved to top for all modules to use)
+ */
+export const PaginationMetaSchema = z.object({
+  current_page: z.number().int().positive(),
+  last_page: z.number().int().positive(),
+  per_page: z.number().int().positive(),
+  total: z.number().int().positive(),
+});
+export type PaginationMeta = z.infer<typeof PaginationMetaSchema>;
+
+/**
+ * Authenticated user schema
+ */
+export const UserSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string().min(1),
+  email: z.email(),
+  role: UserRoleSchema,
+  no_hp: z.string().optional(),
+  aktif: z.boolean().default(true),
+  terakhir_login: z.string().nullable().optional(),
+});
+export type User = z.infer<typeof UserSchema>;
+
+/**
+ * Admin user response schema with extended properties for user management
+ */
+export const AdminUserSchema = UserSchema.extend({
+  nama: z.string().min(1), // For backward compatibility with existing UI
+  no_hp: z.string(),
+  aktif: z.boolean(),
+  terakhir_login: z.string(),
+});
+export type AdminUser = z.infer<typeof AdminUserSchema>;
+
+/**
+ * Role option schema for select dropdowns
+ */
+export const RoleOptionSchema = z.object({
+  value: z.string(),
+  label: z.string(),
+});
+export type RoleOption = z.infer<typeof RoleOptionSchema>;
+
+/**
+ * Get all users response schema for admin user management
+ */
+export const GetUsersResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
+  data: z.array(AdminUserSchema),
+  roles: z.array(RoleOptionSchema),
+  meta: PaginationMetaSchema.optional(),
+});
+export type GetUsersResponse = z.infer<typeof GetUsersResponseSchema>;
+
+/**
+ * Create user input schema for admin
+ */
+export const CreateUserInputSchema = z.object({
+  name: z.string().min(1, 'Nama tidak boleh kosong'),
+  email: z.email('Email harus valid'),
+  no_hp: z.string().min(1, 'Nomor HP tidak boleh kosong'),
+  role: UserRoleSchema,
+  password: z.string().min(8, 'Password minimal 8 karakter'),
+});
+export type CreateUserInput = z.infer<typeof CreateUserInputSchema>;
+
+/**
+ * Update user input schema for admin
+ */
+export const UpdateUserInputSchema = CreateUserInputSchema.partial().extend({
+  id: z.number().int().positive(),
+});
+export type UpdateUserInput = z.infer<typeof UpdateUserInputSchema>;
+
+/**
+ * Delete user response schema
+ */
+export const DeleteUserResponseSchema = ApiResponseSchema(z.object({}));
+export type DeleteUserResponse = z.infer<typeof DeleteUserResponseSchema>;
+
+// ============================================================================
+// Dashboard Module Types
+// ============================================================================
+
+/**
+ * Monthly recap schema
+ */
+export const MonthlyRecapSchema = z.object({
+  bulan: z.string(),
+  terbayar: z.number().int().positive(),
+  tunggakan: z.number().int().positive(),
+});
+export type MonthlyRecap = z.infer<typeof MonthlyRecapSchema>;
+
+/**
+ * Fee type breakdown schema
+ */
+export const FeeTypeBreakdownSchema = z.object({
+  nama: z.string(),
+  terbayar: z.number().int().positive(),
+  total: z.number().int().positive(),
+});
+export type FeeTypeBreakdown = z.infer<typeof FeeTypeBreakdownSchema>;
+
+/**
+ * Recent transaction schema
+ */
+export const RecentTransactionSchema = z.object({
+  id: z.string(),
+  siswa: z.string(),
+  kelas: z.string(),
+  nominal: z.number().int().positive(),
+  status: z.enum(['success', 'pending']),
+  waktu: z.string(),
+});
+export type RecentTransaction = z.infer<typeof RecentTransactionSchema>;
+
+/**
+ * Dashboard statistics schema
+ */
+export const DashboardStatsSchema = z.object({
+  total_tunggakan: z.number().int().positive(),
+  total_terbayar_bulan_ini: z.number().int().positive(),
+  jumlah_siswa_menunggak: z.number().int().positive(),
+  total_transaksi_hari_ini: z.number().int().positive(),
+});
+export type DashboardStats = z.infer<typeof DashboardStatsSchema>;
+
+/**
+ * Complete dashboard response schema
+ */
+export const GetDashboardResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
+  data: z.object({
+    stats: DashboardStatsSchema,
+    rekap_per_bulan: z.array(MonthlyRecapSchema),
+    jenis_tagihan_breakdown: z.array(FeeTypeBreakdownSchema),
+    recent_transactions: z.array(RecentTransactionSchema),
+  }),
+});
+export type GetDashboardResponse = z.infer<typeof GetDashboardResponseSchema>;
 
 // ============================================================================
 // Auth Module Types
@@ -139,16 +274,7 @@ export const StudentSchema = z.object({
 });
 export type Student = z.infer<typeof StudentSchema>;
 
-/**
- * Pagination metadata schema
- */
-export const PaginationMetaSchema = z.object({
-  current_page: z.number().int().positive(),
-  last_page: z.number().int().positive(),
-  per_page: z.number().int().positive(),
-  total: z.number().int().positive(),
-});
-export type PaginationMeta = z.infer<typeof PaginationMetaSchema>;
+
 
 /**
  * Get all students response schema

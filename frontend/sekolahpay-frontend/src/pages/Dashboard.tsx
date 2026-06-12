@@ -1,30 +1,27 @@
+import { useDashboard } from '@/hooks/useApi';
 import { StatCard } from '../components/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
-import { useQuery } from '@tanstack/react-query';
-import { mockApi } from '../mock/api';
 import { RefreshCcw } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useEffect, useState } from 'react';
+import type { MonthlyRecap, FeeTypeBreakdown, RecentTransaction, DashboardStats } from '@/types/server/api';
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
 }
 
 export default function Dashboard() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['dashboard'],
-    queryFn: () => mockApi.getDashboard(),
-  });
+  // Use the real useDashboard hook
+  const { data, isLoading } = useDashboard();
 
   const [progress, setProgress] = useState(0);
 
   // Animate progress bar while loading
   useEffect(() => {
     if (isLoading) {
-       
       setProgress(0);
       const timer = setInterval(() => {
         setProgress((prev) => {
@@ -48,12 +45,27 @@ export default function Dashboard() {
       </div>
     </div>
   );
+
+  // Extract data with proper type safety
+  const dashboardData = data?.data;
+  if (!dashboardData) {
+    return (
+      <div className="p-4 flex items-center justify-center min-h-[60vh]">
+        <Label className="text-2xl font-semibold">Gagal memuat data dashboard</Label>
+      </div>
+    );
+  }
   
-  const { stats, rekap_per_bulan, jenis_tagihan_breakdown, recent_transactions } = data!;
+  const { stats, rekap_per_bulan, jenis_tagihan_breakdown, recent_transactions } = dashboardData as {
+    stats: DashboardStats;
+    rekap_per_bulan: MonthlyRecap[];
+    jenis_tagihan_breakdown: FeeTypeBreakdown[];
+    recent_transactions: RecentTransaction[];
+  };
 
   return (
     <div className="space-y-8">
-      {/* Gemini-style page header */}
+      {/* Page header */}
       <div className="gemini-page-header animate-gemini-fade-in-up">
         <h2 className="gemini-page-title">Ringkasan Transaksi</h2>
         <p className="gemini-page-subtitle">Pantau pembayaran sekolah secara real-time.</p>
@@ -70,7 +82,7 @@ export default function Dashboard() {
         <StatCard 
           title="Terbayar Bulan Ini" 
           value={formatRupiah(stats.total_terbayar_bulan_ini)} 
-          subtitle="Mei 2026" 
+          subtitle="Bulan Ini" 
           className="animate-gemini-fade-in-up gemini-delay-200"
         />
         <StatCard 
@@ -95,7 +107,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-5">
-              {rekap_per_bulan.map((item, index) => (
+              {rekap_per_bulan.map((item: MonthlyRecap, index: number) => (
                 <div 
                   key={item.bulan} 
                   className="flex items-center justify-between animate-gemini-fade-in gemini-table-row rounded-lg px-3 py-2 -mx-3" 
@@ -122,7 +134,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-5">
-              {jenis_tagihan_breakdown.map((item, index) => {
+              {jenis_tagihan_breakdown.map((item: FeeTypeBreakdown, index: number) => {
                 const percent = Math.round((item.terbayar / item.total) * 100);
                 return (
                   <div 
@@ -165,7 +177,7 @@ export default function Dashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recent_transactions.map((trx, index) => (
+              {recent_transactions.map((trx: RecentTransaction, index: number) => (
                 <TableRow 
                   key={trx.id} 
                   className="gemini-table-row animate-gemini-fade-in" 
@@ -185,6 +197,13 @@ export default function Dashboard() {
                   <TableCell className="text-xs text-muted-foreground">{trx.waktu}</TableCell>
                 </TableRow>
               ))}
+              {recent_transactions.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center">
+                    Belum ada transaksi terbaru.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>

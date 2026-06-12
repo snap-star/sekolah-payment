@@ -5,6 +5,12 @@ import type {
   LoginInput, 
   TokenResponse, 
   User,
+  AdminUser,
+  GetUsersResponse,
+  CreateUserInput,
+  UpdateUserInput,
+  DeleteUserResponse,
+  GetDashboardResponse,
   GetStudentsResponse,
   StudentResponse,
   CreateStudentInput,
@@ -449,6 +455,57 @@ export const apiClient = {
     // Delete fee type
     delete: async (id: number): Promise<{ success: boolean; message: string }> => {
       const response = await axiosInstance.delete<{ success: boolean; message: string }>(`/fee-types/${id}`);
+      return response.data;
+    },
+  },
+
+  // Users API - Manajemen User Admin (Admin only)
+  users: {
+    // Get all admin users with pagination
+    getAll: async (params?: { 
+      page?: number; 
+      perPage?: number;
+      search?: string;
+    }): Promise<GetUsersResponse> => {
+      const searchParams = new URLSearchParams();
+      if (params?.page) searchParams.append('page', params.page.toString());
+      if (params?.perPage) searchParams.append('per_page', params.perPage.toString());
+      if (params?.search) searchParams.append('search', params.search);
+      
+      const url = `/users${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const response = await axiosInstance.get<GetUsersResponse>(url);
+      return response.data;
+    },
+
+    // Get single user by ID
+    getById: async (id: number): Promise<AdminUser> => {
+      const response = await axiosInstance.get<AdminUser>(`/users/${id}`);
+      return response.data;
+    },
+
+    // Create new admin user
+    create: async (input: CreateUserInput): Promise<AdminUser> => {
+      const response = await axiosInstance.post<AdminUser>('/users', input);
+      return response.data;
+    },
+
+    // Update existing admin user
+    update: async (id: number, input: UpdateUserInput): Promise<AdminUser> => {
+      const response = await axiosInstance.put<AdminUser>(`/users/${id}`, input);
+      return response.data;
+    },
+
+    // Delete admin user
+    delete: async (id: number): Promise<DeleteUserResponse> => {
+      const response = await axiosInstance.delete<DeleteUserResponse>(`/users/${id}`);
+      return response.data;
+    },
+  },
+
+  // Dashboard API - Get summary statistics and recent data
+  dashboard: {
+    get: async (): Promise<GetDashboardResponse> => {
+      const response = await axiosInstance.get<GetDashboardResponse>('/dashboard');
       return response.data;
     },
   },

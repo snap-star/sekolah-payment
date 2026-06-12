@@ -1,11 +1,16 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api';
 import type { 
   LoginInput, 
   TokenResponse, 
   User, 
-  ReportResponse, 
+  GetUsersResponse,
+  AdminUser,
+  CreateUserInput,
+  UpdateUserInput,
+  DeleteUserResponse,
+  GetDashboardResponse,
   GetInvoicesResponse,
   InvoiceResponse,
   CreateInvoiceInput,
@@ -176,14 +181,19 @@ export const useDeleteInvoice = (options?: Omit<UseMutationOptions<DeleteInvoice
 // Report Hooks
 // ============================================================================
 
-export const useReport = (options?: Omit<UseQueryOptions<ReportResponse, Error>, 'queryKey' | 'queryFn'>) => {
+export const useReport = (
+  params?: { 
+    page?: number; 
+    perPage?: number;
+    search?: string;
+    status?: string;
+  },
+  options?: Omit<UseQueryOptions<GetInvoicesResponse, Error>, 'queryKey' | 'queryFn'>
+) => {
   return useQuery({
-    queryKey: ['reports'],
+    queryKey: ['reports', params],
     queryFn: async () => {
-      // This would be implemented when the backend adds this endpoint
-      // For now, we import from mock api
-      const { mockApi } = await import('@/mock/api');
-      return mockApi.getReport();
+      return apiClient.invoices.getAll(params);
     },
     ...options,
   });
@@ -377,6 +387,78 @@ export const useParents = (
   return useQuery({
     queryKey: ['parents', params],
     queryFn: () => apiClient.parent.getAll(params),
+    ...options,
+  });
+};
+
+// ============================================================================
+// User Admin Hooks (Admin only)
+// ============================================================================
+
+export const useUsers = (
+  params?: { 
+    page?: number; 
+    perPage?: number;
+    search?: string;
+  },
+  options?: Omit<UseQueryOptions<GetUsersResponse, Error>, 'queryKey' | 'queryFn'>
+) => {
+  return useQuery({
+    queryKey: ['users', params],
+    queryFn: () => apiClient.users.getAll(params),
+    ...options,
+  });
+};
+
+export const useCreateUser = (
+  options?: Omit<UseMutationOptions<AdminUser, Error, CreateUserInput>, 'mutationFn' | 'mutationKey'>
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateUserInput) => apiClient.users.create(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    ...options,
+  });
+};
+
+export const useUpdateUser = (
+  options?: Omit<UseMutationOptions<AdminUser, Error, { id: number; data: UpdateUserInput }>, 'mutationFn' | 'mutationKey'>
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateUserInput }) => apiClient.users.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    ...options,
+  });
+};
+
+export const useDeleteUser = (
+  options?: Omit<UseMutationOptions<DeleteUserResponse, Error, number>, 'mutationFn' | 'mutationKey'>
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => apiClient.users.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    ...options,
+  });
+};
+
+// ============================================================================
+// Dashboard Hook
+// ============================================================================
+
+export const useDashboard = (
+  options?: Omit<UseQueryOptions<GetDashboardResponse, Error>, 'queryKey' | 'queryFn'>
+) => {
+  return useQuery({
+    queryKey: ['dashboard'],
+    queryFn: () => apiClient.dashboard.get(),
     ...options,
   });
 };
