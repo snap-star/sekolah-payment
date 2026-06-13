@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/snap-star/sekolah-payment/compare/v1.1.0...v1.2.0) (2026-06-13)
+
+### ✨ New Features
+
+* add date-fns-tz dependency and implement date picker components ([2ce1078](https://github.com/snap-star/sekolah-payment/commit/2ce10783fb24d4f65dd490094223059f3cd4fff4))
+
 ## [1.1.0](https://github.com/snap-star/sekolah-payment/compare/v1.0.4...v1.1.0) (2026-06-12)
 
 ### ✨ New Features
