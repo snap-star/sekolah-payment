@@ -18,7 +18,7 @@ import {
   PaginationPrevious,
 } from '../components/ui/pagination';
 import { toast } from 'sonner';
-import { Pencil, RefreshCcw, Trash, Search, Plus, Save } from 'lucide-react';
+import { Pencil, RefreshCcw, Trash, Search, Plus, Save, Upload, Download } from 'lucide-react';
 import { 
   useStudents, 
   useCreateStudent, 
@@ -318,10 +318,16 @@ export default function SiswaPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="relative flex flex-cols-3 items-center gap-5 justify-center">
+        <div className="w-full">
           <h2 className="gemini-page-title">Manajemen Siswa</h2>
           <p className="text-muted-foreground">Kelola data siswa di sekolah.</p>
+        </div>
+        <div id="import-data-siswa">
+          <Button><Upload className="mr-2 h-4 w-4" />Import Data Siswa</Button>
+        </div>
+        <div id="download-data-siswa">
+          <Button><Download className="mr-2 h-4 w-4" />Download Data Siswa</Button>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={(open) => { setIsCreateDialogOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
@@ -587,7 +593,7 @@ export default function SiswaPage() {
       {/* Filter Bar */} 
       {/* TODO : FILTER STATE  */}
       <Card className="border-border">
-        <CardContent className="pt-6">
+        <CardContent>
           <div className="flex flex-wrap gap-4 items-end">
             <div className="flex-1 min-w-50">
               <Label htmlFor="search" className="mb-2 block">Cari Siswa</Label>

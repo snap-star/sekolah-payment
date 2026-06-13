@@ -3,7 +3,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -124,7 +124,7 @@ export default function UserAdminPage() {
   const displayRoles = data?.roles || roleOptions;
   const users = data?.data || [];
   const totalItems = data?.meta?.total || users.length;
-// const totalPages = data?.meta?.last_page || Math.ceil(users.length / itemsPerPage);
+  // const totalPages = data?.meta?.last_page || Math.ceil(users.length / itemsPerPage);
 
   return (
     <div className="space-y-6">
@@ -136,12 +136,20 @@ export default function UserAdminPage() {
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild><Button>Tambah User</Button></DialogTrigger>
           <DialogContent className="max-w-md">
-            <DialogHeader><DialogTitle>Tambah Admin Baru</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>Tambah Admin Baru</DialogTitle>
+              <DialogDescription>
+                Isi informasi user baru di bawah ini.
+              </DialogDescription>
+            </DialogHeader>
             <form className="space-y-4" onSubmit={handleCreateUser}>
               <div className="space-y-2">
                 <Label htmlFor="name">Nama Lengkap</Label>
                 <Input 
                   id="name" 
+                  type="text"
+                  autoComplete="off"
+                  placeholder="Nama Lengkap"
                   value={newUserForm.name}
                   onChange={(e) => setNewUserForm({...newUserForm, name: e.target.value})}
                   required 
@@ -152,6 +160,8 @@ export default function UserAdminPage() {
                 <Input 
                   id="email" 
                   type="email" 
+                  autoComplete="off"
+                  placeholder="Email"
                   value={newUserForm.email}
                   onChange={(e) => setNewUserForm({...newUserForm, email: e.target.value})}
                   required 
@@ -161,6 +171,10 @@ export default function UserAdminPage() {
                 <Label htmlFor="no_hp">No. HP</Label>
                 <Input 
                   id="no_hp" 
+                  type="tel"
+                  autoComplete="off"
+                  maxLength={12}
+                  pattern="[0-9]{12}"
                   placeholder="081234567890" 
                   value={newUserForm.no_hp}
                   onChange={(e) => setNewUserForm({...newUserForm, no_hp: e.target.value})}
@@ -170,6 +184,7 @@ export default function UserAdminPage() {
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
                 <Select 
+                  autoComplete="off"
                   value={newUserForm.role} 
                   onValueChange={(value) => setNewUserForm({...newUserForm, role: value})}
                   required
@@ -188,14 +203,21 @@ export default function UserAdminPage() {
                 <Label htmlFor="password">Password</Label>
                 <Input 
                   id="password" 
-                  type="password" 
+                  type="password"
+                  autoComplete="off"
+                  placeholder="Password"
+                  minLength={8}
+                  maxLength={20}
+                  pattern="[a-zA-Z0-9#@!%*()\\-+=,./[\\]_`{|}~]{8,20}"
+                  aria-autoComplete="off"
                   value={newUserForm.password}
                   onChange={(e) => setNewUserForm({...newUserForm, password: e.target.value})}
                   required 
                 />
               </div>
               <Button 
-                type="submit" 
+                type="submit"
+                id="submit-btn"
                 className="w-full" 
                 disabled={createUserMutation.isPending}
               >

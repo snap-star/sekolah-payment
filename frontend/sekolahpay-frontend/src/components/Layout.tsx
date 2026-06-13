@@ -17,14 +17,14 @@ export default function Layout() {
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden lg:ml-64">
         {/* Header - Gemini Style */}
         <header className="lg:hidden gemini-header flex items-center justify-between px-4 py-3 sticky top-0 z-40">
-          <Sheet>
+          <Sheet aria-label="Sidebar" aria-describedby="sidebar-desc">
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden">
+              <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu" aria-controls="sidebar">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-72 max-w-[85vw]">
+            <SheetContent side="left" className="p-0 w-72 max-w-[85vw]" aria-label="Sidebar" id="sidebar" aria-describedby="sidebar-desc">
               <AppSidebar />
             </SheetContent>
           </Sheet>

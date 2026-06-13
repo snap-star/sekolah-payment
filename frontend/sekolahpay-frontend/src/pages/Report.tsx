@@ -1,9 +1,10 @@
 import { useReport } from '@/hooks/useApi';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
+import { RangePicker } from '../components/ui/range-picker';
 import type { Invoice } from '@/types/server/api';
-import { Printer, RefreshCcw, Search, ArrowUpDown } from 'lucide-react';
+import { Printer, RefreshCcw, Search, ArrowUpDown, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -177,14 +178,36 @@ export default function ReportPage() {
       <Card className="border-border">
         <CardHeader className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <CardTitle className="text-sm font-medium">Detail Laporan per Siswa</CardTitle>
+            <CardTitle className="">Detail Laporan per Siswa</CardTitle>
+            <div className="flex items-center gap-2">
             <Button variant="default">
               <Printer className="mr-2 inline-block h-5 w-5 text-primary-foreground dark:text-primary-foreground" />
               Cetak
             </Button>
+            <Button variant="default">
+              <Download className="mr-2 inline-block h-5 w-5 text-primary-foreground dark:text-primary-foreground" />
+              Download Laporan
+            </Button>
+            <Select>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Filter Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="all">Semua Status</SelectItem>
+                  <SelectItem value="paid">Lunas</SelectItem>
+                  <SelectItem value="unpaid">Belum Lunas</SelectItem>
+                  <SelectItem value="overdue">Menunggak</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+              <div className="flex items-center gap-2">
+              <RangePicker />
+              </div>
+            </div>
           </div>
           
-          {/* Filter and Search Section */}
+          {/* Filter and Search Section TODO: debounced filtering and search*/}
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
               <Search className="h-4 w-4 text-muted-foreground" />
@@ -209,10 +232,6 @@ export default function ReportPage() {
                 </SelectGroup>
               </SelectContent>
             </Select>
-            
-            <div className="text-sm text-muted-foreground">
-              Total: {totalItems} data
-            </div>
           </div>
         </CardHeader>
         
@@ -329,6 +348,11 @@ export default function ReportPage() {
             </Pagination>
           )}
         </CardContent>
+        <CardFooter>
+          <div className="text-sm text-muted-foreground">
+              Total: {totalItems} data
+            </div>
+        </CardFooter>
       </Card>
     </div>
   );

@@ -4,14 +4,14 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Textarea } from '../components/ui/textarea';
 import { Switch } from '../components/ui/switch';
 import { toast } from 'sonner';
-import { RefreshCcw, Plus, Pencil, Trash2, Save } from 'lucide-react';
+import { RefreshCcw, Plus, Pencil, Trash2, Save, MessageSquareWarningIcon, CircleX } from 'lucide-react';
 import { useFeeTypes, useCreateFeeType, useUpdateFeeType, useDeleteFeeType } from '@/hooks/useApi';
 import type { FeeType } from '@/types/server/api';
 import { Progress } from '@/components/ui/progress';
@@ -192,6 +192,9 @@ export default function SetJenisTagihanPage() {
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle className="gemini-page-title">Buat Jenis Tagihan Baru</DialogTitle>
+              <DialogDescription>
+                Isi semua field dengan benar untuk membuat jenis tagihan baru.
+              </DialogDescription>
             </DialogHeader>
             <form className="space-y-4" onSubmit={handleCreateFeeType}>
               <div className="grid grid-cols-2 gap-4">
@@ -386,6 +389,7 @@ export default function SetJenisTagihanPage() {
                               onClick={() => handleEditClick(fee)}
                             >
                               <Pencil className="h-4 w-4" />
+                              Edit
                             </Button>
                             <Dialog open={deleteDialogOpen === fee.id} onOpenChange={(open) => setDeleteDialogOpen(open ? fee.id : null)}>
                               <DialogTrigger asChild>
@@ -394,17 +398,24 @@ export default function SetJenisTagihanPage() {
                                   variant="destructive"
                                 >
                                   <Trash2 className="h-4 w-4" />
+                                  Hapus
                                 </Button>
                               </DialogTrigger>
                               <DialogContent>
                                 <DialogHeader>
-                                  <DialogTitle>Konfirmasi Hapus</DialogTitle>
+                                  <DialogTitle>Konfirmasi Hapus Jenis Tagihan</DialogTitle>
+                                  <DialogDescription>
+                                    Apakah anda yakin ingin menghapus jenis tagihan <Badge variant="destructive" className="px-2 py-1">
+                                      "{fee.name}"
+                                    </Badge>
+                                  </DialogDescription>
                                 </DialogHeader>
-                                <p className="text-sm text-muted-foreground">
-                                  Apakah Anda yakin ingin menghapus jenis tagihan "{fee.name}"? Tindakan ini tidak dapat dibatalkan.
-                                </p>
+                                  <span className="text-yellow-800 bg-yellow-500/50 px-2 py-1 rounded-md flex mr-2 items-center justify-center gap-2">
+                                    <MessageSquareWarningIcon className="h-6 w-6" /> Peringatan: Tindakan ini akan menghapus jenis tagihan yang sudah dibuat.
+                                  </span>
                                 <div className="flex justify-end gap-2">
                                   <Button variant="outline" onClick={() => setDeleteDialogOpen(null)}>
+                                    <CircleX className="h-4 w-4 mr-2" />
                                     Batal
                                   </Button>
                                   <Button 
@@ -415,6 +426,7 @@ export default function SetJenisTagihanPage() {
                                     {deleteMutation.isPending ? (
                                       <RefreshCcw className="animate-spin h-4 w-4 mr-2" />
                                     ) : null}
+                                    <Trash2 className="h-4 w-4 mr-2" />
                                     Hapus
                                   </Button>
                                 </div>

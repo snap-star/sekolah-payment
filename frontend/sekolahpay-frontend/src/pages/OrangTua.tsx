@@ -308,31 +308,13 @@ export default function OrangTuaPage() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-border">
-        <CardHeader>
-          <CardTitle className="text-base font-bold">Manajemen Orang Tua/Wali</CardTitle>
-          <p className="text-sm text-muted-foreground">Kelola data orang tua dan wali siswa di sekolah.</p>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap items-end gap-4">
-            <div className="flex-1 min-w-50">
-              <Label htmlFor="search" className="mb-2 block">Cari</Label>
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="search"
-                  placeholder="Cari nama atau nomor telepon..."
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <Button variant="outline" onClick={resetFilters}>
-              Reset Filter
-            </Button>
-            <Dialog open={isCreateDialogOpen} onOpenChange={(open) => { setIsCreateDialogOpen(open); if (!open) resetForm(); }}>
+      <div className="relative flex flex-col">
+      <Label className="gemini-page-title">
+      Manajemen Orang Tua/Wali
+      </Label>
+      <p className="text-sm text-muted-foreground">Kelola data orang tua dan wali siswa di sekolah.</p>
+      <div className="absolute top-0 right-0">
+        <Dialog open={isCreateDialogOpen} onOpenChange={(open) => { setIsCreateDialogOpen(open); if (!open) resetForm(); }}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
@@ -463,6 +445,28 @@ export default function OrangTuaPage() {
                 </form>
               </DialogContent>
             </Dialog>
+      </div>
+      </div>
+      <Card className="border-border">
+        <CardContent>
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="flex-1 min-w-50">
+              <Label htmlFor="search" className="mb-2 block">Cari</Label>
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="search"
+                  placeholder="Cari nama atau nomor telepon..."
+                  className="pl-8"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <Button variant="outline" onClick={resetFilters}>
+              Reset Filter
+            </Button>
           </div>
         </CardContent>
       </Card>

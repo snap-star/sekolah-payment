@@ -1,12 +1,12 @@
 import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'sonner';
-import { RefreshCcw, ChevronLeft, ChevronRight, Search, Plus, Trash2 } from 'lucide-react';
+import { RefreshCcw, ChevronLeft, ChevronRight, Search, Plus, Trash2, SaveIcon, CircleX, Trash2Icon, MessageSquareWarningIcon } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -239,7 +239,12 @@ export default function TagihanPage() {
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" />Buat Tagihan Baru</Button></DialogTrigger>
           <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle className="gemini-page-title">Buat Tagihan Siswa</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle className="gemini-page-title">Buat Tagihan Siswa</DialogTitle>
+              <DialogDescription>
+                Isi semua field dengan benar untuk membuat tagihan baru.
+              </DialogDescription>
+            </DialogHeader>
             <form className="space-y-4" onSubmit={handleCreateInvoice}>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -337,7 +342,7 @@ export default function TagihanPage() {
               >
                 {createInvoiceMutation.isPending ? (
                   <><RefreshCcw className="animate-spin mr-2 h-4 w-4" /> Menyimpan...</>
-                ) : 'Simpan Tagihan'}
+                ) : <><SaveIcon /> Simpan Tagihan</>}
               </Button>
             </form>
           </DialogContent>
@@ -346,7 +351,10 @@ export default function TagihanPage() {
 
       {/* Search and Filter Bar */}
       <Card className="border-border">
-        <CardContent className="p-4">
+        <CardContent className="p-4 gap-3">
+          <Label className="mb-3">
+          Cari Tagihan
+          </Label>
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -459,12 +467,22 @@ export default function TagihanPage() {
                           <DialogContent>
                             <DialogHeader>
                               <DialogTitle>Hapus Tagihan</DialogTitle>
+                              <DialogDescription>
+                                Apakah Anda yakin ingin menghapus tagihan <Badge variant="destructive">{invoice.invoice_number}</Badge>
+                              </DialogDescription>
                             </DialogHeader>
-                            <p>Apakah Anda yakin ingin menghapus tagihan {invoice.invoice_number}?</p>
+                            <span className="text-sm text-yellow-800 bg-yellow-500/50 p-2 rounded-md flex items-center gap-2">
+                            <MessageSquareWarningIcon className="h-6 w-6" />
+                              Peringatan: Tindakan ini akan menghapus tagihan murid, dan tidak dapat di kembalikan.
+                            </span>
                             <div className="flex justify-end gap-2">
-                              <Button variant="outline" onClick={() => setDeleteDialogOpen(null)}>Batal</Button>
+                              <Button variant="outline" onClick={() => setDeleteDialogOpen(null)}>
+                                <CircleX className="h-4 w-4" />
+                                Batal</Button>
                               <Button variant="destructive" onClick={() => handleDeleteInvoice(invoice.id)} disabled={deleteInvoiceMutation.isPending}>
-                                {deleteInvoiceMutation.isPending ? <RefreshCcw className="animate-spin h-4 w-4" /> : 'Hapus'}
+                                {deleteInvoiceMutation.isPending ? <RefreshCcw className="animate-spin h-4 w-4" /> : <>
+                                  <Trash2Icon className="h-4 w-4" />
+                                  Hapus</>}
                               </Button>
                             </div>
                           </DialogContent>
