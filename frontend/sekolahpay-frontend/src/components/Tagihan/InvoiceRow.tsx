@@ -1,6 +1,5 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { TableCell, TableRow } from '@/components/ui/table';
 import type { Invoice } from '@/types/server/api';
@@ -83,16 +82,14 @@ export function InvoiceRow({
               Ubah Jatuh Tempo
             </Button>
           )}
-          <DialogTrigger asChild>
-            <Button 
-              size="sm" 
-              variant="destructive"
-              disabled={isDeletePending}
-              onClick={() => onDelete(invoice)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </DialogTrigger>
+          <Button 
+            size="sm" 
+            variant="destructive"
+            disabled={isDeletePending}
+            onClick={() => onDelete(invoice)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       </TableCell>
     </TableRow>
