@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Badge } from '../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
@@ -15,16 +12,7 @@ import {
   PaginationPrevious,
   PaginationNext,
 } from '../components/ui/pagination';
-import { toast } from 'sonner';
-import { Pencil, RefreshCcw, Trash, Search, Plus, Save, CircleX } from 'lucide-react';
-import { 
-  useParents,
-  useStudents,
-  useCreateStudentGuardian, 
-  useUpdateStudentGuardian, 
-  useDeleteStudentGuardian 
-} from '../hooks/useApi';
-import type { StudentGuardian, CreateStudentGuardianInput, UpdateStudentGuardianInput } from '@/types/server/api';
+import { RefreshCcw, Search, Plus, Save, CircleX } from 'lucide-react';
 import {
   Combobox,
   ComboboxInput,
@@ -33,272 +21,44 @@ import {
   ComboboxItem,
   ComboboxEmpty,
 } from '@/components/ui/combobox';
+import { GuardianRow } from '../components/OrangTua/GuardianRow';
+import { getRelationBadge } from '../components/OrangTua/getRelationBadge';
+import { 
+  createGuardian,
+  updateGuardian,
+  deleteGuardian,
+  handleCreateSubmit,
+  handleEditSubmit,
+  handleDeleteSubmit,
+  openDeleteDialog,
+  openEditDialog,
+  resetFilters,
+  handlePageChange,
+  guardiansLoading,
+  isCreateDialogOpen,
+  isEditDialogOpen,
+  isDeleteDialogOpen,
+  filteredStudents,
+  totalPages,
+  perPage,
+  currentPage,
+  paginatedGuardians,
+  resetForm,
+  formData,
+  setFormData,
+  setIsCreateDialogOpen,
+  setStudentSearchQuery,
+  filteredGuardians,
+  setIsEditDialogOpen,
+  searchQuery,
+  setSearchQuery,
+  selectedGuardian,
+  setIsDeleteDialogOpen,
+} from '@/components/OrangTua/OrangTuaHandler';
 
-// Guardian Row component that can safely use hooks
-interface GuardianRowProps {
-  guardian: StudentGuardian;
-  onEdit: (guardian: StudentGuardian) => void;
-  onDelete: (guardian: StudentGuardian) => void;
-  getRelationBadge: (guardian: StudentGuardian) => React.JSX.Element;
-  index: number;
-  currentPage: number;
-  perPage: number;
-}
-
-const GuardianRow = ({ index, guardian, onEdit, onDelete, getRelationBadge, perPage, currentPage }: GuardianRowProps) => {
-  const rowNumber = (currentPage - 1) * perPage + index + 1;
-  return (
-    <TableRow key={guardian.id}>
-      <TableCell className="font-mono text-xs">{rowNumber}</TableCell>
-      <TableCell className="font-medium">{guardian.student?.name || '-'}</TableCell>
-      <TableCell className="font-mono text-xs">{guardian.student?.nis || '-'}</TableCell>
-      <TableCell className="font-medium">{guardian.name}</TableCell>
-      <TableCell className="text-xs">{guardian.phone || '-'}</TableCell>
-      <TableCell>{getRelationBadge(guardian)}</TableCell>
-      <TableCell>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(guardian)}
-          >
-            <Pencil className="h-4 w-4" />
-            <span className="ml-2 text-sm">Edit</span>
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onDelete(guardian)}
-          >
-            <Trash className="h-4 w-4" />
-            <span className="ml-2 text-sm">Hapus</span>
-          </Button>
-        </div>
-      </TableCell>
-    </TableRow>
-  );
-};
 
 export default function OrangTuaPage() {
-  const queryClient = useQueryClient();
   
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  
-  // Filter states
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  // Student search state for combobox
-  const [studentSearchQuery, setStudentSearchQuery] = useState('');
-  
-  // Debounce search to avoid too many API calls
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-      setCurrentPage(1);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-  
-  // Fetch all students for the dropdowns in add/edit forms
-  const { data: studentsData } = useStudents({
-    page: 1,
-    perPage: 1000, // Get all students to populate dropdowns
-  });
-  const students = studentsData?.data || [];
-  
-  // Filter students based on search query (name, nis, or nisn)
-  const filteredStudents = students.filter(student => {
-    if (!studentSearchQuery) return true;
-    const searchLower = studentSearchQuery.toLowerCase();
-    return (
-      student.name.toLowerCase().includes(searchLower) ||
-      student.nis.toLowerCase().includes(searchLower) ||
-      (student.nisn && student.nisn.toLowerCase().includes(searchLower))
-    );
-  });
-  
-  // Fetch all guardians/parents using the new useParents hook
-  const { data: guardiansData } = useParents({
-    page: currentPage,
-    perPage: 10,
-  });
-  const apiGuardians = guardiansData?.data || [];
-  
-  // Use the guardians directly from the API response
-  const localGuardians = apiGuardians;
-  const [guardiansLoading] = useState(false);
-  
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedGuardian, setSelectedGuardian] = useState<StudentGuardian | null>(null);
-  
-  // Form states
-  const [formData, setFormData] = useState<CreateStudentGuardianInput>({
-    student_id: 0,
-    student_name: '',
-    guardian_name: '',
-    phone: '',
-    relation: '',
-    occupation: '',
-    address: '',
-  });
-
-  const resetForm = () => {
-    setFormData({
-      student_id: 0,
-      student_name: '',
-      guardian_name: '',
-      phone: '',
-      relation: '',
-      occupation: '',
-      address: '',
-    });
-    setSelectedGuardian(null);
-    setStudentSearchQuery('');
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const resetFilters = () => {
-    setSearchQuery('');
-    setCurrentPage(1);
-  };
-
-  const openEditDialog = (guardian: StudentGuardian) => {
-    setSelectedGuardian(guardian);
-    setFormData({
-      student_id: guardian.student?.id || 0,
-      student_name: guardian.student?.name || '',
-      guardian_name: guardian.name || '',
-      phone: guardian.phone || '',
-      relation: guardian.relation || '',
-      occupation: guardian.occupation || '',
-      address: guardian.address || '',
-    });
-    setIsEditDialogOpen(true);
-  };
-
-  const openDeleteDialog = (guardian: StudentGuardian) => {
-    setSelectedGuardian(guardian);
-    setIsDeleteDialogOpen(true);
-  };
-
-  // Create mutation - Updated to use new simplified hook signature
-  // Implements POST /api/student-guardians from documentation
-  const createGuardian = useCreateStudentGuardian({
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parents'] });
-      setIsCreateDialogOpen(false);
-      resetForm();
-      toast.success('Wali/orang tua berhasil ditambahkan');
-      // No need for window.location.reload() - React Query handles cache invalidation
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Gagal menambahkan wali/orang tua');
-    },
-  });
-
-  // Update mutation - Updated to use new simplified hook signature
-  // Implements PUT /api/student-guardians/{id} from documentation
-  const updateGuardian = useUpdateStudentGuardian({
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parents'] });
-      setIsEditDialogOpen(false);
-      resetForm();
-      toast.success('Wali/orang tua berhasil diperbarui');
-      // No need for window.location.reload() - React Query handles cache invalidation
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Gagal memperbarui wali/orang tua');
-    },
-  });
-
-  // Delete mutation - Updated to use new simplified hook signature
-  // Implements DELETE /api/student-guardians/{id} from documentation
-  const deleteGuardian = useDeleteStudentGuardian({
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parents'] });
-      setIsDeleteDialogOpen(false);
-      resetForm();
-      toast.success('Wali/orang tua berhasil dihapus');
-      // No need for window.location.reload() - React Query handles cache invalidation
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Gagal menghapus wali/orang tua');
-    },
-  });
-
-  const handleCreateSubmit = (e: React.SubmitEvent) => {
-    e.preventDefault();
-    if (formData.student_id > 0 && formData.student_name) {
-      // Directly pass formData to mutation - simplified API matches documentation
-      createGuardian.mutate(formData);
-    } else {
-      toast.error('Pilih siswa terlebih dahulu');
-    }
-  };
-
-  const handleEditSubmit = (e: React.SubmitEvent) => {
-    e.preventDefault();
-    if (selectedGuardian) {
-      // Pass only id and data - simplified API matches documentation
-      updateGuardian.mutate({
-        id: selectedGuardian.id,
-        data: formData as UpdateStudentGuardianInput,
-      });
-    }
-  };
-
-  const handleDeleteSubmit = () => {
-    if (selectedGuardian) {
-      // Pass only guardianId - simplified API matches documentation
-      deleteGuardian.mutate(selectedGuardian.id);
-    }
-    setIsDeleteDialogOpen(false);
-    setSelectedGuardian(null);
-  };
-
-  /**
-   * Helper function to get the appropriate badge for guardian relationship
-   * Supports both 'relation' and 'relationship' fields from API responses
-   */
-  const getRelationBadge = (guardian: StudentGuardian) => {
-    // Get relation from either field (supports both API response formats)
-    const relation = guardian.relation || null;
-    
-    if (!relation) return <Badge variant="outline">-</Badge>;
-    
-    switch (relation) {
-      case 'Ayah':
-        return <Badge variant="default">Ayah</Badge>;
-      case 'Ibu':
-        return <Badge variant="default">Ibu</Badge>;
-      case 'Wali':
-        return <Badge variant="secondary">Wali</Badge>;
-      default:
-        return <Badge variant="outline">{relation}</Badge>;
-    }
-  };
-
-  // Filter and paginate guardians
-  const filteredGuardians = localGuardians.filter(guardian => {
-    return guardian.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-           (guardian.phone && guardian.phone.includes(debouncedSearch)) ||
-           (guardian.student?.name && guardian.student.name.toLowerCase().includes(debouncedSearch.toLowerCase()));
-  });
-
-  const perPage = 10;
-  const totalPages = Math.ceil(filteredGuardians.length / perPage);
-  const paginatedGuardians = filteredGuardians.slice(
-    (currentPage - 1) * perPage, 
-    currentPage * perPage
-  );
-
-
   if (guardiansLoading) return (
     <div className="p-4 select-none flex items-center justify-center h-64">
       <RefreshCcw className="animate-spin mr-2 inline-block h-5 w-5 text-muted-foreground" />
@@ -336,7 +96,7 @@ export default function OrangTuaPage() {
                       id="search-student"
                       value={formData.student_id.toString()}
                       required
-                      items={students.map(student => student.name)}
+                      items={filteredStudents.map(student => student.name)}
                       onValueChange={(value) => {
                         if (value) {
                           setFormData({ ...formData, student_id: parseInt(value) });
