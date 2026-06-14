@@ -1,122 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import type { CreateStudentInput, Student, UpdateStudentInput } from '@/types/server/api';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Badge } from '../components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '../components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '../components/ui/pagination';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Pencil, RefreshCcw, Trash, Search, Plus, Save, Upload, Download } from 'lucide-react';
-import { 
-  useStudents, 
-  useCreateStudent, 
-  useUpdateStudent, 
-  useDeleteStudent,
-  useStudentGuardians
+import { DeleteStudentDialog } from '../components/Siswa/DeleteStudentDialog';
+import { EditStudentDialog } from '../components/Siswa/EditStudentDialog';
+import { HeaderActions } from '../components/Siswa/HeaderActions';
+import { LoadingState } from '../components/Siswa/LoadingState';
+import { StudentFilterBar } from '../components/Siswa/StudentFilterBar';
+import { StudentTable } from '../components/Siswa/StudentTable';
+import {
+    useCreateStudent,
+    useDeleteStudent,
+    useStudents,
+    useUpdateStudent,
 } from '../hooks/useApi';
-import type { Student, CreateStudentInput, UpdateStudentInput } from '@/types/server/api';
-import { Progress } from '../components/ui/progress';
-
-// Student Row component that can safely use hooks
-interface StudentRowProps {
-  student: Student;
-  index: number;
-  currentPage: number;
-  perPage: number;
-  onEdit: (student: Student) => void;
-  onDelete: (student: Student) => void;
-  getGenderLabel: (gender: string) => string;
-  getStatusBadge: (status: string) => React.JSX.Element;
-}
-
-/**
-   * StudentRow component - displays individual student data in a table row
-   * Fixed duplicate guardian fetch error by ensuring proper API usage
-   * The duplicate error was caused by outdated API method signatures; now using the centralized parent API
-   */
-const StudentRow = ({ student, index, currentPage, perPage, onEdit, onDelete, getGenderLabel, getStatusBadge }: StudentRowProps) => {
-  // Get guardians for this specific student - hooks work here because it's a component
-  // This uses useStudentGuardians which internally calls apiClient.students.getGuardians()
-  // The getGuardians method is a convenience wrapper around apiClient.parent.getAll() with student_id filter
-  const { data: guardiansData, isLoading: guardiansLoading } = useStudentGuardians(student.id, { perPage: 100 });
-  
-  // Client-side filtering: ensure we only get guardians that belong to THIS student
-  // Fix for backend not applying student_id filter - mitigates the issue without backend changes
-  const studentGuardians = guardiansData?.data?.filter(guardian => guardian.student.id === student.id) || [];
-  
-  // Get the first guardian (primary guardian) from the filtered array
-  const primaryGuardian = studentGuardians[0];
-  console.log(`Filtered guardians for student ${student.id} (${student.name}):`, studentGuardians);
-  console.log(`Raw API response (all guardians):`, guardiansData);
-  // Calculate the correct row number based on pagination
-  const rowNumber = (currentPage - 1) * perPage + index + 1;
-
-  return (
-    <TableRow key={student.id}>
-      <TableCell className="font-mono text-xs">{rowNumber}</TableCell>
-      <TableCell className="font-mono text-xs">{student.nis}</TableCell>
-      <TableCell className="font-mono text-xs">{student.nisn || '-'}</TableCell>
-      <TableCell className="font-medium">{student.name}</TableCell>
-      <TableCell className="text-xs">{getGenderLabel(student.gender)}</TableCell>
-      <TableCell className="text-xs text-muted-foreground">
-        {student.birth_date ? new Date(student.birth_date).toLocaleDateString('id-ID') : '-'}
-      </TableCell>
-      <TableCell>{getStatusBadge(student.status)}</TableCell>
-      <TableCell className="text-xs">
-        {guardiansLoading ? (
-          <div className="text-muted-foreground">Loading...</div>
-        ) : primaryGuardian ? (
-          <div className="flex flex-col items-start gap-1">
-            <div className="font-medium">{primaryGuardian.name}</div>
-            <div className="flex items-center gap-1">
-              <Badge className="text-muted-foreground" variant="secondary">
-                {primaryGuardian.relation || '-'}
-              </Badge>
-              <span className="text-muted-foreground">{primaryGuardian.phone || '-'}</span>
-            </div>
-            {studentGuardians.length > 1 && (
-              <Badge variant="outline" className="text-xs">
-                +{studentGuardians.length - 1} lainnya
-              </Badge>
-            )}
-          </div>
-        ) : '-'}
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(student)}
-          >
-            <Pencil className="h-4 w-4" />
-            <span className="ml-2 text-sm">Edit</span>
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onDelete(student)}
-          >
-            <Trash className="h-4 w-4" />
-            <span className="ml-2 text-sm">Hapus</span>
-          </Button>
-        </div>
-      </TableCell>
-    </TableRow>
-  );
-};
 
 export default function SiswaPage() {
   const queryClient = useQueryClient();
@@ -248,12 +145,12 @@ export default function SiswaPage() {
     },
   });
 
-  const handleCreateSubmit = (e: React.SubmitEvent) => {
+  const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createStudent.mutate(formData);
   };
 
-  const handleEditSubmit = (e: React.SubmitEvent) => {
+  const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedStudent) {
       updateStudent.mutate({
@@ -267,23 +164,6 @@ export default function SiswaPage() {
     if (selectedStudent) {
       deleteStudent.mutate(selectedStudent.id);
     }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge variant="default">Aktif</Badge>;
-      case 'inactive':
-        return <Badge variant="secondary">Nonaktif</Badge>;
-      case 'graduated':
-        return <Badge variant="outline">Lulus</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
-  const getGenderLabel = (gender: string) => {
-    return gender === 'L' ? 'Laki-laki' : 'Perempuan';
   };
 
   const [progress, setProgress] = useState(0);
@@ -305,470 +185,56 @@ export default function SiswaPage() {
     }
   }, [isLoading]);
 
-  if (isLoading || progress < 100) return (
-    <div className="p-4 select-none flex flex-col gap-4 items-center justify-center min-h-[60vh]">
-      <RefreshCcw className="animate-spin mr-2 inline-block h-8 w-8 text-primary" />
-      <Label htmlFor="progress" className="text-2xl font-semibold">Memuat data tagihan ...</Label>
-      <div className="w-80 mt-2">
-        <Progress value={progress} className="w-full h-3" />
-        <p className="text-center text-sm text-muted-foreground mt-2">{Math.round(progress)}%</p>
-      </div>
-    </div>
-  );
+  if (isLoading || progress < 100) return <LoadingState progress={progress} />;
 
   return (
     <div className="space-y-6">
-      <div className="relative flex flex-cols-3 items-center gap-5 justify-center">
-        <div className="w-full">
-          <h2 className="gemini-page-title">Manajemen Siswa</h2>
-          <p className="text-muted-foreground">Kelola data siswa di sekolah.</p>
-        </div>
-        <div id="import-data-siswa">
-          <Button><Upload className="mr-2 h-4 w-4" />Import Data Siswa</Button>
-        </div>
-        <div id="download-data-siswa">
-          <Button><Download className="mr-2 h-4 w-4" />Download Data Siswa</Button>
-        </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={(open) => { setIsCreateDialogOpen(open); if (!open) resetForm(); }}>
-          <DialogTrigger asChild>
-            <Button><Plus className="mr-2 h-4 w-4" />Tambah Siswa</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md" aria-describedby="createStudentForm">
-            <DialogHeader>
-              <DialogTitle>Tambah Siswa Baru</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
-                Tambahkan data siswa baru ke sekolah.
-              </DialogDescription>
-            </DialogHeader>
-            <form id="createStudentForm" className="space-y-4" onSubmit={handleCreateSubmit}>
-              <div className="space-y-2">
-                <Label htmlFor="nis">NIS <span className="text-destructive">*</span></Label>
-                <Input
-                  id="nis"
-                  type="number"
-                  onWheel={(e) => e.currentTarget.blur()}
-                  pattern="[0-9]+"
-                  placeholder="Masukkan NIS"
-                  value={formData.nis}
-                  autoComplete="off"
-                  onChange={(e) => setFormData({ ...formData, nis: e.target.value })}
-                  required
-                  maxLength={50}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="nisn">NISN</Label>
-                <Input
-                  id="nisn"
-                  type="number"
-                  onWheel={(e) => e.currentTarget.blur()}
-                  pattern="[0-9]+"
-                  placeholder="Masukkan NISN"
-                  value={formData.nisn || ''}
-                  autoComplete="off"
-                  onChange={(e) => setFormData({ ...formData, nisn: e.target.value })}
-                  maxLength={50}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="name">Nama Lengkap <span className="text-destructive">*</span></Label>
-                <Input
-                  id="name"
-                  type="text"
-                  pattern="[a-zA-Z\s]+"
-                  placeholder="Masukkan Nama Lengkap"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  autoComplete="off"
-                  maxLength={255}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="gender">Jenis Kelamin <span className="text-destructive">*</span></Label>
-                  <Select
-                    required
-                    defaultValue=""
-                    value={formData.gender}
-                    onValueChange={(value: 'L' | 'P') => setFormData({ ...formData, gender: value })}
-                  >
-                    <SelectTrigger id="gender">
-                      <SelectValue aria-placeholder="Pilih Jenis Kelamin" placeholder="Pilih jenis kelamin" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="L">Laki-laki</SelectItem>
-                      <SelectItem value="P">Perempuan</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="birth_date">Tanggal Lahir</Label>
-                  <Input
-                    id="birth_date"
-                    placeholder="Pilih Tanggal Lahir"
-                    autoComplete="off"
-                    type="date"
-                    required
-                    value={formData.birth_date || ''}
-                    onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="status">Status <span className="text-destructive">*</span></Label>
-                <Select
-                  defaultValue="active"
-                  required
-                  value={formData.status}
-                  onValueChange={(value: 'active' | 'inactive' | 'graduated') => 
-                    setFormData({ ...formData, status: value })
-                  }
-                >
-                  <SelectTrigger id="status">
-                    <SelectValue aria-placeholder="Pilih Status" placeholder="Pilih status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Aktif</SelectItem>
-                    <SelectItem value="inactive">Nonaktif</SelectItem>
-                    <SelectItem value="graduated">Lulus</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={createStudent.isPending}
-              >
-                {createStudent.isPending ? (
-                  <>
-                    <RefreshCcw className="animate-spin mr-2 h-4 w-4" />
-                    <Save className="mr-2 h-4 w-4 animate-pulse" />
-                    Menyimpan...
-                  </>
-                ) : <><Save className="mr-2 h-4 w-4" />Simpan</>}
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+      <HeaderActions
+        isCreateDialogOpen={isCreateDialogOpen}
+        setIsCreateDialogOpen={setIsCreateDialogOpen}
+        formData={formData}
+        onFormChange={(data) => setFormData(data)}
+        onSubmit={handleCreateSubmit}
+        createStudentPending={createStudent.isPending}
+        resetForm={resetForm}
+      />
 
-        {/* Edit Dialog */}
-        <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) resetForm(); }}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Edit Siswa</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
-                Merubah data siswa
-              </DialogDescription>
-            </DialogHeader>
-            <form id="editStudentForm" className="space-y-4" onSubmit={handleEditSubmit}>
-              <div className="space-y-2">
-                <Label htmlFor="edit-nis">NIS <span className="text-destructive">*</span></Label>
-                <Input
-                  id="edit-nis"
-                  value={formData.nis}
-                  onChange={(e) => setFormData({ ...formData, nis: e.target.value })}
-                  required
-                  maxLength={50}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-nisn">NISN</Label>
-                <Input
-                  id="edit-nisn"
-                  value={formData.nisn || ''}
-                  onChange={(e) => setFormData({ ...formData, nisn: e.target.value })}
-                  maxLength={50}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-name">Nama Lengkap <span className="text-destructive">*</span></Label>
-                <Input
-                  id="edit-name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  maxLength={255}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-gender">Jenis Kelamin <span className="text-destructive">*</span></Label>
-                  <Select
-                    value={formData.gender}
-                    onValueChange={(value: 'L' | 'P') => setFormData({ ...formData, gender: value })}
-                  >
-                    <SelectTrigger id="edit-gender">
-                      <SelectValue placeholder="Pilih jenis kelamin" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="L">Laki-laki</SelectItem>
-                      <SelectItem value="P">Perempuan</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-birth_date">Tanggal Lahir</Label>
-                  <Input
-                    id="edit-birth_date"
-                    type="date"
-                    value={formData.birth_date || ''}
-                    onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-status">Status <span className="text-destructive">*</span></Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value: 'active' | 'inactive' | 'graduated') => 
-                    setFormData({ ...formData, status: value })
-                  }
-                >
-                  <SelectTrigger id="edit-status">
-                    <SelectValue aria-placeholder="Pilih Status" placeholder="Pilih status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Aktif</SelectItem>
-                    <SelectItem value="inactive">Nonaktif</SelectItem>
-                    <SelectItem value="graduated">Lulus</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={updateStudent.isPending}
-              >
-                {updateStudent.isPending ? (
-                  <>
-                    <RefreshCcw className="animate-spin mr-2 h-4 w-4" />
-                    Menyimpan...
-                  </>
-                ) : 'Perbarui'}
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+      <StudentFilterBar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        statusFilter={statusFilter}
+        onStatusChange={setStatusFilter}
+        genderFilter={genderFilter}
+        onGenderChange={setGenderFilter}
+        onResetFilters={resetFilters}
+      />
 
-        {/* Delete Dialog */}
-        <Dialog open={isDeleteDialogOpen} onOpenChange={(open) => { setIsDeleteDialogOpen(open); if (!open) resetForm(); }}>
-          <DialogContent className="max-w-sm">
-            <DialogHeader>
-              <DialogTitle>Hapus Siswa</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
-                Apakah Anda yakin ingin menghapus siswa <strong>{selectedStudent?.name}</strong>? Tindakan ini tidak dapat dibatalkan.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => { setIsDeleteDialogOpen(false); resetForm(); }}
-                  disabled={deleteStudent.isPending}
-                >
-                  Batal
-                </Button>
-                <Button
-                  id="deleteStudentButton"
-                  variant="destructive"
-                  className="flex-1"
-                  onClick={handleDeleteSubmit}
-                  disabled={deleteStudent.isPending}
-                >
-                  {deleteStudent.isPending ? (
-                    <>
-                      <RefreshCcw className="animate-spin mr-2 h-4 w-4" />
-                      Menghapus...
-                    </>
-                  ) : 'Hapus'}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+      <StudentTable
+        students={data?.data || []}
+        meta={data?.meta}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+        onEdit={openEditDialog}
+        onDelete={openDeleteDialog}
+      />
 
-      {/* Filter Bar */} 
-      {/* TODO : FILTER STATE  */}
-      <Card className="border-border">
-        <CardContent>
-          <div className="flex flex-wrap gap-4 items-end">
-            <div className="flex-1 min-w-50">
-              <Label htmlFor="search" className="mb-2 block">Cari Siswa</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="search"
-                  placeholder="Cari berdasarkan NIS, NISN, atau nama..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <div className="w-40">
-              <Label htmlFor="filter-status" className="mb-2 block">Status</Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger id="filter-status">
-                  <SelectValue placeholder="Semua Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua</SelectItem>
-                  <SelectItem value="active">Aktif</SelectItem>
-                  <SelectItem value="inactive">Nonaktif</SelectItem>
-                  <SelectItem value="graduated">Lulus</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-40">
-              <Label htmlFor="filter-gender" className="mb-2 block">Jenis Kelamin</Label>
-              <Select value={genderFilter} onValueChange={setGenderFilter}>
-                <SelectTrigger id="filter-gender">
-                  <SelectValue placeholder="Semua" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua</SelectItem>
-                  <SelectItem value="L">Laki-laki</SelectItem>
-                  <SelectItem value="P">Perempuan</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button variant="outline" onClick={resetFilters}>
-              Reset Filter
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <EditStudentDialog
+        isOpen={isEditDialogOpen}
+        onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) resetForm(); }}
+        formData={formData as UpdateStudentInput}
+        onFormChange={(data) => setFormData(data as CreateStudentInput)}
+        onSubmit={handleEditSubmit}
+        isPending={updateStudent.isPending}
+      />
 
-      <Card className="border-border">
-        <CardHeader>
-          <CardTitle className="text-base font-bold">Daftar Siswa</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="text-sm">
-                <TableHead>No.</TableHead>
-                <TableHead>NIS</TableHead>
-                <TableHead>NISN</TableHead>
-                <TableHead>Nama</TableHead>
-                <TableHead>JK</TableHead>
-                <TableHead>Tanggal Lahir</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Orang Tua/Wali</TableHead>
-                <TableHead>Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data?.data?.map((student, index) => (
-                <StudentRow 
-                  key={student.id}
-                  student={student}
-                  index={index}
-                  currentPage={currentPage}
-                  perPage={10}
-                  onEdit={openEditDialog}
-                  onDelete={openDeleteDialog}
-                  getGenderLabel={getGenderLabel}
-                  getStatusBadge={getStatusBadge}
-                />
-              ))}
-              
-              {(!data?.data || data.data.length === 0) && (
-                <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                    Belum ada data siswa
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          
-          {/* Pagination */}
-          {data?.meta && (
-            <div className="flex flex-col sm:flex-row items-center justify-self-auto mt-4 pt-4 border-t gap-4">
-              <div className="text-xs text-muted-foreground">
-                Halaman {data.meta.current_page} dari {data.meta.last_page} • Total: {data.meta.total} Siswa
-              </div>
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (data.meta.current_page > 1) {
-                          handlePageChange(data.meta.current_page - 1);
-                        }
-                      }}
-                      className={data.meta.current_page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      text="Sebelumnya"
-                    />
-                  </PaginationItem>
-                  {Array.from({ length: data.meta.last_page }, (_, i) => i + 1)
-                    .filter((page) => {
-                      // Show first page, last page, current page, and pages around current page
-                      if (page === 1 || page === data.meta.last_page) return true;
-                      if (page >= data.meta.current_page - 1 && page <= data.meta.current_page + 1) return true;
-                      return false;
-                    })
-                    .map((page, index, array) => {
-                      // Add ellipsis if there's a gap between pages
-                      if (index > 0 && page - array[index - 1] > 1) {
-                        return (
-                          <React.Fragment key={`ellipsis-${page}`}>
-                            <PaginationItem>
-                              <PaginationEllipsis />
-                            </PaginationItem>
-                            <PaginationItem>
-                              <PaginationLink
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handlePageChange(page);
-                                }}
-                                isActive={page === data.meta.current_page}
-                                className="cursor-pointer"
-                              >
-                                {page}
-                              </PaginationLink>
-                            </PaginationItem>
-                          </React.Fragment>
-                        );
-                      }
-                      return (
-                        <PaginationItem key={page}>
-                          <PaginationLink
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handlePageChange(page);
-                            }}
-                            isActive={page === data.meta.current_page}
-                            className="cursor-pointer"
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    })}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (data.meta.current_page < data.meta.last_page) {
-                          handlePageChange(data.meta.current_page + 1);
-                        }
-                      }}
-                      className={data.meta.current_page === data.meta.last_page ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      text="Berikutnya"
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <DeleteStudentDialog
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={(open) => { setIsDeleteDialogOpen(open); if (!open) resetForm(); }}
+        selectedStudent={selectedStudent}
+        onConfirm={handleDeleteSubmit}
+        isPending={deleteStudent.isPending}
+        onCancel={() => { setIsDeleteDialogOpen(false); resetForm(); }}
+      />
     </div>
   );
 }

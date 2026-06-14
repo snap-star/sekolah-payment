@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { StudentGuardian, CreateStudentGuardianInput, UpdateStudentGuardianInput } from "@/types/server/api";
 import { useDeleteStudentGuardian, useUpdateStudentGuardian, useCreateStudentGuardian, useParents, useStudents } from "@/hooks/useApi";
-
 import { toast } from 'sonner';
 
+// Custom hook that contains all the OrangTua page logic - properly uses React hooks inside a function
+export function useOrangTuaPage() {
   const queryClient = useQueryClient();
+  
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   
@@ -43,15 +45,11 @@ import { toast } from 'sonner';
   });
   
   // Fetch all guardians/parents using the new useParents hook
-  const { data: guardiansData } = useParents({
+  const { data: guardiansData, isLoading: guardiansLoading } = useParents({
     page: currentPage,
     perPage: 10,
   });
   const apiGuardians = guardiansData?.data || [];
-  
-  // Use the guardians directly from the API response
-  const localGuardians = apiGuardians;
-  const [guardiansLoading] = useState(false);
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -91,7 +89,8 @@ import { toast } from 'sonner';
     setSearchQuery('');
     setCurrentPage(1);
   };
-// dialog
+
+  // dialog handlers
   const openEditDialog = (guardian: StudentGuardian) => {
     setSelectedGuardian(guardian);
     setFormData({
@@ -110,124 +109,126 @@ import { toast } from 'sonner';
     setSelectedGuardian(guardian);
     setIsDeleteDialogOpen(true);
   };
-// Create mutation - Updated to use new simplified hook signature
-  // Implements POST /api/student-guardians from documentation
+
+  // Create mutation
   const createGuardian = useCreateStudentGuardian({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parents'] });
       setIsCreateDialogOpen(false);
       resetForm();
       toast.success('Wali/orang tua berhasil ditambahkan');
-      // No need for window.location.reload() - React Query handles cache invalidation
     },
     onError: (error) => {
       toast.error(error.message || 'Gagal menambahkan wali/orang tua');
     },
   });
-// Update mutation - Updated to use new simplified hook signature
-  // Implements PUT /api/student-guardians/{id} from documentation
+
+  // Update mutation
   const updateGuardian = useUpdateStudentGuardian({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parents'] });
       setIsEditDialogOpen(false);
       resetForm();
       toast.success('Wali/orang tua berhasil diperbarui');
-      // No need for window.location.reload() - React Query handles cache invalidation
     },
     onError: (error) => {
       toast.error(error.message || 'Gagal memperbarui wali/orang tua');
     },
   });
-// Delete mutation - Updated to use new simplified hook signature
-  // Implements DELETE /api/student-guardians/{id} from documentation
+
+  // Delete mutation
   const deleteGuardian = useDeleteStudentGuardian({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parents'] });
       setIsDeleteDialogOpen(false);
       resetForm();
       toast.success('Wali/orang tua berhasil dihapus');
-      // No need for window.location.reload() - React Query handles cache invalidation
     },
     onError: (error) => {
       toast.error(error.message || 'Gagal menghapus wali/orang tua');
     },
   });
-// submit form
-  const handleCreateSubmit = (e: React.SubmitEvent) => {
+
+  // submit form handlers
+  const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.student_id > 0 && formData.student_name) {
-      // Directly pass formData to mutation - simplified API matches documentation
+    if (formData.student_id > 0) {
       createGuardian.mutate(formData);
     } else {
       toast.error('Pilih siswa terlebih dahulu');
     }
   };
-// submit edit form
-  const handleEditSubmit = (e: React.SubmitEvent) => {
+
+  const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedGuardian) {
-      // Pass only id and data - simplified API matches documentation
       updateGuardian.mutate({
         id: selectedGuardian.id,
         data: formData as UpdateStudentGuardianInput,
       });
     }
   };
-// submit delete form
- const handleDeleteSubmit = () => {
+
+  const handleDeleteSubmit = () => {
     if (selectedGuardian) {
-      // Pass only guardianId - simplified API matches documentation
       deleteGuardian.mutate(selectedGuardian.id);
     }
     setIsDeleteDialogOpen(false);
     setSelectedGuardian(null);
   };
 
-// Filter and paginate guardians
-  const filteredGuardians = localGuardians.filter(guardian => {
+  // Filter and paginate guardians
+  const filteredGuardians = apiGuardians.filter(guardian => {
     return guardian.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
            (guardian.phone && guardian.phone.includes(debouncedSearch)) ||
            (guardian.student?.name && guardian.student.name.toLowerCase().includes(debouncedSearch.toLowerCase()));
   });
 
   const perPage = 10;
-  const totalPages = Math.ceil(filteredGuardians.length / perPage);
+  const totalPages = Math.ceil((guardiansData?.meta?.total || filteredGuardians.length) / perPage);
   const paginatedGuardians = filteredGuardians.slice(
     (currentPage - 1) * perPage, 
     currentPage * perPage
   );
 
-export { 
-    createGuardian,
-    updateGuardian,
-    deleteGuardian,
+  return {
+    // States
+    currentPage,
+    searchQuery,
+    setSearchQuery,
+    studentSearchQuery,
+    setStudentSearchQuery,
+    formData,
+    setFormData,
+    isCreateDialogOpen,
+    setIsCreateDialogOpen,
+    isEditDialogOpen,
+    setIsEditDialogOpen,
+    isDeleteDialogOpen,
+    setIsDeleteDialogOpen,
+    selectedGuardian,
+    guardiansLoading,
+    
+    // Computed values
+    filteredStudents,
+    filteredGuardians,
+    paginatedGuardians,
+    totalPages,
+    perPage,
+    
+    // Handlers
+    resetForm,
+    resetFilters,
+    handlePageChange,
+    openEditDialog,
+    openDeleteDialog,
     handleCreateSubmit,
     handleEditSubmit,
     handleDeleteSubmit,
-    openDeleteDialog,
-    openEditDialog,
-    resetFilters,
-    handlePageChange,
-    localGuardians,
-    guardiansLoading,
-    isCreateDialogOpen,
-    isEditDialogOpen,
-    isDeleteDialogOpen,
-    setIsDeleteDialogOpen,
-    filteredStudents,
-    debouncedSearch,
-    totalPages,
-    perPage,
-    currentPage,
-    paginatedGuardians,
-    resetForm,
-    formData,
-    setFormData,
-    setIsCreateDialogOpen,
-    setStudentSearchQuery,
-    filteredGuardians,
-    setIsEditDialogOpen,
-    searchQuery,
-    setSearchQuery,
-    selectedGuardian,
-};
+    
+    // Mutations
+    createGuardian,
+    updateGuardian,
+    deleteGuardian,
+  };
+}
