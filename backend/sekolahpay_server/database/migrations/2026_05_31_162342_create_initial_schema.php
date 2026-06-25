@@ -23,7 +23,7 @@ return new class extends Migration
 
             $table->string('password');
 
-            $table->string('role');
+            $table->string('role')->default('user');
 
             // FK ditambahkan nanti setelah semua tabel dibuat
             $table->unsignedBigInteger('student_id')->nullable();

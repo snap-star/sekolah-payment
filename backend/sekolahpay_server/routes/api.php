@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\PaymentMethodController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\PaymentController;
 
+// register resource
+Route::post('/register', [AuthController::class, 'register']);
 
 // auth resource
 Route::prefix('auth')->group(function () {
